@@ -1,4 +1,6 @@
 import React from 'react';
+import heroBg from '../assets/hero-bg.png';
+import productPlaceholder from '../assets/product-placeholder.png';
 
 const ContactUs = () => {
     return (
@@ -7,7 +9,7 @@ const ContactUs = () => {
             <div className="absolute inset-0 z-0">
                 <div
                     className="h-full w-full bg-cover bg-center"
-                    style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBy3u9Q3Sxjn-RrYnaHN8oC-Xnj3tbUnVX3y0mUu_1xQ16scfVm9WiN9g__T9A85ltiBSgzqNk_cplW6wM_Ip3Hf16hbCUq9io-ttZdLxkJ5p9X07PgMfCrji-WGB89pwauBMbQEnHmvcvE6yILN9Ae1MYczFBOKLqQ0ire3wDpib_T63pZmmggMmDtu1tNs7Z8M3TMMpUNosGMAB_yUt9RN-rzqBuMZKAoPHMbhrAq_a5yLawHUKRqoKqDMOGNaFnLLPpsyjMvqCwL')" }}
+                    style={{ backgroundImage: `url(${heroBg})` }}
                 ></div>
                 <div className="absolute inset-0 bg-black/30"></div>
             </div>
@@ -69,7 +71,7 @@ const ContactUs = () => {
                             <div className="relative min-h-[300px] md:min-h-full">
                                 <div
                                     className="absolute inset-0 bg-cover bg-center"
-                                    style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDAiVBmg56gE8Y1aY-aj5Bng_oCQxDBrZ9Jz2IkJpE03w0ghCCyWzfjZ0uVeQv3cNcifUp7qPlhEISbW4SBMvfrPkKChvJNljnsEayL98q8NAWyARGEHY85I9EX-aLc-zY2kI0CLVC6ydSJBR7HnPBuGX7bn4-2IJMS2NC9LX99FMeOSJwYcjqUk1KnYwZvEUdg_GjwtRvAwYkxZ7hxUPWEQWnHPQJDagr8r6bpL1NBL59h3Ij9y-mMGvydP8fxm4IHCb2BNdm8KgKt')" }}
+                                    style={{ backgroundImage: `url(${productPlaceholder})` }}
                                 ></div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent md:bg-gradient-to-r md:from-black/60 md:via-black/20 md:to-transparent"></div>
                                 <div className="relative flex flex-col justify-end h-full p-8 text-white">
