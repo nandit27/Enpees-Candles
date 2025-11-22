@@ -1,4 +1,5 @@
 import React from 'react';
+import Navbar from '../components/Navbar';
 import heroBg from '../assets/hero-bg.png';
 import productPlaceholder from '../assets/product-placeholder.png';
 
@@ -15,6 +16,7 @@ const ContactUs = () => {
             </div>
 
             <div className="relative z-10 flex h-full grow flex-col">
+                <Navbar />
                 {/* Main Content */}
                 <main className="flex flex-1 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
                     {/* Central Glassmorphic Card */}

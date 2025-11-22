@@ -1,26 +1,127 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 const Shop = () => {
     const navigate = useNavigate();
 
+    // Pagination and Sorting State
+    const [currentPage, setCurrentPage] = useState(1);
+    const [sortBy, setSortBy] = useState('default'); // 'default', 'price-low', 'price-high'
+    const [selectedCollection, setSelectedCollection] = useState('All');
+    const itemsPerPage = 12;
+
     const products = [
-        { title: "Amber & Sandalwood", price: "$34.00", collection: "Signature Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB9DOqsOwA9gIJTx_qrNMBEjjWtz1f1lI9fpEKSTfnIwj3E0j2DdQNNN9SA63vFymqxdgbkTlpseamxH0i3V8yVrDvkqsEEUgHNrAb26HVMzLJdMjlqHoy59btSpyIbRQQBzMPQDtp7GEaa_qhibQjRTtpCLZrwUnL476BJGwLUGjNQt0n-sOqozyl0AkuffAG5IEkt-hfQym67-AjJXGrNE7ryp79nJ6HLHWGOZYwCcni6ZXE3EPEyQlrKzrM7eHQGCtITg1l2S472" },
-        { title: "Vanilla Bean & Birch", price: "$34.00", collection: "Signature Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBFYapgXDD5eR9VAivxe_Q2uOxGc7gQC5Rw-g9k_IWdJQyQ-eieYk732-56s21ARzVc2z4pXFctjLSqj8073yQPn8kMJ4VDWcFhMvIuTJaz7Nc3hocTvS-O-6Dlw3WTI0rdO7wqMPwgGwsFZlGgziAIF5nsplhJhpqHhiGHwiV_iCmYPtxm_UTpexkKgjTTZ0rzf8aOuoS-wQItvrnnSHvVh9iHvTS5ffmKPdv3pet_rk3Whkk4-DNsafdFel2_fwjeBgKMu37d5oBo" },
-        { title: "Spiced Pumpkin Chai", price: "$36.00", collection: "Seasonal Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDwKnh3WgMi8OkhyLiQfD6RUTgTwXeEaWohCCp72xKV8QsjPyStiu0pFbJkHU_oOg7qxaZrOy71BoDNqdaiTafaHYdi7ajPhCW3TgxM-BcFMNW8je_yeD7scL0ehAnxlQZ7H3At5mUVV1VxXs4kPVcREMK20PU9BwfDFGJjRFsbEdMmdgScSZsc4gtNaEy9ZuUkiJFt2RjBLUlCLaxKHaJvjGcu-wqgIctJLkm7E3o8enEGAip9MqM3i7gx2xrFRzRO39m50RUC3bND" },
-        { title: "Ocean Rose & Driftwood", price: "$34.00", collection: "Coastal Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB3dXOC1lllDpuXRhDxTUmv6oCEdgSFeE4m8XAc5KtWJ3HbQtsnkGii_gjR-vC9NKUgRRNzO9j3RUaEMBy82hmwXUCWJQ6CYhTFMoQ5OmV87oYidTPzbBs3gb_OF4g-b6ngk_tVqQrY0sXL39o0L0Em0N1ky6mnrmgMSIuYEkZoblSXgDQJhnm6lXOR72yEqxByiWTjVwR0Z3CsS9MmONFlRDWNY9OmIxl9apeYycl48jJQ4EBQ2hV7rzAHv9vLsAZozXx8feB3EkhI" },
-        { title: "Midnight Jasmine", price: "$34.00", collection: "Floral Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBLMMcgydKi7GgPJekmoc2pUC_ArH-7Xtlm1JAH0TBRwcnaYQ-mcnlGb4qAdDdndwT_akgh7gNudsx2iNGHt_IO98P9sOUyqfebV1j7BI_tDWrLAf2_syXGqdRV8exvpZBGyOmtAVIennxXo2tC-m1r-x7AGl-hWBnhSUxCd03MwXfEGl0TEABUqPrd6DLK230pEsZLPvCivIbLg87Q3M-BxWu7jkESfm39141NbSnPKCc61mgGCGbIstHm4Vj5H_Gt0MAqtmj6LOTe" },
-        { title: "Smoked Cedar & Leather", price: "$38.00", collection: "Signature Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBNfjqDQ-RtGubckkxwWILCUfypJy1PY1ejF1HEUjtD0nHW6k9QdpLQtSs28jpSawye1vCnaWikwVkMjwQ-zDFGOH0oVRySsbrOj8ZkwW5Tqf2vnj4GK738872lQbfaqvOK7tABZwP_3fz49qgmwVl7P7uS2B9L31d4mhJJ_lxrdf8Jp8mzz5G0A7Soh5K81tpP1qc1JUbWtqdqgMboFpWE8RHBFgzgO2CFoPyssNhMOY1DtzpZoVQe74nyqHsuL8QXv--GDUY2NgHy" },
-        { title: "Eucalyptus & Lavender", price: "$32.00", collection: "Aromatherapy Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAxdp3XGnxCZ7kiVDzpGa6Q-UjXdHu-3jRI-M2voHbDipb2zTXbGkLfU8_v22JS3JoCUb66DlyK_vWSJG3iV2Y2yCEQVTmV9lwzVQXTL7TJHgLCIElDIfyMlSKcN8gPQLU_LflcTlwm4HnneDJFNVFKza9JMCil7WZDRJoSj83jMGBIN25fhG3S1wrUuCP_zyMD3XLmG1Gyc4sgmT1Xf2CxD2Ircbv5ekgrtLL_WqxFzhOfc6E3s-Z8uTh2laYn4264todRXaD0RyGN" },
-        { title: "Cozy Cashmere & Fig", price: "$38.00", collection: "Luxe Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA5euO8p2vbdXSll6zNG7sSyQ-50AMIN_B4Jx8pp6I2aJ9BMo1wVY-yozTGyljAd6Ch2O-LCZKXnXEh9yjRyZmDyHWrYoQ6SjgBRXqQ3aRHlvFx6NUKBMI2CTQUHD9bClO1TiMxbErIAzWLZ6Cjp4IE_7u6nVGxeRhIvpOWBXs3y8wTiheTzB2PRs4r3BnUxrADSVv4q5LJcuDYNgeG2N6wWdyi-f8ZCE0FtkA-plG4_OAQDYBY5F7DgLQsQp5bZXdPF-803_HSXP2R" },
-        { title: "Cinnamon & Apple Crisp", price: "$36.00", collection: "Seasonal Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBGQvPVI_Ey9akCGkO4xqLZK-4qxiB3YCNrs6LrQC1TMhLaFBxpnbr_Kn-LlKBrAfj0TtHr_Zps-lkq0kecfElfkjf-KPKxYt0yxLE3dwvRMY5pJnbElCiavd1prLNt-H_n_Y2mV5-wszDAtpB_WfxTfP2iQIKlsZAGsRVnuIX1N7NaKx1kN97qoRpJfw_GxfvK_ungqEgCsvyU4Sg4aXu0d08aGlhyTjT7llzo1Lx6gBMBbVw0uUwHCOIevl6PGr4DJXhTHOXRe1T7" },
-        { title: "Bergamot & Grapefruit", price: "$32.00", collection: "Citrus Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBNvQt32tNMGu3XKCMzLfophNwevRYZcHGkdeGfgl5WA6RjRPagkM94y1tZk4qeahQy2FjhKlGfyM8efKzMWDN1fZ-8EdQfRYXm5ofYQX6MMDlwBkJ71Deb1mHL1Fqnnd4FjKgD37Vh0sG2Jvr6jSM3sKtnmw8TZcdZpnQcLchrF9inb4UV3M9PUQUwuuY2V3-UZrmyBq9OLaEsmCc1quD9AFvCNUYp4Kud21R3OA4hjtn6LksUYRkUIq5EBkKJQdPD0isAZuFQkUff" },
-        { title: "Winter Forest Pine", price: "$38.00", collection: "Holiday Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBQYD-jiFukuujWCAj9M2dtSxmp0pXq5am85xldwa_lUIjIryvs9K74XU6ydB2-y_rz4jdmeOwKflOywofzW_mQ43EewA8ZGRBnv6fmBh7Cr6NoaeqTkpPgV9JbwrAdVX0leWEQX6otcB6xji1byzDZ7zfww3q2AhbDvRjXI0zARM9E45pR1OpwvLkyTgn9Z2Wqi84DRkx8gkamw3D1JBUY8fCsGedM4uE4IDY-O7BSq1mpCpQ46bmekRx72gAhdWHMCFisjQRWCCZS" },
-        { title: "Linen & Cotton Blossom", price: "$34.00", collection: "Fresh Collection", image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAyKp5LtR3I5KASA9cMLtg9cczaZJm-61XqKQh0ZJjgFu82-Gf32FObBqYpkfYRQWl2zNiq433Vvj_JxpVQrnQgAkA_0Xdysdg8o-kHewg5Pz0yVAHD4khW_3IuueHPwFYsYNujH_PTv37dIap0EjHFhtxgbzpq50niq_drEyMk-aIng2J1fNAFHZRWgjooaghSxQGeq3lWw3_sMo7YvmQhnvsmL9FfO5pZRBdxlkxw9TS_oZd2R8uR1rXl7QLR-Bex_Z7sGS7vhjDe" }
+        { title: "4 Layer Bubble Pyramid Candle", price: "₹60", collection: "Decorative Collection", image: "/src/assets/4_Layer_Bubble_Pyramid_Candle__60.webp", description: "A stunning 4-layer bubble pyramid candle perfect for special occasions" },
+        { title: "Balloon Candle", price: "₹150", collection: "Party Collection", image: "/src/assets/Balloon_Candle__150.webp", description: "Fun balloon-shaped candle that adds a festive touch to any celebration" },
+        { title: "Cactus Candle", price: "₹90", collection: "Botanical Collection", image: "/src/assets/Cactus_Candle__90.webp", description: "Adorable cactus-shaped candle for plant lovers" },
+        { title: "Candle Light Bouquet Candle", price: "₹199", collection: "Premium Collection", image: "/src/assets/Candle_Light_Bouquet_Candle__199.webp", description: "Elegant bouquet candle that creates a romantic ambiance" },
+        { title: "Chai Biscuit Glass Candle", price: "₹90", collection: "Gourmet Collection", image: "/src/assets/Chai_Biscuit_Glass_Candle___90.webp", description: "Delightful chai biscuit scented candle in a glass jar" },
+        { title: "Christmas Bell Candle", price: "₹150", collection: "Holiday Collection", image: "/src/assets/Christmas_Bell_Candle __150.webp", description: "Festive bell-shaped candle perfect for Christmas celebrations" },
+        { title: "Christmas Bomb", price: "₹499", collection: "Holiday Collection", image: "/src/assets/Christmas_Bomb___499.webp", description: "Premium Christmas-themed decorative candle set" },
+        { title: "Christmas Bubble Tree Candle", price: "₹150", collection: "Holiday Collection", image: "/src/assets/Christmas_Bubble_Tree_Candle__150.webp", description: "Charming bubble tree candle for the holiday season" },
+        { title: "Cute Snowman Candle", price: "₹120", collection: "Winter Collection", image: "/src/assets/Cute_Snowman_Candle__120 .webp", description: "Adorable snowman candle that brings winter magic indoors" },
+        { title: "Diya Scented Candle", price: "₹15", collection: "Festival Collection", image: "/src/assets/Diya_Scented_Candle__15.webp", description: "Traditional diya-shaped scented candle for festivals" },
+        { title: "Festival Diya Scented", price: "₹20", collection: "Festival Collection", image: "/src/assets/Festival_Diya_Scented__20.webp", description: "Beautifully crafted festival diya with delightful scents" },
+        { title: "Festival Rhombus Candle", price: "₹60", collection: "Festival Collection", image: "/src/assets/Festival_Rhombus_Candle__60.webp", description: "Unique rhombus-shaped candle for festive occasions" },
+        { title: "Flower Glass Jar Candle", price: "₹199", collection: "Premium Collection", image: "/src/assets/Flower_Glass_Jar_Candle__199.webp", description: "Elegant flower-decorated glass jar candle" },
+        { title: "Flower Heart Bouquet Candle", price: "₹199", collection: "Romance Collection", image: "/src/assets/Flower_Heart_Bouquet_Candle__199.webp", description: "Romantic heart-shaped bouquet candle perfect for gifting" },
+        { title: "Flowers", price: "₹20", collection: "Floral Collection", image: "/src/assets/Flowers__20.webp", description: "Simple yet beautiful flower-shaped candles" },
+        { title: "Hand Holding Heart Candle", price: "₹150", collection: "Romance Collection", image: "/src/assets/Hand_Holding_Heart_Candle___150.webp", description: "Touching hand holding heart design for special moments" },
+        { title: "Heart Mini Teddy Candle", price: "₹50", collection: "Cute Collection", image: "/src/assets/Heart_Mini_Teddy_Candle__50.webp", description: "Sweet mini teddy with heart candle" },
+        { title: "Honey Teddy Scented Candle", price: "₹50", collection: "Cute Collection", image: "/src/assets/Honey_Teddy_Scented_Candle___50.webp", description: "Honey-scented teddy bear candle" },
+        { title: "Lotus Candle", price: "₹99", collection: "Spiritual Collection", image: "/src/assets/Lotus_Candle __99.webp", description: "Serene lotus-shaped candle for meditation and relaxation" },
+        { title: "Love Rose Heart Candle", price: "₹90", collection: "Romance Collection", image: "/src/assets/Love_Rose_Heart_Candle __90.webp", description: "Beautiful rose heart candle expressing love" },
+        { title: "Luxury Mini Bouquet Candle", price: "₹150", collection: "Premium Collection", image: "/src/assets/Luxury_Mini_Bouquet_Candle__150 .webp", description: "Luxurious mini bouquet candle for elegant settings" },
+        { title: "Mini Cake Candle", price: "₹60", collection: "Celebration Collection", image: "/src/assets/Mini_Cake_Candle___60.webp", description: "Delightful mini cake-shaped candle for celebrations" },
+        { title: "Mini Glass Jar Candle", price: "₹80", collection: "Classic Collection", image: "/src/assets/Mini_Glass_Jar_Candle__80.webp", description: "Compact glass jar candle perfect for small spaces" },
+        { title: "Mini Rose Flower Glass Jar Candle", price: "₹250", collection: "Premium Collection", image: "/src/assets/Mini_Rose_Flower_Glass_Jar_Candle__250.webp", description: "Premium rose flower glass jar candle" },
+        { title: "Rabbit Candle", price: "₹50", collection: "Cute Collection", image: "/src/assets/Rabbit_Candle __50.webp", description: "Adorable rabbit-shaped candle" },
+        { title: "Rose Flower Basket Candle", price: "₹249", collection: "Premium Collection", image: "/src/assets/Rose_Flower_Basket_Candle___249.webp", description: "Exquisite rose flower basket candle arrangement" },
+        { title: "Snowman Candle", price: "₹199", collection: "Winter Collection", image: "/src/assets/Snowman_Candle ___199.webp", description: "Large decorative snowman candle for winter decor" },
+        { title: "Snowman Holding Tree Candle", price: "₹70", collection: "Winter Collection", image: "/src/assets/Snowman_Holing_Tree _Candle__70.webp", description: "Charming snowman holding a Christmas tree candle" },
+        { title: "Teddy Cup Cake Candle", price: "₹99", collection: "Cute Collection", image: "/src/assets/Teddy_Cup_Cake_Candle__99.webp", description: "Sweet teddy bear cupcake candle" },
+        { title: "Teddy Glass Jar Candle", price: "₹199", collection: "Premium Collection", image: "/src/assets/Teddy_Glass_Jar_Candle__199.webp", description: "Premium teddy bear themed glass jar candle" },
+        { title: "Teddy Heart Candle", price: "₹60", collection: "Cute Collection", image: "/src/assets/Teddy_Heart_Candle__60.webp", description: "Teddy bear with heart candle perfect for gifting" },
+        { title: "Tulip Flower Candle", price: "₹120", collection: "Floral Collection", image: "/src/assets/Tulip_Flower_Candle__120.webp", description: "Elegant tulip flower candle" },
+        { title: "Vanilla Bliss Glass Jar Candle", price: "₹249", collection: "Premium Collection", image: "/src/assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp", description: "Luxurious vanilla-scented glass jar candle" }
     ];
 
+    const [searchParams] = useSearchParams();
+    const searchQuery = searchParams.get('search') || '';
+
+    // Define broad collection groups
+    const collectionGroups = {
+        'Premium': ['Premium Collection', 'Gourmet Collection', 'Classic Collection'],
+        'Seasonal': ['Holiday Collection', 'Winter Collection', 'Festival Collection'],
+        'Decorative': ['Decorative Collection', 'Party Collection', 'Botanical Collection', 'Romance Collection', 'Floral Collection', 'Cute Collection', 'Spiritual Collection', 'Celebration Collection']
+    };
+
+    const collections = ['All', 'Premium', 'Seasonal', 'Decorative'];
+
+    // Filter and Sort Products
+    const filteredAndSortedProducts = useMemo(() => {
+        let filtered = products;
+
+        // Filter by Collection Group
+        if (selectedCollection !== 'All') {
+            const allowedCollections = collectionGroups[selectedCollection] || [];
+            filtered = filtered.filter(p => allowedCollections.includes(p.collection));
+        }
+
+        // Filter by Search
+        if (searchQuery) {
+            const lowerQuery = searchQuery.toLowerCase();
+            filtered = filtered.filter(p =>
+                p.title.toLowerCase().includes(lowerQuery) ||
+                p.description.toLowerCase().includes(lowerQuery)
+            );
+        }
+
+        // Sort products
+        if (sortBy === 'price-low') {
+            filtered = [...filtered].sort((a, b) => {
+                const priceA = parseInt(a.price.replace('₹', ''));
+                const priceB = parseInt(b.price.replace('₹', ''));
+                return priceA - priceB;
+            });
+        } else if (sortBy === 'price-high') {
+            filtered = [...filtered].sort((a, b) => {
+                const priceA = parseInt(a.price.replace('₹', ''));
+                const priceB = parseInt(b.price.replace('₹', ''));
+                return priceB - priceA;
+            });
+        }
+
+        return filtered;
+    }, [selectedCollection, sortBy, searchQuery]);
+
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentProducts = filteredAndSortedProducts.slice(startIndex, endIndex);
+
+    // Handlers
     const handleProductClick = (product) => {
         navigate('/product', { state: { product } });
+    };
+
+    const handlePageChange = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    const handleCollectionChange = (collection) => {
+        setSelectedCollection(collection);
+        setCurrentPage(1); // Reset to first page
+    };
+
+    const handleSortChange = (sort) => {
+        setSortBy(sort);
+        setCurrentPage(1); // Reset to first page
     };
 
     return (
@@ -37,34 +138,7 @@ const Shop = () => {
 
             <div className="relative z-10 flex h-full grow flex-col">
                 {/* Header */}
-                <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-white/10 px-4 sm:px-10 md:px-20 lg:px-40 py-4">
-                    <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-4 text-white">
-                            <div className="size-6 text-[#FFF7ED]">
-                                <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>local_fire_department</span>
-                            </div>
-                            <h1 className="text-[#FFF7ED] text-xl font-['Italiana',_serif] tracking-wider">Enpees Candles</h1>
-                        </div>
-                        <nav className="hidden md:flex items-center gap-9">
-                            <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/">Home</Link>
-                            <Link className="text-white text-sm font-bold leading-normal" to="/shop">Shop All</Link>
-                            <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="#">Collections</Link>
-                            <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="#">About Us</Link>
-                            <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/contact">Contact</Link>
-                        </nav>
-                    </div>
-                    <div className="flex flex-1 justify-end items-center gap-4">
-                        <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
-                            <span className="material-symbols-outlined">search</span>
-                        </button>
-                        <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
-                            <span className="material-symbols-outlined">favorite</span>
-                        </button>
-                        <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
-                            <span className="material-symbols-outlined">shopping_bag</span>
-                        </button>
-                    </div>
-                </header>
+                <Navbar />
 
                 {/* Main Content */}
                 <main className="flex flex-1 justify-center px-4 sm:px-10 md:px-20 lg:px-40 py-10">
@@ -76,18 +150,65 @@ const Shop = () => {
                             </div>
                         </div>
 
-                        {/* Filters */}
-                        <div className="flex gap-3 p-4 flex-wrap">
-                            <button className="bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED] backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300">All</button>
-                            <button className="bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-[#EAD2C0] text-sm font-medium leading-normal transition-colors duration-300">Scent Profile</button>
-                            <button className="bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-[#EAD2C0] text-sm font-medium leading-normal transition-colors duration-300">Collection</button>
-                            <button className="bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-[#EAD2C0] text-sm font-medium leading-normal transition-colors duration-300">Size</button>
-                            <button className="bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-[#EAD2C0] text-sm font-medium leading-normal transition-colors duration-300">Limited Edition</button>
+                        {/* Filters and Sorting */}
+                        <div className="flex gap-3 p-4 flex-wrap items-center">
+                            <div className="flex gap-2 flex-wrap">
+                                <span className="text-[#EAD2C0] text-sm font-medium px-2 flex items-center">Collections:</span>
+                                {collections.map((collection) => (
+                                    <button
+                                        key={collection}
+                                        onClick={() => handleCollectionChange(collection)}
+                                        className={`${selectedCollection === collection
+                                            ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
+                                            : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
+                                            } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
+                                    >
+                                        {collection}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="flex gap-2 ml-auto">
+                                <span className="text-[#EAD2C0] text-sm font-medium px-2 flex items-center">Sort:</span>
+                                <button
+                                    onClick={() => handleSortChange('default')}
+                                    className={`${sortBy === 'default'
+                                        ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
+                                        : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
+                                        } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
+                                >
+                                    Default
+                                </button>
+                                <button
+                                    onClick={() => handleSortChange('price-low')}
+                                    className={`${sortBy === 'price-low'
+                                        ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
+                                        : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
+                                        } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
+                                >
+                                    Price: Low to High
+                                </button>
+                                <button
+                                    onClick={() => handleSortChange('price-high')}
+                                    className={`${sortBy === 'price-high'
+                                        ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
+                                        : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
+                                        } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
+                                >
+                                    Price: High to Low
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Product Count */}
+                        <div className="px-4 py-2">
+                            <p className="text-[#EAD2C0] text-sm">
+                                Showing {startIndex + 1}-{Math.min(endIndex, filteredAndSortedProducts.length)} of {filteredAndSortedProducts.length} products
+                            </p>
                         </div>
 
                         {/* Product Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 p-4">
-                            {products.map((product, index) => (
+                            {currentProducts.map((product, index) => (
                                 <div
                                     key={index}
                                     onClick={() => handleProductClick(product)}
@@ -113,19 +234,67 @@ const Shop = () => {
                         </div>
 
                         {/* Pagination */}
-                        <div className="flex items-center justify-center p-4 mt-8">
-                            <a className="flex size-10 items-center justify-center text-[#EAD2C0] hover:text-white transition-colors" href="#">
-                                <span className="material-symbols-outlined">chevron_left</span>
-                            </a>
-                            <a className="text-sm font-bold leading-normal flex size-10 items-center justify-center text-[#FFF7ED] rounded-full bg-[#D8A24A]/80" href="#">1</a>
-                            <a className="text-sm font-normal leading-normal flex size-10 items-center justify-center text-[#EAD2C0] hover:text-white rounded-full hover:bg-white/10 transition-colors" href="#">2</a>
-                            <a className="text-sm font-normal leading-normal flex size-10 items-center justify-center text-[#EAD2C0] hover:text-white rounded-full hover:bg-white/10 transition-colors" href="#">3</a>
-                            <span className="text-sm font-normal leading-normal flex size-10 items-center justify-center text-[#EAD2C0] rounded-full">...</span>
-                            <a className="text-sm font-normal leading-normal flex size-10 items-center justify-center text-[#EAD2C0] hover:text-white rounded-full hover:bg-white/10 transition-colors" href="#">8</a>
-                            <a className="flex size-10 items-center justify-center text-[#EAD2C0] hover:text-white transition-colors" href="#">
-                                <span className="material-symbols-outlined">chevron_right</span>
-                            </a>
-                        </div>
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-center p-4 mt-8 gap-2">
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className={`flex size-10 items-center justify-center transition-colors ${currentPage === 1
+                                        ? 'text-[#EAD2C0]/50 cursor-not-allowed'
+                                        : 'text-[#EAD2C0] hover:text-white cursor-pointer'
+                                        }`}
+                                >
+                                    <span className="material-symbols-outlined">chevron_left</span>
+                                </button>
+
+                                {[...Array(totalPages)].map((_, index) => {
+                                    const pageNum = index + 1;
+                                    // Show first page, last page, current page, and pages around current
+                                    if (
+                                        pageNum === 1 ||
+                                        pageNum === totalPages ||
+                                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                    ) {
+                                        return (
+                                            <button
+                                                key={pageNum}
+                                                onClick={() => handlePageChange(pageNum)}
+                                                className={`text-sm leading-normal flex size-10 items-center justify-center rounded-full transition-colors ${currentPage === pageNum
+                                                    ? 'font-bold text-[#FFF7ED] bg-[#D8A24A]/80'
+                                                    : 'font-normal text-[#EAD2C0] hover:text-white hover:bg-white/10'
+                                                    }`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        );
+                                    } else if (
+                                        pageNum === currentPage - 2 ||
+                                        pageNum === currentPage + 2
+                                    ) {
+                                        return (
+                                            <span
+                                                key={pageNum}
+                                                className="text-sm font-normal leading-normal flex size-10 items-center justify-center text-[#EAD2C0] rounded-full"
+                                            >
+                                                ...
+                                            </span>
+                                        );
+                                    }
+                                    return null;
+                                })}
+
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className={`flex size-10 items-center justify-center transition-colors ${currentPage === totalPages
+                                        ? 'text-[#EAD2C0]/50 cursor-not-allowed'
+                                        : 'text-[#EAD2C0] hover:text-white cursor-pointer'
+                                        }`}
+                                >
+                                    <span className="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </main>
 

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 const ProductPage = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { product } = location.state || {};
     const [quantity, setQuantity] = useState(1);
 
@@ -29,31 +31,7 @@ const ProductPage = () => {
 
             <div className="relative z-10 flex h-auto min-h-screen w-full flex-col">
                 {/* Header */}
-                <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-white/10 px-6 md:px-10 lg:px-20 py-4">
-                    <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-4 text-white">
-                            <span className="material-symbols-outlined text-xl">local_fire_department</span>
-                            <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Enpees Candles</h2>
-                        </div>
-                        <div className="hidden md:flex items-center gap-9">
-                            <Link className="text-white/80 hover:text-white text-sm font-medium leading-normal" to="/shop">Shop All</Link>
-                            <Link className="text-white/80 hover:text-white text-sm font-medium leading-normal" to="#">New Arrivals</Link>
-                            <Link className="text-white/80 hover:text-white text-sm font-medium leading-normal" to="#">Collections</Link>
-                            <Link className="text-white/80 hover:text-white text-sm font-medium leading-normal" to="/contact">About Us</Link>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-end gap-2">
-                        <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-white/10 text-white hover:bg-white/20">
-                            <span className="material-symbols-outlined text-xl">search</span>
-                        </button>
-                        <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-white/10 text-white hover:bg-white/20">
-                            <span className="material-symbols-outlined text-xl">person</span>
-                        </button>
-                        <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-white/10 text-white hover:bg-white/20">
-                            <span className="material-symbols-outlined text-xl">shopping_bag</span>
-                        </button>
-                    </div>
-                </header>
+                <Navbar />
 
                 <main className="flex-1">
                     <div className="container mx-auto px-4 py-8 lg:py-16">
@@ -67,20 +45,7 @@ const ProductPage = () => {
                                         src={displayProduct.image}
                                     />
                                 </div>
-                                <div className="grid grid-cols-4 gap-4">
-                                    <div className="aspect-square w-full overflow-hidden rounded-lg border-2 border-[#d9a24a]/80">
-                                        <img className="w-full h-full object-cover" alt="Thumbnail 1" src={displayProduct.image} />
-                                    </div>
-                                    <div className="aspect-square w-full overflow-hidden rounded-lg opacity-70 hover:opacity-100 transition-opacity">
-                                        <img className="w-full h-full object-cover" alt="Thumbnail 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEd_zbQLcaR6FBwZQpU7sRMEWZrqIwQlL6gJl9ZfjO-Vbzyj6Dq2fHJ1s2QjpG763D6kDn6S30t1QGIpaqjSFTy3N_81UMOOeP9ZkRrvSf2WyYK9-jnzbD18pd0wAgXGJ1Di8hww0LphINx7rhPvf3hlAVbWE3MQkW7sKaXpJhzPy3PMrirm-TKruq9Z6NEK9xYyIJFx8mFaj923gLfKxB6Y-nViv-3rARkh8OmnBl5uYTIKElPmq4hsW5R3KVqKmLUUXQcEAtp2dO" />
-                                    </div>
-                                    <div className="aspect-square w-full overflow-hidden rounded-lg opacity-70 hover:opacity-100 transition-opacity">
-                                        <img className="w-full h-full object-cover" alt="Thumbnail 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvuT6Ar9TNZLc5DLOGgm3cFFZhyER3MiuZ4SJBKXUWbPTvtveEs9KDd3trrqTaw9QhsspzdwYhzQo9UVIcSWVXiqfqs9nRJiQFxkuslPf3kJW5AWvrJIdh8--SxU6ipCtsO0GTifgfEHcMzREA4GJigKPUyQ0vSYLBqSeocHatIlO03iG1e82WwG69VdtchjRIsYU2y5I2whYbY28-L54tFCbc-gfJKEhAT8r-wxTO3l-00Jg1wPwiptze_U8h70bNvGIwGnfI-h1g" />
-                                    </div>
-                                    <div className="aspect-square w-full overflow-hidden rounded-lg opacity-70 hover:opacity-100 transition-opacity">
-                                        <img className="w-full h-full object-cover" alt="Thumbnail 4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW_POPECIEPYXiweXqm0IpjUQ35GbZghD3SltlCq7DUJ-jyNthnwS2H_To2D1SjAX-rij5Ty4Eb3QEOBIyY0ov6z2bLxbHMJsJcZqcGDcObsORL1jYSLlz1O1MmZAqXIFiLVbPSUUkPOOTv_SfFRNZvBjiV9EZICVIIaiN-kY_qs0adAX1qsxLhyfAOkU66cgwUAb1sCyZfis8TARb7cD2PLWet2h1b4NYbsq_LP-HfYU2NjDj6beMk7577UhDhen2MFzXBXn8SVRS" />
-                                    </div>
-                                </div>
+
                             </div>
 
                             {/* Product Details */}
@@ -127,7 +92,7 @@ const ProductPage = () => {
                                                 <li><strong className="font-semibold text-[#554B47]/90">Wick:</strong> Lead-free Cotton Wick</li>
                                                 <li><strong className="font-semibold text-[#554B47]/90">Burn Time:</strong> Approx. 50-60 hours</li>
                                                 <li><strong className="font-semibold text-[#554B47]/90">Dimensions:</strong> 3.5" W x 4" H</li>
-                                                <li><strong className="font-semibold text-[#554B47]/90">Origin:</strong> Hand-poured in the USA</li>
+
                                             </ul>
                                         </div>
                                     </div>
@@ -178,50 +143,57 @@ const ProductPage = () => {
                     <div className="mt-16 lg:mt-24 px-4 sm:px-10 md:px-20 lg:px-40 pb-24">
                         <h2 className="text-3xl lg:text-4xl font-['Italiana',_serif] text-white mb-8 text-center">You Might Also Love</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {/* Recommendation 1 */}
-                            <div className="group cursor-pointer">
-                                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Sandalwood Suede" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdEiWyuEHldJcLtRXevMZ8g4a57zsvkbORhsVfayHiyD0FfiPa_zIkuuKkkZCrYVZFhKtRFiYZeyw8elg97kVmInRBrWoHGHKxUoeuLa9GEOA8JI57K2mmrUZLZShbaX0dOYEllqjLVCC5MKdZd-eFwAbEwg_bZidGYFEXR1_XMw43rppycGqMKzpQJFk7ghYofR9gDNAPsEbXETiVaXLkM8JVKmHXqvOfc0iAC-UkA1sOgW1gKcpLgCa0AcO5Ar7BzC8-U2FrhsGm" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                    <div className="absolute bottom-4 left-4 text-white">
-                                        <h3 className="font-['Italiana',_serif] text-xl">Sandalwood Suede</h3>
-                                        <p className="text-sm opacity-80">$45.00</p>
+                            {[
+                                {
+                                    title: "Sandalwood Suede",
+                                    price: "₹90",
+                                    image: "/src/assets/Chai_Biscuit_Glass_Candle___90.webp",
+                                    collection: "Gourmet Collection",
+                                    description: "A warm and inviting sandalwood scent with notes of suede."
+                                },
+                                {
+                                    title: "Velvet Tonka",
+                                    price: "₹60",
+                                    image: "/src/assets/Teddy_Heart_Candle__60.webp",
+                                    collection: "Cute Collection",
+                                    description: "Smooth tonka bean blended with velvet musk."
+                                },
+                                {
+                                    title: "Golden Myrrh",
+                                    price: "₹199",
+                                    image: "/src/assets/Flower_Glass_Jar_Candle__199.webp",
+                                    collection: "Premium Collection",
+                                    description: "Rich myrrh with golden amber notes."
+                                },
+                                {
+                                    title: "Spiced Ember",
+                                    price: "₹15",
+                                    image: "/src/assets/Diya_Scented_Candle__15.webp",
+                                    collection: "Festival Collection",
+                                    description: "Spicy embers glowing in the dark."
+                                }
+                            ].map((item, index) => (
+                                <div
+                                    key={index}
+                                    className="group cursor-pointer"
+                                    onClick={() => {
+                                        navigate('/product', { state: { product: item } });
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                >
+                                    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl">
+                                        <img
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            alt={item.title}
+                                            src={item.image}
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                        <div className="absolute bottom-4 left-4 text-white">
+                                            <h3 className="font-['Italiana',_serif] text-xl">{item.title}</h3>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            {/* Recommendation 2 */}
-                            <div className="group cursor-pointer">
-                                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Velvet Tonka" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx5uLgNGsh8sSKdK272H3A1xNDwqhXaLSnv4nBcLkUgwyzWTZr_oO-TUlfBjo_axCZHr8s_GImo5E1r7ImzsB4DQmyBWnQBf3LpBpq7HGbgHIr-opLyxgErW5rXsLHfjQqlDIpibZPsozLY7xiXLZ6Iil0XKUZI2tc-e99dO25UkUS3xeEPcZzr9hAvWaI-IDBKO1WiPWt6fUFaNJcEg9cbqfOcyAcYF25H05zVGwSKCk0CHj09S14Cd6ignVTn6lruWTO_DTUwzVP" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                    <div className="absolute bottom-4 left-4 text-white">
-                                        <h3 className="font-['Italiana',_serif] text-xl">Velvet Tonka</h3>
-                                        <p className="text-sm opacity-80">$52.00</p>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Recommendation 3 */}
-                            <div className="group cursor-pointer">
-                                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Golden Myrrh" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBomaWUhwdv3kcn4Ow0VAAdhQnM1KYvixn19-sV2Nm3FqDz7hk3AT-SUcSwK1ZGa9PoQNFF6a3xMH1lI-La7KUlqEbfZHR8VDO90nuYcCCVmvSIqM-0-ZEbj5U3sgEZXGWA1DQPDtZfM-qIlfJanV_7GhOoGEXMLj-l6Ey0RraqCDTpyoUAx31xvtH3ZUJ7C8dwQk8ZTXVLEAvlt1QmGw81ziM6BIWMV9MX9cpr4gmKHnVcmPQHzKK4wCBPrQrsi_72QwTpmSfz7jkU" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                    <div className="absolute bottom-4 left-4 text-white">
-                                        <h3 className="font-['Italiana',_serif] text-xl">Golden Myrrh</h3>
-                                        <p className="text-sm opacity-80">$48.00</p>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Recommendation 4 */}
-                            <div className="group cursor-pointer">
-                                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl">
-                                    <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Spiced Ember" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuzySejn8LXvBqVUOOj3SHvBC5V8Y5g7OERg8a0YXzzS2gSv87rNIjeJ5QoJuZjc8KSHaYiWYHs99HZ3smaGL_Ff4_nJJQAIQRex_Oc5hEf605Cb969tXINmvEmzEactG5IE-RehCpuFwXgsXwZm8hgsm4d7xXKFW56ID1bkpSd3tv9wjVuJLLez_kKWdNEmhAByj2IrIqs-JM7-V9up0C-daihiPrVMzMUipe1gt56vLCIGCKzE4Se0X9967_489TMR8q68Wp8hY7" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                    <div className="absolute bottom-4 left-4 text-white">
-                                        <h3 className="font-['Italiana',_serif] text-xl">Spiced Ember</h3>
-                                        <p className="text-sm opacity-80">$45.00</p>
-                                    </div>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </main>
