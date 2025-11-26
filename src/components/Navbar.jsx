@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const Navbar = ({ className = "" }) => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
+    const { getCartCount } = useCart();
+    const cartCount = getCartCount();
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -18,18 +21,16 @@ const Navbar = ({ className = "" }) => {
     return (
         <header className={`relative flex items-center justify-between whitespace-nowrap border-b border-solid border-white/10 px-4 sm:px-10 md:px-20 lg:px-40 py-4 ${className}`}>
             <div className="flex items-center gap-8">
-                <div className="flex items-center gap-4 text-white">
+                <Link to="/" className="flex items-center gap-4 text-white hover:opacity-80 transition-opacity">
                     <div className="size-6 text-[#FFF7ED]">
                         <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>local_fire_department</span>
                     </div>
                     <h1 className="text-[#FFF7ED] text-xl font-['Italiana',_serif] tracking-wider">Enpees Candles</h1>
-                </div>
+                </Link>
                 <nav className="hidden md:flex items-center gap-9">
                     <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/">Home</Link>
-                    <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/shop">Shop All</Link>
-                    <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="#">Collections</Link>
-                    <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="#">About Us</Link>
-                    <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/contact">Contact</Link>
+                    <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/shop">Collections</Link>
+                    <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/contact">Contact Us</Link>
                 </nav>
             </div>
             {isSearchOpen ? (
@@ -54,9 +55,14 @@ const Navbar = ({ className = "" }) => {
                     <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
                         <span className="material-symbols-outlined">favorite</span>
                     </button>
-                    <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                    <Link to="/checkout" className="relative flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
                         <span className="material-symbols-outlined">shopping_bag</span>
-                    </button>
+                        {cartCount > 0 && (
+                            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#D8A24A] text-[10px] font-bold text-[#3B2A23]">
+                                {cartCount}
+                            </span>
+                        )}
+                    </Link>
                 </div>
             )}
         </header>

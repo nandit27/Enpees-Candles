@@ -5,21 +5,30 @@ import ProductPage from './pages/ProductPage';
 import Admin from './pages/Admin';
 import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
+import { CartProvider } from './context/CartContext';
 import { Button } from './components/ui/button';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/product" element={<ProductPage />} />
-          <Route path="/admin" element={<Admin />} />
-        </Routes>
-        <Footer />
-      </div>
+      <CartProvider>
+        <Toaster />
+        <div className="flex flex-col min-h-screen">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/product" element={<ProductPage />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          </Routes>
+          <Footer />
+        </div>
+      </CartProvider>
     </Router>
   );
 }

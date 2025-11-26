@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../components/ui/button';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
+import toast from 'react-hot-toast';
 import heroBg from '../assets/hero-bg.png';
 import productPlaceholder from '../assets/product-placeholder.png';
 import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
@@ -9,9 +11,23 @@ import snowmanCandle from '../assets/Snowman_Candle ___199.webp';
 import teddyCandle from '../assets/Teddy_Heart_Candle__60.webp';
 import vanillaCandle from '../assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp';
 import roseCandle from '../assets/Rose_Flower_Basket_Candle___249.webp';
-import sandalwoodCandle from '../assets/Chai_Biscuit_Glass_Candle___90.webp'; // Using Chai as placeholder for Sandalwood
+import sandalwoodCandle from '../assets/Chai_Biscuit_Glass_Candle___90.webp';
 
 const LandingPage = () => {
+    const { addToCart } = useCart();
+    const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        fetch('http://localhost:3001/api/products')
+            .then(res => res.json())
+            .then(data => {
+                // Filter only featured products
+                const featuredProducts = data.filter(p => p.featured === true);
+                setProducts(featuredProducts);
+            })
+            .catch(err => console.error('Error fetching products:', err));
+    }, []);
+
     return (
         <div className="relative w-full font-['Inter',_sans-serif] text-[#554B47] antialiased bg-[#3B2A23]">
             {/* Hero Section */}
@@ -109,26 +125,42 @@ const LandingPage = () => {
                         <p className="mt-4 text-lg leading-8 text-[#EAD2C0]/80">Discover the scents our customers love the most. Hand-poured with passion.</p>
                     </div>
                     <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-                        {[
-                            { name: "Amber & Musk", desc: "A warm, inviting blend of rich amber and earthy musk, perfect for a cozy evening.", img: vanillaCandle },
-                            { name: "Vanilla & Lavender", desc: "A calming and soothing aroma that combines sweet vanilla with fresh lavender fields.", img: roseCandle },
-                            { name: "Sandalwood & Cedar", desc: "An earthy and grounding fragrance with notes of rich sandalwood and aromatic cedarwood.", img: sandalwoodCandle }
-                        ].map((product, index) => (
-                            <article key={index} className="flex flex-col items-start justify-between">
-                                <div className="relative w-full">
-                                    <img alt={product.name} className="aspect-[1/1] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2]" src={product.img} />
+                        {products.map((product, index) => (
+                            <article key={product.id} className="flex flex-col items-start justify-between">
+                                <Link to={`/product`} className="relative w-full">
+                                    <img alt={product.name} className="aspect-[1/1] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2]" src={product.image} />
                                     <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-[#EAD2C0]/10"></div>
-                                </div>
-                                <div className="max-w-xl">
+                                </Link>
+                                <div className="max-w-xl w-full">
                                     <div className="mt-8 flex items-center gap-x-4 text-xs">
                                         <time className="text-[#EAD2C0]/60">Best Seller</time>
                                     </div>
-                                    <div className="group relative">
+                                    <div className="group">
                                         <h3 className="mt-3 text-2xl font-['Italiana',_serif] font-semibold leading-6 text-[#EAD2C0] group-hover:text-[#D8A24A] transition-colors">
-                                            <a href="#"><span className="absolute inset-0"></span>{product.name}</a>
+                                            <Link to={`/product`}>{product.name}</Link>
                                         </h3>
-                                        <p className="mt-5 text-sm leading-6 text-[#EAD2C0]/80">{product.desc}</p>
+                                        <p className="mt-5 text-sm leading-6 text-[#EAD2C0]/80">{product.description}</p>
                                     </div>
+                                    <Button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            addToCart(product);
+                                            toast.success(`${product.name} added to cart!`, {
+                                                duration: 2000,
+                                                position: 'bottom-right',
+                                                style: {
+                                                    background: '#D8A24A',
+                                                    color: '#3B2A23',
+                                                    fontWeight: 'bold',
+                                                },
+                                            });
+                                        }}
+                                        className="mt-6 w-full bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold"
+                                    >
+                                        Add to Cart
+                                    </Button>
                                 </div>
                             </article>
                         ))}

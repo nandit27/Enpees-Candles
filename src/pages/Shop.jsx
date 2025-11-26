@@ -1,51 +1,26 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { useCart } from '../context/CartContext';
+import toast from 'react-hot-toast';
 
 const Shop = () => {
     const navigate = useNavigate();
+    const { addToCart } = useCart();
 
     // Pagination and Sorting State
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState('default'); // 'default', 'price-low', 'price-high'
     const [selectedCollection, setSelectedCollection] = useState('All');
+    const [products, setProducts] = useState([]);
     const itemsPerPage = 12;
 
-    const products = [
-        { title: "4 Layer Bubble Pyramid Candle", price: "₹60", collection: "Decorative Collection", image: "/src/assets/4_Layer_Bubble_Pyramid_Candle__60.webp", description: "A stunning 4-layer bubble pyramid candle perfect for special occasions" },
-        { title: "Balloon Candle", price: "₹150", collection: "Party Collection", image: "/src/assets/Balloon_Candle__150.webp", description: "Fun balloon-shaped candle that adds a festive touch to any celebration" },
-        { title: "Cactus Candle", price: "₹90", collection: "Botanical Collection", image: "/src/assets/Cactus_Candle__90.webp", description: "Adorable cactus-shaped candle for plant lovers" },
-        { title: "Candle Light Bouquet Candle", price: "₹199", collection: "Premium Collection", image: "/src/assets/Candle_Light_Bouquet_Candle__199.webp", description: "Elegant bouquet candle that creates a romantic ambiance" },
-        { title: "Chai Biscuit Glass Candle", price: "₹90", collection: "Gourmet Collection", image: "/src/assets/Chai_Biscuit_Glass_Candle___90.webp", description: "Delightful chai biscuit scented candle in a glass jar" },
-        { title: "Christmas Bell Candle", price: "₹150", collection: "Holiday Collection", image: "/src/assets/Christmas_Bell_Candle __150.webp", description: "Festive bell-shaped candle perfect for Christmas celebrations" },
-        { title: "Christmas Bomb", price: "₹499", collection: "Holiday Collection", image: "/src/assets/Christmas_Bomb___499.webp", description: "Premium Christmas-themed decorative candle set" },
-        { title: "Christmas Bubble Tree Candle", price: "₹150", collection: "Holiday Collection", image: "/src/assets/Christmas_Bubble_Tree_Candle__150.webp", description: "Charming bubble tree candle for the holiday season" },
-        { title: "Cute Snowman Candle", price: "₹120", collection: "Winter Collection", image: "/src/assets/Cute_Snowman_Candle__120 .webp", description: "Adorable snowman candle that brings winter magic indoors" },
-        { title: "Diya Scented Candle", price: "₹15", collection: "Festival Collection", image: "/src/assets/Diya_Scented_Candle__15.webp", description: "Traditional diya-shaped scented candle for festivals" },
-        { title: "Festival Diya Scented", price: "₹20", collection: "Festival Collection", image: "/src/assets/Festival_Diya_Scented__20.webp", description: "Beautifully crafted festival diya with delightful scents" },
-        { title: "Festival Rhombus Candle", price: "₹60", collection: "Festival Collection", image: "/src/assets/Festival_Rhombus_Candle__60.webp", description: "Unique rhombus-shaped candle for festive occasions" },
-        { title: "Flower Glass Jar Candle", price: "₹199", collection: "Premium Collection", image: "/src/assets/Flower_Glass_Jar_Candle__199.webp", description: "Elegant flower-decorated glass jar candle" },
-        { title: "Flower Heart Bouquet Candle", price: "₹199", collection: "Romance Collection", image: "/src/assets/Flower_Heart_Bouquet_Candle__199.webp", description: "Romantic heart-shaped bouquet candle perfect for gifting" },
-        { title: "Flowers", price: "₹20", collection: "Floral Collection", image: "/src/assets/Flowers__20.webp", description: "Simple yet beautiful flower-shaped candles" },
-        { title: "Hand Holding Heart Candle", price: "₹150", collection: "Romance Collection", image: "/src/assets/Hand_Holding_Heart_Candle___150.webp", description: "Touching hand holding heart design for special moments" },
-        { title: "Heart Mini Teddy Candle", price: "₹50", collection: "Cute Collection", image: "/src/assets/Heart_Mini_Teddy_Candle__50.webp", description: "Sweet mini teddy with heart candle" },
-        { title: "Honey Teddy Scented Candle", price: "₹50", collection: "Cute Collection", image: "/src/assets/Honey_Teddy_Scented_Candle___50.webp", description: "Honey-scented teddy bear candle" },
-        { title: "Lotus Candle", price: "₹99", collection: "Spiritual Collection", image: "/src/assets/Lotus_Candle __99.webp", description: "Serene lotus-shaped candle for meditation and relaxation" },
-        { title: "Love Rose Heart Candle", price: "₹90", collection: "Romance Collection", image: "/src/assets/Love_Rose_Heart_Candle __90.webp", description: "Beautiful rose heart candle expressing love" },
-        { title: "Luxury Mini Bouquet Candle", price: "₹150", collection: "Premium Collection", image: "/src/assets/Luxury_Mini_Bouquet_Candle__150 .webp", description: "Luxurious mini bouquet candle for elegant settings" },
-        { title: "Mini Cake Candle", price: "₹60", collection: "Celebration Collection", image: "/src/assets/Mini_Cake_Candle___60.webp", description: "Delightful mini cake-shaped candle for celebrations" },
-        { title: "Mini Glass Jar Candle", price: "₹80", collection: "Classic Collection", image: "/src/assets/Mini_Glass_Jar_Candle__80.webp", description: "Compact glass jar candle perfect for small spaces" },
-        { title: "Mini Rose Flower Glass Jar Candle", price: "₹250", collection: "Premium Collection", image: "/src/assets/Mini_Rose_Flower_Glass_Jar_Candle__250.webp", description: "Premium rose flower glass jar candle" },
-        { title: "Rabbit Candle", price: "₹50", collection: "Cute Collection", image: "/src/assets/Rabbit_Candle __50.webp", description: "Adorable rabbit-shaped candle" },
-        { title: "Rose Flower Basket Candle", price: "₹249", collection: "Premium Collection", image: "/src/assets/Rose_Flower_Basket_Candle___249.webp", description: "Exquisite rose flower basket candle arrangement" },
-        { title: "Snowman Candle", price: "₹199", collection: "Winter Collection", image: "/src/assets/Snowman_Candle ___199.webp", description: "Large decorative snowman candle for winter decor" },
-        { title: "Snowman Holding Tree Candle", price: "₹70", collection: "Winter Collection", image: "/src/assets/Snowman_Holing_Tree _Candle__70.webp", description: "Charming snowman holding a Christmas tree candle" },
-        { title: "Teddy Cup Cake Candle", price: "₹99", collection: "Cute Collection", image: "/src/assets/Teddy_Cup_Cake_Candle__99.webp", description: "Sweet teddy bear cupcake candle" },
-        { title: "Teddy Glass Jar Candle", price: "₹199", collection: "Premium Collection", image: "/src/assets/Teddy_Glass_Jar_Candle__199.webp", description: "Premium teddy bear themed glass jar candle" },
-        { title: "Teddy Heart Candle", price: "₹60", collection: "Cute Collection", image: "/src/assets/Teddy_Heart_Candle__60.webp", description: "Teddy bear with heart candle perfect for gifting" },
-        { title: "Tulip Flower Candle", price: "₹120", collection: "Floral Collection", image: "/src/assets/Tulip_Flower_Candle__120.webp", description: "Elegant tulip flower candle" },
-        { title: "Vanilla Bliss Glass Jar Candle", price: "₹249", collection: "Premium Collection", image: "/src/assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp", description: "Luxurious vanilla-scented glass jar candle" }
-    ];
+    useEffect(() => {
+        fetch('http://localhost:3001/api/products')
+            .then(res => res.json())
+            .then(data => setProducts(data))
+            .catch(err => console.error('Error fetching products:', err));
+    }, []);
 
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
@@ -73,7 +48,7 @@ const Shop = () => {
         if (searchQuery) {
             const lowerQuery = searchQuery.toLowerCase();
             filtered = filtered.filter(p =>
-                p.title.toLowerCase().includes(lowerQuery) ||
+                p.name.toLowerCase().includes(lowerQuery) ||
                 p.description.toLowerCase().includes(lowerQuery)
             );
         }
@@ -81,20 +56,20 @@ const Shop = () => {
         // Sort products
         if (sortBy === 'price-low') {
             filtered = [...filtered].sort((a, b) => {
-                const priceA = parseInt(a.price.replace('₹', ''));
-                const priceB = parseInt(b.price.replace('₹', ''));
+                const priceA = typeof a.price === 'string' ? parseInt(a.price.replace('₹', '')) : a.price;
+                const priceB = typeof b.price === 'string' ? parseInt(b.price.replace('₹', '')) : b.price;
                 return priceA - priceB;
             });
         } else if (sortBy === 'price-high') {
             filtered = [...filtered].sort((a, b) => {
-                const priceA = parseInt(a.price.replace('₹', ''));
-                const priceB = parseInt(b.price.replace('₹', ''));
+                const priceA = typeof a.price === 'string' ? parseInt(a.price.replace('₹', '')) : a.price;
+                const priceB = typeof b.price === 'string' ? parseInt(b.price.replace('₹', '')) : b.price;
                 return priceB - priceA;
             });
         }
 
         return filtered;
-    }, [selectedCollection, sortBy, searchQuery]);
+    }, [selectedCollection, sortBy, searchQuery, products]);
 
     // Pagination calculations
     const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
@@ -151,51 +126,58 @@ const Shop = () => {
                         </div>
 
                         {/* Filters and Sorting */}
-                        <div className="flex gap-3 p-4 flex-wrap items-center">
-                            <div className="flex gap-2 flex-wrap">
-                                <span className="text-[#EAD2C0] text-sm font-medium px-2 flex items-center">Collections:</span>
-                                {collections.map((collection) => (
+                        <div className="flex flex-col gap-3 p-4">
+                            {/* Collections */}
+                            <div className="flex flex-col gap-2">
+                                <span className="text-[#EAD2C0] text-sm font-medium">Collections:</span>
+                                <div className="flex gap-2 flex-wrap">
+                                    {collections.map((collection) => (
+                                        <button
+                                            key={collection}
+                                            onClick={() => handleCollectionChange(collection)}
+                                            className={`${selectedCollection === collection
+                                                ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
+                                                : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
+                                                } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
+                                        >
+                                            {collection}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            {/* Sort */}
+                            <div className="flex flex-col gap-2">
+                                <span className="text-[#EAD2C0] text-sm font-medium">Sort:</span>
+                                <div className="flex gap-2 flex-wrap">
                                     <button
-                                        key={collection}
-                                        onClick={() => handleCollectionChange(collection)}
-                                        className={`${selectedCollection === collection
+                                        onClick={() => handleSortChange('default')}
+                                        className={`${sortBy === 'default'
                                             ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
                                             : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
-                                            } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
+                                            } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-3 sm:px-4 text-xs sm:text-sm font-medium leading-normal transition-colors duration-300`}
                                     >
-                                        {collection}
+                                        Default
                                     </button>
-                                ))}
-                            </div>
-                            <div className="flex gap-2 ml-auto">
-                                <span className="text-[#EAD2C0] text-sm font-medium px-2 flex items-center">Sort:</span>
-                                <button
-                                    onClick={() => handleSortChange('default')}
-                                    className={`${sortBy === 'default'
-                                        ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
-                                        : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
-                                        } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
-                                >
-                                    Default
-                                </button>
-                                <button
-                                    onClick={() => handleSortChange('price-low')}
-                                    className={`${sortBy === 'price-low'
-                                        ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
-                                        : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
-                                        } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
-                                >
-                                    Price: Low to High
-                                </button>
-                                <button
-                                    onClick={() => handleSortChange('price-high')}
-                                    className={`${sortBy === 'price-high'
-                                        ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
-                                        : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
-                                        } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
-                                >
-                                    Price: High to Low
-                                </button>
+                                    <button
+                                        onClick={() => handleSortChange('price-low')}
+                                        className={`${sortBy === 'price-low'
+                                            ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
+                                            : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
+                                            } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-3 sm:px-4 text-xs sm:text-sm font-medium leading-normal transition-colors duration-300`}
+                                    >
+                                        <span className="hidden sm:inline">Price: </span>Low to High
+                                    </button>
+                                    <button
+                                        onClick={() => handleSortChange('price-high')}
+                                        className={`${sortBy === 'price-high'
+                                            ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
+                                            : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
+                                            } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-3 sm:px-4 text-xs sm:text-sm font-medium leading-normal transition-colors duration-300`}
+                                    >
+                                        <span className="hidden sm:inline">Price: </span>High to Low
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -207,26 +189,45 @@ const Shop = () => {
                         </div>
 
                         {/* Product Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 p-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 p-2 sm:p-4">
                             {currentProducts.map((product, index) => (
                                 <div
                                     key={index}
-                                    onClick={() => handleProductClick(product)}
-                                    className={`bg-[#FFF7ED]/70 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_16px_40px_0_rgba(0,0,0,0.25),0_0_0_2px_rgba(216,162,74,0.5)] rounded-xl overflow-hidden flex flex-col group cursor-pointer ${index % 4 === 1 || index % 4 === 3 ? 'lg:mt-16' : ''}`}
+                                    className={`bg-[#FFF7ED]/70 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_16px_40px_0_rgba(0,0,0,0.25),0_0_0_2px_rgba(216,162,74,0.5)] rounded-xl overflow-hidden flex flex-col group ${index % 4 === 1 || index % 4 === 3 ? 'lg:mt-16' : ''}`}
                                 >
-                                    <div className="w-full aspect-[3/4] overflow-hidden">
+                                    <div className="w-full aspect-[3/4] overflow-hidden cursor-pointer" onClick={() => handleProductClick(product)}>
                                         <img
                                             className="h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
-                                            alt={product.title}
+                                            alt={product.name}
                                             src={product.image}
                                         />
                                     </div>
                                     <div className="p-4 flex flex-col flex-grow">
-                                        <h3 className="text-[#554B47] text-lg font-bold leading-normal">{product.title}</h3>
+                                        <h3 className="text-[#554B47] text-lg font-bold leading-normal">{product.name}</h3>
                                         <p className="text-[#554B47]/70 text-sm font-normal leading-normal">{product.collection}</p>
                                         <div className="mt-auto pt-4 flex justify-between items-center">
-                                            <p className="text-[#554B47] text-lg font-semibold">{product.price}</p>
-                                            <button className="bg-[#D8A24A] text-white h-10 px-4 rounded-lg text-sm font-bold hover:bg-opacity-90 transition-all">Add to Cart</button>
+                                            <p className="text-[#554B47] text-lg font-semibold">
+                                                {typeof product.price === 'string' ? product.price : `₹${product.price}`}
+                                            </p>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    addToCart(product);
+                                                    toast.success(`${product.name} added to cart!`, {
+                                                        duration: 2000,
+                                                        position: 'bottom-right',
+                                                        style: {
+                                                            background: '#D8A24A',
+                                                            color: '#3B2A23',
+                                                            fontWeight: 'bold',
+                                                        },
+                                                    });
+                                                }}
+                                                className="bg-[#D8A24A] text-white h-10 px-4 rounded-lg text-sm font-bold hover:bg-opacity-90 transition-all"
+                                            >
+                                                Add to Cart
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

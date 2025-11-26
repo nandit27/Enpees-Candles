@@ -1,0 +1,332 @@
+[
+  {
+    "id": "1",
+    "name": "4 Layer Bubble Pyramid Candle",
+    "description": "A stunning 4-layer bubble pyramid candle perfect for special occasions",
+    "price": "₹60",
+    "stock": "50",
+    "collection": "Decorative Collection",
+    "image": "/src/assets/4_Layer_Bubble_Pyramid_Candle__60.webp",
+    "featured": false
+  },
+  {
+    "id": "2",
+    "name": "Balloon Candle",
+    "description": "Fun balloon-shaped candle that adds a festive touch to any celebration",
+    "price": "₹150",
+    "stock": "45",
+    "collection": "Party Collection",
+    "image": "/src/assets/Balloon_Candle__150.webp",
+    "featured": false
+  },
+  {
+    "id": "3",
+    "name": "Cactus Candle",
+    "description": "Adorable cactus-shaped candle for plant lovers",
+    "price": "₹90",
+    "stock": "60",
+    "collection": "Botanical Collection",
+    "image": "/src/assets/Cactus_Candle__90.webp",
+    "featured": false
+  },
+  {
+    "id": "4",
+    "name": "Candle Light Bouquet Candle",
+    "description": "Elegant bouquet candle that creates a romantic ambiance",
+    "price": "₹199",
+    "stock": "30",
+    "collection": "Premium Collection",
+    "image": "/src/assets/Candle_Light_Bouquet_Candle__199.webp",
+    "featured": false
+  },
+  {
+    "id": "5",
+    "name": "Chai Biscuit Glass Candle",
+    "description": "Delightful chai biscuit scented candle in a glass jar",
+    "price": "₹90",
+    "stock": "40",
+    "collection": "Gourmet Collection",
+    "image": "/src/assets/Chai_Biscuit_Glass_Candle___90.webp",
+    "featured": false
+  },
+  {
+    "id": "6",
+    "name": "Christmas Bell Candle",
+    "description": "Festive bell-shaped candle perfect for Christmas celebrations",
+    "price": "₹150",
+    "stock": "25",
+    "collection": "Holiday Collection",
+    "image": "/src/assets/Christmas_Bell_Candle __150.webp",
+    "featured": false
+  },
+  {
+    "id": "7",
+    "name": "Christmas Bomb",
+    "description": "Premium Christmas-themed decorative candle set",
+    "price": "₹499",
+    "stock": "15",
+    "collection": "Holiday Collection",
+    "image": "/src/assets/Christmas_Bomb___499.webp",
+    "featured": false
+  },
+  {
+    "id": "8",
+    "name": "Christmas Bubble Tree Candle",
+    "description": "Charming bubble tree candle for the holiday season",
+    "price": "₹150",
+    "stock": "35",
+    "collection": "Holiday Collection",
+    "image": "/src/assets/Christmas_Bubble_Tree_Candle__150.webp",
+    "featured": false
+  },
+  {
+    "id": "9",
+    "name": "Cute Snowman Candle",
+    "description": "Adorable snowman candle that brings winter magic indoors",
+    "price": "₹120",
+    "stock": "50",
+    "collection": "Winter Collection",
+    "image": "/src/assets/Cute_Snowman_Candle__120 .webp",
+    "featured": false
+  },
+  {
+    "id": "10",
+    "name": "Diya Scented Candle",
+    "description": "Traditional diya-shaped scented candle for festivals",
+    "price": "₹15",
+    "stock": "100",
+    "collection": "Festival Collection",
+    "image": "/src/assets/Diya_Scented_Candle__15.webp",
+    "featured": false
+  },
+  {
+    "id": "11",
+    "name": "Festival Diya Scented",
+    "description": "Beautifully crafted festival diya with delightful scents",
+    "price": "₹20",
+    "stock": "90",
+    "collection": "Festival Collection",
+    "image": "/src/assets/Festival_Diya_Scented__20.webp",
+    "featured": false
+  },
+  {
+    "id": "12",
+    "name": "Festival Rhombus Candle",
+    "description": "Unique rhombus-shaped candle for festive occasions",
+    "price": "₹60",
+    "stock": "55",
+    "collection": "Festival Collection",
+    "image": "/src/assets/Festival_Rhombus_Candle__60.webp",
+    "featured": false
+  },
+  {
+    "id": "13",
+    "name": "Flower Glass Jar Candle",
+    "description": "Elegant flower-decorated glass jar candle",
+    "price": "₹199",
+    "stock": "32",
+    "collection": "Premium Collection",
+    "image": "/src/assets/Flower_Glass_Jar_Candle__199.webp",
+    "featured": true
+  },
+  {
+    "id": "14",
+    "name": "Flower Heart Bouquet Candle",
+    "description": "Romantic heart-shaped bouquet candle perfect for gifting",
+    "price": "₹199",
+    "stock": "28",
+    "collection": "Romance Collection",
+    "image": "/src/assets/Flower_Heart_Bouquet_Candle__199.webp",
+    "featured": true
+  },
+  {
+    "id": "15",
+    "name": "Flowers",
+    "description": "Simple yet beautiful flower-shaped candles",
+    "price": "₹20",
+    "stock": "80",
+    "collection": "Floral Collection",
+    "image": "/src/assets/Flowers__20.webp",
+    "featured": false
+  },
+  {
+    "id": "16",
+    "name": "Hand Holding Heart Candle",
+    "description": "Touching hand holding heart design for special moments",
+    "price": "₹150",
+    "stock": "40",
+    "collection": "Romance Collection",
+    "image": "/src/assets/Hand_Holding_Heart_Candle___150.webp",
+    "featured": false
+  },
+  {
+    "id": "17",
+    "name": "Heart Mini Teddy Candle",
+    "description": "Sweet mini teddy with heart candle",
+    "price": "₹50",
+    "stock": "65",
+    "collection": "Cute Collection",
+    "image": "/src/assets/Heart_Mini_Teddy_Candle__50.webp",
+    "featured": false
+  },
+  {
+    "id": "18",
+    "name": "Honey Teddy Scented Candle",
+    "description": "Honey-scented teddy bear candle",
+    "price": "₹50",
+    "stock": "70",
+    "collection": "Cute Collection",
+    "image": "/src/assets/Honey_Teddy_Scented_Candle___50.webp",
+    "featured": false
+  },
+  {
+    "id": "19",
+    "name": "Lotus Candle",
+    "description": "Serene lotus-shaped candle for meditation and relaxation",
+    "price": "₹99",
+    "stock": "45",
+    "collection": "Spiritual Collection",
+    "image": "/src/assets/Lotus_Candle __99.webp",
+    "featured": false
+  },
+  {
+    "id": "20",
+    "name": "Love Rose Heart Candle",
+    "description": "Beautiful rose heart candle expressing love",
+    "price": "₹90",
+    "stock": "50",
+    "collection": "Romance Collection",
+    "image": "/src/assets/Love_Rose_Heart_Candle __90.webp",
+    "featured": true
+  },
+  {
+    "id": "21",
+    "name": "Luxury Mini Bouquet Candle",
+    "description": "Luxurious mini bouquet candle for elegant settings",
+    "price": "₹150",
+    "stock": "35",
+    "collection": "Premium Collection",
+    "image": "/src/assets/Luxury_Mini_Bouquet_Candle__150 .webp",
+    "featured": false
+  },
+  {
+    "id": "22",
+    "name": "Mini Cake Candle",
+    "description": "Delightful mini cake-shaped candle for celebrations",
+    "price": "₹60",
+    "stock": "60",
+    "collection": "Celebration Collection",
+    "image": "/src/assets/Mini_Cake_Candle___60.webp",
+    "featured": false
+  },
+  {
+    "id": "23",
+    "name": "Mini Glass Jar Candle",
+    "description": "Compact glass jar candle perfect for small spaces",
+    "price": "₹80",
+    "stock": "55",
+    "collection": "Classic Collection",
+    "image": "/src/assets/Mini_Glass_Jar_Candle__80.webp",
+    "featured": false
+  },
+  {
+    "id": "24",
+    "name": "Mini Rose Flower Glass Jar Candle",
+    "description": "Premium rose flower glass jar candle",
+    "price": "₹250",
+    "stock": "20",
+    "collection": "Premium Collection",
+    "image": "/src/assets/Mini_Rose_Flower_Glass_Jar_Candle__250.webp",
+    "featured": false
+  },
+  {
+    "id": "25",
+    "name": "Rabbit Candle",
+    "description": "Adorable rabbit-shaped candle",
+    "price": "₹50",
+    "stock": "75",
+    "collection": "Cute Collection",
+    "image": "/src/assets/Rabbit_Candle __50.webp",
+    "featured": false
+  },
+  {
+    "id": "26",
+    "name": "Rose Flower Basket Candle",
+    "description": "Exquisite rose flower basket candle arrangement",
+    "price": "₹249",
+    "stock": "18",
+    "collection": "Premium Collection",
+    "image": "/src/assets/Rose_Flower_Basket_Candle___249.webp",
+    "featured": false
+  },
+  {
+    "id": "27",
+    "name": "Snowman Candle",
+    "description": "Large decorative snowman candle for winter decor",
+    "price": "₹199",
+    "stock": "30",
+    "collection": "Winter Collection",
+    "image": "/src/assets/Snowman_Candle ___199.webp",
+    "featured": false
+  },
+  {
+    "id": "28",
+    "name": "Snowman Holding Tree Candle",
+    "description": "Charming snowman holding a Christmas tree candle",
+    "price": "₹70",
+    "stock": "48",
+    "collection": "Winter Collection",
+    "image": "/src/assets/Snowman_Holing_Tree _Candle__70.webp",
+    "featured": false
+  },
+  {
+    "id": "29",
+    "name": "Teddy Cup Cake Candle",
+    "description": "Sweet teddy bear cupcake candle",
+    "price": "₹99",
+    "stock": "42",
+    "collection": "Cute Collection",
+    "image": "/src/assets/Teddy_Cup_Cake_Candle__99.webp",
+    "featured": false
+  },
+  {
+    "id": "30",
+    "name": "Teddy Glass Jar Candle",
+    "description": "Premium teddy bear themed glass jar candle",
+    "price": "₹199",
+    "stock": "25",
+    "collection": "Premium Collection",
+    "image": "/src/assets/Teddy_Glass_Jar_Candle__199.webp",
+    "featured": false
+  },
+  {
+    "id": "31",
+    "name": "Teddy Heart Candle",
+    "description": "Teddy bear with heart candle perfect for gifting",
+    "price": "₹60",
+    "stock": "58",
+    "collection": "Cute Collection",
+    "image": "/src/assets/Teddy_Heart_Candle__60.webp",
+    "featured": true
+  },
+  {
+    "id": "32",
+    "name": "Tulip Flower Candle",
+    "description": "Elegant tulip flower candle",
+    "price": "₹120",
+    "stock": "38",
+    "collection": "Floral Collection",
+    "image": "/src/assets/Tulip_Flower_Candle__120.webp",
+    "featured": true
+  },
+  {
+    "id": "33",
+    "name": "Vanilla Bliss Glass Jar Candle",
+    "description": "Luxurious vanilla-scented glass jar candle",
+    "price": "₹249",
+    "stock": "22",
+    "collection": "Premium Collection",
+    "image": "/src/assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp",
+    "featured": true
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1764138815920",
+    "date": "2025-11-26T06:33:35.920Z",
+    "customer": {
+      "name": "Nandit Lalitbhai Kalaria ",
+      "email": "nanditkalaria27@gmail.com",
+      "address": "D-103, Randesan, Gandhinagar",
+      "city": "Gandhinagar",
+      "zip": "382421"
+    },
+    "items": [
+      {
+        "title": "4 Layer Bubble Pyramid Candle",
+        "price": "₹60",
+        "collection": "Decorative Collection",
+        "image": "/src/assets/4_Layer_Bubble_Pyramid_Candle__60.webp",
+        "description": "A stunning 4-layer bubble pyramid candle perfect for special occasions",
+        "name": "4 Layer Bubble Pyramid Candle",
+        "quantity": 1
+      },
+      {
+        "title": "Cactus Candle",
+        "price": "₹90",
+        "collection": "Botanical Collection",
+        "image": "/src/assets/Cactus_Candle__90.webp",
+        "description": "Adorable cactus-shaped candle for plant lovers",
+        "name": "Cactus Candle",
+        "quantity": 2
+      },
+      {
+        "title": "Christmas Bubble Tree Candle",
+        "price": "₹150",
+        "collection": "Holiday Collection",
+        "image": "/src/assets/Christmas_Bubble_Tree_Candle__150.webp",
+        "description": "Charming bubble tree candle for the holiday season",
+        "name": "Christmas Bubble Tree Candle",
+        "quantity": 1
+      }
+    ],
+    "total": 390,
+    "status": "Pending"
+  }
+]

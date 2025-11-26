@@ -10,8 +10,8 @@ const ProductPage = () => {
 
     // Default data if no product is passed (for testing/direct access)
     const displayProduct = product || {
-        title: "Midnight Oud & Amber",
-        price: "$48.00",
+        name: "Midnight Oud & Amber",
+        price: "₹48",
         image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDEOfWOOey5rqQmyCAqamzZ73LChNVerTn6yo_mld0ewxamJLmvd8DSi-nKsQ9VdLu0h62HrYTTAGjmc27tyXlEF6LDA63twxPVGx5ogTgCTyW0o6Qc7ChMp31DVCf4bpeN7LTi1cAadSYKE4MJpBJBQ_jmr5cBscOgvkw3Z1gVcB4-oBnQOQ6J3iyTu7JU0HEyS6QicUgTnytOepGSGpAQgncZmkgqrMeR1C88xV6ELZbQnBaMEr3M_Y84UluZv21qyx1wVPMKCtPb",
         collection: "Signature Collection",
         description: "An intoxicating blend of rare oud wood and golden amber. This candle evokes the warmth of a crackling fire on a cool midnight, wrapped in a blanket of rich, resinous aromas."
@@ -34,14 +34,14 @@ const ProductPage = () => {
                 <Navbar />
 
                 <main className="flex-1">
-                    <div className="container mx-auto px-4 py-8 lg:py-16">
-                        <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 xl:gap-16">
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-16">
+                        <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 sm:gap-8 xl:gap-16">
                             {/* Product Images */}
                             <div className="lg:col-span-6 space-y-4">
                                 <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl">
                                     <img
                                         className="w-full h-full object-cover"
-                                        alt={displayProduct.title}
+                                        alt={displayProduct.name}
                                         src={displayProduct.image}
                                     />
                                 </div>
@@ -50,11 +50,13 @@ const ProductPage = () => {
 
                             {/* Product Details */}
                             <div className="lg:col-span-4 lg:pt-8">
-                                <div className="bg-[#FFF7ED]/80 backdrop-blur-[16px] rounded-xl p-6 md:p-8 shadow-2xl shadow-black/30 border border-white/20">
-                                    <div className="flex flex-col space-y-6">
+                                <div className="bg-[#FFF7ED]/80 backdrop-blur-[16px] rounded-xl p-4 sm:p-6 md:p-8 shadow-2xl shadow-black/30 border border-white/20">
+                                    <div className="flex flex-col space-y-4 sm:space-y-6">
                                         <div>
-                                            <h1 className="text-4xl lg:text-5xl font-['Italiana',_serif] text-[#554B47]">{displayProduct.title}</h1>
-                                            <p className="mt-2 text-2xl text-[#554B47]/90">{displayProduct.price}</p>
+                                            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-['Italiana',_serif] text-[#554B47]">{displayProduct.name}</h1>
+                                            <p className="mt-2 text-xl sm:text-2xl text-[#554B47]/90">
+                                                {typeof displayProduct.price === 'string' ? displayProduct.price : `₹${displayProduct.price}`}
+                                            </p>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <div className="flex items-center gap-0.5">
