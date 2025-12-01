@@ -145,7 +145,7 @@ const Shop = () => {
                                     ))}
                                 </div>
                             </div>
-                            
+
                             {/* Sort */}
                             <div className="flex flex-col gap-2">
                                 <span className="text-[#EAD2C0] text-sm font-medium">Sort:</span>
@@ -207,7 +207,7 @@ const Shop = () => {
                                         <p className="text-[#554B47]/70 text-sm font-normal leading-normal">{product.collection}</p>
                                         <div className="mt-auto pt-4 flex justify-between items-center">
                                             <p className="text-[#554B47] text-lg font-semibold">
-                                                {typeof product.price === 'string' ? product.price : `₹${product.price}`}
+                                                ₹{product.price}
                                             </p>
                                             <button
                                                 onClick={(e) => {

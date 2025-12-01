@@ -116,20 +116,41 @@ app.patch('/api/products/:id', (req, res) => {
     try {
         const productId = req.params.id;
         const updates = req.body;
-        
+
         const products = readData(PRODUCTS_FILE);
         const productIndex = products.findIndex(p => p.id === productId);
-        
+
         if (productIndex === -1) {
             return res.status(404).json({ error: 'Product not found' });
         }
-        
+
         products[productIndex] = { ...products[productIndex], ...updates };
         writeData(PRODUCTS_FILE, products);
         res.json(products[productIndex]);
     } catch (error) {
         console.error('Error updating product:', error);
         res.status(500).json({ error: 'Failed to update product' });
+    }
+});
+
+// DELETE /api/products/:id - Delete product
+app.delete('/api/products/:id', (req, res) => {
+    try {
+        const productId = req.params.id;
+        let products = readData(PRODUCTS_FILE);
+        const initialLength = products.length;
+
+        products = products.filter(p => p.id !== productId);
+
+        if (products.length === initialLength) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        writeData(PRODUCTS_FILE, products);
+        res.json({ message: 'Product deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ error: 'Failed to delete product' });
     }
 });
 

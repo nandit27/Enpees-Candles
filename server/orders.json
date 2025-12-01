@@ -40,5 +40,114 @@
     ],
     "total": 390,
     "status": "Pending"
+  },
+  {
+    "id": "1764570143114",
+    "date": "2025-12-01T06:22:23.114Z",
+    "customer": {
+      "name": "ujgk",
+      "email": "kgu@gmail.com",
+      "address": "wefb ht",
+      "city": "dgfrt",
+      "zip": "400001"
+    },
+    "items": [
+      {
+        "id": "1",
+        "name": "4 Layer Bubble Pyramid Candle",
+        "description": "A stunning 4-layer bubble pyramid candle perfect for special occasions",
+        "price": "₹60",
+        "stock": "50",
+        "collection": "Decorative Collection",
+        "image": "/src/assets/4_Layer_Bubble_Pyramid_Candle__60.webp",
+        "featured": false,
+        "quantity": 3
+      }
+    ],
+    "total": 180,
+    "status": "Pending"
+  },
+  {
+    "id": "1764571547847",
+    "date": "2025-12-01T06:45:47.848Z",
+    "customer": {
+      "name": "gjkg",
+      "email": "ukggggg@bgfn",
+      "address": "gukj",
+      "city": "jukg",
+      "zip": "hjku"
+    },
+    "items": [
+      {
+        "id": "1",
+        "name": "4 Layer Bubble Pyramid Candle",
+        "description": "A stunning 4-layer bubble pyramid candle perfect for special occasions",
+        "price": 60,
+        "stock": "50",
+        "collection": "Decorative Collection",
+        "image": "/src/assets/4_Layer_Bubble_Pyramid_Candle__60.webp",
+        "featured": false,
+        "quantity": 1
+      },
+      {
+        "id": "36",
+        "name": "Bride Groom Candle",
+        "description": "Beautiful Bride Groom Candle for your home.",
+        "price": 499,
+        "stock": "50",
+        "collection": "General Collection",
+        "image": "/src/assets/Bride_Groom_Candle_499.webp",
+        "featured": false,
+        "quantity": 1
+      },
+      {
+        "id": "14",
+        "name": "Flower Heart Bouquet Candle",
+        "description": "Romantic heart-shaped bouquet candle perfect for gifting",
+        "price": 199,
+        "stock": "28",
+        "collection": "Romance Collection",
+        "image": "/src/assets/Flower_Heart_Bouquet_Candle__199.webp",
+        "featured": true,
+        "quantity": 5
+      },
+      {
+        "id": "54",
+        "name": "Mini Santa Clause",
+        "description": "Beautiful Mini Santa Clause for your home.",
+        "price": 50,
+        "stock": "50",
+        "collection": "Holiday Collection",
+        "image": "/src/assets/Mini_Santa_clause_50.webp",
+        "featured": false,
+        "quantity": 1
+      }
+    ],
+    "total": 1604,
+    "status": "Pending"
+  },
+  {
+    "id": "1764572672524",
+    "date": "2025-12-01T07:04:32.524Z",
+    "customer": {
+      "name": "ghf",
+      "email": "hfgn@sdf",
+      "address": "fghc",
+      "city": "ghj",
+      "zip": "jguy"
+    },
+    "items": [
+      {
+        "id": "1764572258958",
+        "name": "fbfdg",
+        "description": "gbd",
+        "price": "456.51",
+        "stock": "dfd",
+        "image": "http://localhost:3001/uploads/1764572258948_Screenshot_2025-08-13_143001.png",
+        "quantity": 1
+      }
+    ],
+    "total": 456.51,
+    "status": "Pending"
   }
 ]

@@ -184,7 +184,11 @@ const Checkout = () => {
                                 </h2>
                                 <div className="space-y-3 sm:space-y-4 max-h-[400px] overflow-y-auto pr-2">
                                     {cartItems.map((item, index) => {
-                                        const itemPrice = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
+                                        // Handle both numbers (new) and strings (old legacy data)
+                                        const rawPrice = item.price;
+                                        const itemPrice = typeof rawPrice === 'number'
+                                            ? rawPrice
+                                            : parseFloat(String(rawPrice).replace(/[^0-9.]/g, "")) || 0;
                                         const itemTotal = itemPrice * item.quantity;
                                         const itemId = item.id || item.name;
                                         return (
@@ -192,9 +196,9 @@ const Checkout = () => {
                                                 {/* Top row with image, name, and delete button */}
                                                 <div className="flex items-start gap-4">
                                                     {item.image && (
-                                                        <img 
-                                                            src={item.image} 
-                                                            alt={item.name} 
+                                                        <img
+                                                            src={item.image}
+                                                            alt={item.name}
                                                             className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                                                         />
                                                     )}
@@ -224,7 +228,7 @@ const Checkout = () => {
                                                         <span className="material-symbols-outlined text-lg">close</span>
                                                     </button>
                                                 </div>
-                                                
+
                                                 {/* Bottom row with quantity controls and total */}
                                                 <div className="flex items-center justify-between">
                                                     {/* Quantity Controls */}
@@ -266,7 +270,7 @@ const Checkout = () => {
                                         );
                                     })}
                                 </div>
-                                
+
                                 <div className="mt-6 pt-6 border-t-2 border-[#D8A24A]/30 space-y-3">
                                     <div className="flex justify-between items-center text-[#EAD2C0]">
                                         <span>Subtotal</span>

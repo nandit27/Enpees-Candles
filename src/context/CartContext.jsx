@@ -52,8 +52,11 @@ export const CartProvider = ({ children }) => {
 
     const getCartTotal = () => {
         return cartItems.reduce((total, item) => {
-            // Extract price number from string like "$24.99"
-            const price = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
+            // Handle both numbers (new) and strings (old legacy data)
+            const rawPrice = item.price;
+            const price = typeof rawPrice === 'number'
+                ? rawPrice
+                : parseFloat(String(rawPrice).replace(/[^0-9.]/g, "")) || 0;
             return total + price * item.quantity;
         }, 0);
     };

@@ -56,7 +56,7 @@ const Admin = () => {
         <div className="bg-[#3B2A23] font-['Inter',_sans-serif] h-screen overflow-hidden text-[#FFF7ED]">
             <div className="relative flex h-screen w-full">
                 {/* Mobile Menu Button */}
-                <button 
+                <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#D8A24A] text-[#3B2A23] rounded-lg shadow-lg"
                 >
@@ -79,28 +79,28 @@ const Admin = () => {
                             </div>
                         </Link>
                         <nav className="flex flex-col gap-2">
-                            <button 
+                            <button
                                 onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }}
                                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'dashboard' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-2xl">dashboard</span>
                                 <p className={`text-sm leading-normal ${activeView === 'dashboard' ? 'font-bold' : 'font-medium'}`}>Dashboard</p>
                             </button>
-                            <button 
+                            <button
                                 onClick={() => { setActiveView('products'); setIsMobileMenuOpen(false); }}
                                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'products' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-2xl">inventory_2</span>
                                 <p className={`text-sm leading-normal ${activeView === 'products' ? 'font-bold' : 'font-medium'}`}>Products</p>
                             </button>
-                            <button 
+                            <button
                                 onClick={() => { setActiveView('orders'); setIsMobileMenuOpen(false); }}
                                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'orders' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-2xl">receipt_long</span>
                                 <p className={`text-sm leading-normal ${activeView === 'orders' ? 'font-bold' : 'font-medium'}`}>Orders</p>
                             </button>
-                            <button 
+                            <button
                                 onClick={() => { setActiveView('featured'); setIsMobileMenuOpen(false); }}
                                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'featured' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
@@ -201,7 +201,7 @@ const Admin = () => {
                                         <div className="flex flex-col gap-1">
                                             <p className="text-base font-bold leading-normal text-[#3B2A23]">{product.name}</p>
                                             <p className="text-sm font-normal leading-normal text-[#554B47]">Stock: {product.stock}</p>
-                                            <p className="text-sm font-normal leading-normal text-[#554B47]">{product.price}</p>
+                                            <p className="text-sm font-normal leading-normal text-[#554B47]">₹{product.price}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -279,11 +279,31 @@ const Admin = () => {
                                                 className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg shadow-sm"
                                                 style={{ backgroundImage: `url('${product.image}')` }}
                                             ></div>
-                                            <div className="flex flex-col gap-1">
+                                            <div className="flex flex-col gap-1 flex-1">
                                                 <p className="text-base font-bold leading-normal text-[#3B2A23]">{product.name}</p>
                                                 <p className="text-sm font-normal leading-normal text-[#554B47]">Stock: {product.stock}</p>
-                                                <p className="text-sm font-normal leading-normal text-[#554B47]">{product.price}</p>
+                                                <p className="text-sm font-normal leading-normal text-[#554B47]">₹{product.price}</p>
                                             </div>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (window.confirm('Are you sure you want to delete this product?')) {
+                                                        fetch(`http://localhost:3001/api/products/${product.id}`, {
+                                                            method: 'DELETE'
+                                                        })
+                                                            .then(res => {
+                                                                if (res.ok) {
+                                                                    setProducts(products.filter(p => p.id !== product.id));
+                                                                }
+                                                            })
+                                                            .catch(err => console.error('Error deleting product:', err));
+                                                    }
+                                                }}
+                                                className="mt-2 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">delete</span>
+                                                Delete
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -325,10 +345,10 @@ const Admin = () => {
                                                 <tr key={order.id} className="border-b border-[#FFF7ED]/10 bg-[#FFF7ED]/5 hover:bg-[#FFF7ED]/10">
                                                     <td className="px-6 py-4 font-medium text-[#FFF7ED]">{order.id}</td>
                                                     <td className="px-6 py-4">
-                                                        {order.date ? new Date(order.date).toLocaleDateString('en-IN', { 
-                                                            day: '2-digit', 
-                                                            month: 'short', 
-                                                            year: 'numeric' 
+                                                        {order.date ? new Date(order.date).toLocaleDateString('en-IN', {
+                                                            day: '2-digit',
+                                                            month: 'short',
+                                                            year: 'numeric'
                                                         }) : 'N/A'}
                                                     </td>
                                                     <td className="px-6 py-4">
@@ -378,7 +398,7 @@ const Admin = () => {
                                 const startIndex = (featuredPage - 1) * itemsPerPage;
                                 const endIndex = startIndex + itemsPerPage;
                                 const currentProducts = products.slice(startIndex, endIndex);
-                                
+
                                 return (
                                     <>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
@@ -396,12 +416,12 @@ const Admin = () => {
                                                             />
                                                         </div>
                                                         <h3 className="font-bold text-[#FFF7ED] text-sm mb-1 line-clamp-2">{product.name}</h3>
-                                                        <p className="text-xs text-[#EAD2C0] mb-2">{product.price}</p>
+                                                        <p className="text-xs text-[#EAD2C0] mb-2">₹{product.price}</p>
                                                         <button
                                                             onClick={(e) => {
                                                                 e.preventDefault();
                                                                 e.stopPropagation();
-                                                                
+
                                                                 // If product is already featured, allow unfeaturing
                                                                 // If not featured, check if we're at the limit
                                                                 if (!isFeatured && featuredCount >= 6) {
@@ -411,7 +431,7 @@ const Admin = () => {
 
                                                                 // Toggle featured status
                                                                 const newFeaturedStatus = !isFeatured;
-                                                                
+
                                                                 fetch(`http://localhost:3001/api/products/${product.id}`, {
                                                                     method: 'PATCH',
                                                                     headers: { 'Content-Type': 'application/json' },
@@ -424,8 +444,8 @@ const Admin = () => {
                                                                     .catch(err => console.error('Error updating featured status:', err));
                                                             }}
                                                             className={`w-full py-1.5 rounded-lg font-bold text-xs transition-all mt-auto ${isFeatured
-                                                                    ? 'bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90'
-                                                                    : 'bg-[#FFF7ED]/10 text-[#FFF7ED] hover:bg-[#FFF7ED]/20'
+                                                                ? 'bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90'
+                                                                : 'bg-[#FFF7ED]/10 text-[#FFF7ED] hover:bg-[#FFF7ED]/20'
                                                                 }`}
                                                         >
                                                             {isFeatured ? (

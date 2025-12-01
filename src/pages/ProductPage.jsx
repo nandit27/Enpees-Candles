@@ -11,7 +11,7 @@ const ProductPage = () => {
     // Default data if no product is passed (for testing/direct access)
     const displayProduct = product || {
         name: "Midnight Oud & Amber",
-        price: "₹48",
+        price: 48,
         image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDEOfWOOey5rqQmyCAqamzZ73LChNVerTn6yo_mld0ewxamJLmvd8DSi-nKsQ9VdLu0h62HrYTTAGjmc27tyXlEF6LDA63twxPVGx5ogTgCTyW0o6Qc7ChMp31DVCf4bpeN7LTi1cAadSYKE4MJpBJBQ_jmr5cBscOgvkw3Z1gVcB4-oBnQOQ6J3iyTu7JU0HEyS6QicUgTnytOepGSGpAQgncZmkgqrMeR1C88xV6ELZbQnBaMEr3M_Y84UluZv21qyx1wVPMKCtPb",
         collection: "Signature Collection",
         description: "An intoxicating blend of rare oud wood and golden amber. This candle evokes the warmth of a crackling fire on a cool midnight, wrapped in a blanket of rich, resinous aromas."
@@ -148,28 +148,28 @@ const ProductPage = () => {
                             {[
                                 {
                                     title: "Sandalwood Suede",
-                                    price: "₹90",
+                                    price: 90,
                                     image: "/src/assets/Chai_Biscuit_Glass_Candle___90.webp",
                                     collection: "Gourmet Collection",
                                     description: "A warm and inviting sandalwood scent with notes of suede."
                                 },
                                 {
                                     title: "Velvet Tonka",
-                                    price: "₹60",
+                                    price: 60,
                                     image: "/src/assets/Teddy_Heart_Candle__60.webp",
                                     collection: "Cute Collection",
                                     description: "Smooth tonka bean blended with velvet musk."
                                 },
                                 {
                                     title: "Golden Myrrh",
-                                    price: "₹199",
+                                    price: 199,
                                     image: "/src/assets/Flower_Glass_Jar_Candle__199.webp",
                                     collection: "Premium Collection",
                                     description: "Rich myrrh with golden amber notes."
                                 },
                                 {
                                     title: "Spiced Ember",
-                                    price: "₹15",
+                                    price: 15,
                                     image: "/src/assets/Diya_Scented_Candle__15.webp",
                                     collection: "Festival Collection",
                                     description: "Spicy embers glowing in the dark."
