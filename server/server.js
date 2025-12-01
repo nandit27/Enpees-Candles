@@ -154,6 +154,79 @@ app.delete('/api/products/:id', (req, res) => {
     }
 });
 
+const INQUIRIES_FILE = path.join(__dirname, 'inquiries.json');
+
+// GET /api/inquiries - Get all inquiries (for admin)
+app.get('/api/inquiries', (req, res) => {
+    try {
+        const inquiries = readData(INQUIRIES_FILE);
+        res.json(inquiries);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch inquiries' });
+    }
+});
+
+// POST /api/inquiries/general - Submit general contact inquiry
+app.post('/api/inquiries/general', (req, res) => {
+    try {
+        const newInquiry = {
+            id: Date.now().toString(),
+            date: new Date().toISOString(),
+            ...req.body
+        };
+        const inquiries = readData(INQUIRIES_FILE);
+        inquiries.general.push(newInquiry);
+        writeData(INQUIRIES_FILE, inquiries);
+        res.status(201).json({ message: 'General inquiry submitted successfully', inquiry: newInquiry });
+    } catch (error) {
+        console.error('Error submitting general inquiry:', error);
+        res.status(500).json({ error: 'Failed to submit inquiry' });
+    }
+});
+
+// POST /api/inquiries/trade - Submit trade inquiry
+app.post('/api/inquiries/trade', (req, res) => {
+    try {
+        const newInquiry = {
+            id: Date.now().toString(),
+            date: new Date().toISOString(),
+            ...req.body
+        };
+        const inquiries = readData(INQUIRIES_FILE);
+        inquiries.trade.push(newInquiry);
+        writeData(INQUIRIES_FILE, inquiries);
+        res.status(201).json({ message: 'Trade inquiry submitted successfully', inquiry: newInquiry });
+    } catch (error) {
+        console.error('Error submitting trade inquiry:', error);
+        res.status(500).json({ error: 'Failed to submit inquiry' });
+    }
+});
+
+// POST /api/inquiries/bulk - Submit bulk order inquiry
+app.post('/api/inquiries/bulk', (req, res) => {
+    try {
+        // Validate total quantity from items or direct quantity field
+        const totalQuantity = req.body.totalQuantity || parseInt(req.body.quantity) || 0;
+
+        if (totalQuantity <= 100) {
+            return res.status(400).json({ error: 'Total quantity must be more than 100 pieces' });
+        }
+
+        const newInquiry = {
+            id: Date.now().toString(),
+            date: new Date().toISOString(),
+            ...req.body
+        };
+        const inquiries = readData(INQUIRIES_FILE);
+        inquiries.bulk.push(newInquiry);
+        writeData(INQUIRIES_FILE, inquiries);
+        res.status(201).json({ message: 'Bulk order inquiry submitted successfully', inquiry: newInquiry });
+    } catch (error) {
+        console.error('Error submitting bulk order inquiry:', error);
+        res.status(500).json({ error: 'Failed to submit inquiry' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

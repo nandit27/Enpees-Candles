@@ -9,9 +9,10 @@ import heroBg from '../assets/hero-bg.png'; // Using as profile placeholder
 const Admin = () => {
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
+    const [inquiries, setInquiries] = useState({ general: [], trade: [], bulk: [] });
     const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', stock: '', image: null });
     const [showAddProduct, setShowAddProduct] = useState(false);
-    const [activeView, setActiveView] = useState('dashboard'); // 'dashboard', 'products', 'orders'
+    const [activeView, setActiveView] = useState('dashboard'); // 'dashboard', 'products', 'orders', 'inquiries'
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [featuredPage, setFeaturedPage] = useState(1);
     const itemsPerPage = 12;
@@ -26,6 +27,11 @@ const Admin = () => {
             .then(res => res.json())
             .then(data => setProducts(data))
             .catch(err => console.error('Error fetching products:', err));
+
+        fetch('http://localhost:3001/api/inquiries')
+            .then(res => res.json())
+            .then(data => setInquiries(data))
+            .catch(err => console.error('Error fetching inquiries:', err));
     }, []);
 
     const handleAddProduct = (e) => {
@@ -106,6 +112,13 @@ const Admin = () => {
                             >
                                 <span className="material-symbols-outlined text-2xl">star</span>
                                 <p className={`text-sm leading-normal ${activeView === 'featured' ? 'font-bold' : 'font-medium'}`}>Featured</p>
+                            </button>
+                            <button
+                                onClick={() => { setActiveView('inquiries'); setIsMobileMenuOpen(false); }}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'inquiries' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
+                            >
+                                <span className="material-symbols-outlined text-2xl">contact_mail</span>
+                                <p className={`text-sm leading-normal ${activeView === 'inquiries' ? 'font-bold' : 'font-medium'}`}>Inquiries</p>
                             </button>
                         </nav>
                     </div>
@@ -519,6 +532,112 @@ const Admin = () => {
                                     </>
                                 );
                             })()}
+                        </div>
+                    )}
+
+                    {/* Inquiries View */}
+                    {activeView === 'inquiries' && (
+                        <div className="space-y-6">
+                            <h2 className="text-[#3B2A23] text-3xl font-black leading-tight tracking-wide">Inquiries</h2>
+
+                            {/* General Contact Inquiries */}
+                            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+                                <h3 className="text-[#3B2A23] text-xl font-bold mb-4 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[#D8A24A]">mail</span>
+                                    General Contact ({inquiries.general.length})
+                                </h3>
+                                {inquiries.general.length === 0 ? (
+                                    <p className="text-[#554B47]/60 text-sm">No general inquiries yet.</p>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {inquiries.general.map((inquiry) => (
+                                            <div key={inquiry.id} className="bg-[#FFF7ED]/50 rounded-lg p-4 border border-[#EAD2C0]/30">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <p className="text-[#3B2A23] font-bold">{inquiry.name}</p>
+                                                    <p className="text-xs text-[#554B47]/60">{new Date(inquiry.date).toLocaleString()}</p>
+                                                </div>
+                                                <p className="text-sm text-[#554B47] mb-2">Email: {inquiry.email}</p>
+                                                <p className="text-sm text-[#554B47] bg-white/50 p-3 rounded">{inquiry.message}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Trade Inquiries */}
+                            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+                                <h3 className="text-[#3B2A23] text-xl font-bold mb-4 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[#D8A24A]">business</span>
+                                    Trade Inquiries ({inquiries.trade.length})
+                                </h3>
+                                {inquiries.trade.length === 0 ? (
+                                    <p className="text-[#554B47]/60 text-sm">No trade inquiries yet.</p>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {inquiries.trade.map((inquiry) => (
+                                            <div key={inquiry.id} className="bg-[#FFF7ED]/50 rounded-lg p-4 border border-[#EAD2C0]/30">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <p className="text-[#3B2A23] font-bold">{inquiry.name}</p>
+                                                    <p className="text-xs text-[#554B47]/60">{new Date(inquiry.date).toLocaleString()}</p>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-sm text-[#554B47] mb-2">
+                                                    <p>Company: {inquiry.companyName}</p>
+                                                    <p>Contact: {inquiry.contactNo}</p>
+                                                    <p className="col-span-2">Email: {inquiry.email}</p>
+                                                </div>
+                                                {inquiry.remarks && (
+                                                    <p className="text-sm text-[#554B47] bg-white/50 p-3 rounded mt-2">
+                                                        <span className="font-semibold">Remarks:</span> {inquiry.remarks}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Bulk Order Inquiries */}
+                            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+                                <h3 className="text-[#3B2A23] text-xl font-bold mb-4 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[#D8A24A]">inventory</span>
+                                    Bulk Orders ({inquiries.bulk.length})
+                                </h3>
+                                {inquiries.bulk.length === 0 ? (
+                                    <p className="text-[#554B47]/60 text-sm">No bulk order inquiries yet.</p>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {inquiries.bulk.map((inquiry) => (
+                                            <div key={inquiry.id} className="bg-[#FFF7ED]/50 rounded-lg p-4 border border-[#EAD2C0]/30">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <p className="text-[#3B2A23] font-bold">{inquiry.name}</p>
+                                                    <p className="text-xs text-[#554B47]/60">{new Date(inquiry.date).toLocaleString()}</p>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-sm text-[#554B47] mb-3">
+                                                    <p>Company: {inquiry.companyName}</p>
+                                                    <p>Phone: {inquiry.phoneNo}</p>
+                                                    <p className="col-span-2">Email: {inquiry.email}</p>
+                                                    <p className="col-span-2 font-semibold text-[#D8A24A]">
+                                                        Total Quantity: {inquiry.totalQuantity} pieces
+                                                    </p>
+                                                </div>
+                                                {inquiry.items && inquiry.items.length > 0 && (
+                                                    <div className="bg-white/50 p-3 rounded">
+                                                        <p className="text-sm font-semibold text-[#3B2A23] mb-2">Items:</p>
+                                                        <div className="space-y-1">
+                                                            {inquiry.items.map((item, idx) => (
+                                                                <div key={idx} className="flex justify-between text-sm text-[#554B47]">
+                                                                    <span>{item.productName}</span>
+                                                                    <span className="font-semibold">{item.quantity} pcs</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </main>

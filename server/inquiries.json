@@ -1,0 +1,40 @@
+{
+  "general": [],
+  "trade": [
+    {
+      "id": "1764594753747",
+      "date": "2025-12-01T13:12:33.747Z",
+      "name": "ghfch",
+      "contactNo": "787784512",
+      "companyName": "gvng",
+      "email": "gjh@gmail.com",
+      "remarks": "dgrth"
+    }
+  ],
+  "bulk": [
+    {
+      "id": "1764594759749",
+      "date": "2025-12-01T13:12:39.749Z",
+      "name": "gj",
+      "companyName": "jhg",
+      "phoneNo": "6785245478",
+      "email": "ghjg@fgft.com",
+      "categoryCode": "option1",
+      "items": [
+        {
+          "productName": "jgh",
+          "quantity": "54"
+        },
+        {
+          "productName": "hjg",
+          "quantity": "54"
+        },
+        {
+          "productName": "ghjg",
+          "quantity": "4"
+        }
+      ],
+      "totalQuantity": 112
+    }
+  ]
+}
