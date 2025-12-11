@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import LazyImage from '../components/LazyImage';
 import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
 import vanillaCandle from '../assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp';
 import sandalwoodCandle from '../assets/Chai_Biscuit_Glass_Candle___90.webp';
@@ -9,10 +10,15 @@ import heroBg from '../assets/hero-bg.png'; // Using as profile placeholder
 const Admin = () => {
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [inquiries, setInquiries] = useState({ general: [], trade: [], bulk: [] });
-    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', stock: '', image: null });
+    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', stock: '', category: '', image: null });
+    const [editingProduct, setEditingProduct] = useState(null);
     const [showAddProduct, setShowAddProduct] = useState(false);
-    const [activeView, setActiveView] = useState('dashboard'); // 'dashboard', 'products', 'orders', 'inquiries'
+    const [showEditProduct, setShowEditProduct] = useState(false);
+    const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const [newCategory, setNewCategory] = useState({ name: '', description: '' });
+    const [activeView, setActiveView] = useState('dashboard'); // 'dashboard', 'products', 'orders', 'inquiries', 'categories'
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [featuredPage, setFeaturedPage] = useState(1);
     const itemsPerPage = 12;
@@ -28,6 +34,11 @@ const Admin = () => {
             .then(data => setProducts(data))
             .catch(err => console.error('Error fetching products:', err));
 
+        fetch('http://localhost:3001/api/categories')
+            .then(res => res.json())
+            .then(data => setCategories(data))
+            .catch(err => console.error('Error fetching categories:', err));
+
         fetch('http://localhost:3001/api/inquiries')
             .then(res => res.json())
             .then(data => setInquiries(data))
@@ -41,6 +52,7 @@ const Admin = () => {
         formData.append('description', newProduct.description);
         formData.append('price', newProduct.price);
         formData.append('stock', newProduct.stock);
+        formData.append('category', newProduct.category);
         if (newProduct.image) {
             formData.append('image', newProduct.image);
         }
@@ -53,9 +65,60 @@ const Admin = () => {
             .then(data => {
                 setProducts([...products, data]);
                 setShowAddProduct(false);
-                setNewProduct({ name: '', description: '', price: '', stock: '', image: null });
+                setNewProduct({ name: '', description: '', price: '', stock: '', category: '', image: null });
             })
             .catch(err => console.error('Error adding product:', err));
+    };
+
+    const handleEditProduct = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name', editingProduct.name);
+        formData.append('description', editingProduct.description);
+        formData.append('price', editingProduct.price);
+        formData.append('stock', editingProduct.stock);
+        formData.append('category', editingProduct.category);
+        if (editingProduct.image && typeof editingProduct.image !== 'string') {
+            formData.append('image', editingProduct.image);
+        }
+
+        fetch(`http://localhost:3001/api/products/${editingProduct._id}`, {
+            method: 'PATCH',
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+                setProducts(products.map(p => p._id === data._id ? data : p));
+                setShowEditProduct(false);
+                setEditingProduct(null);
+            })
+            .catch(err => console.error('Error updating product:', err));
+    };
+
+    const handleAddCategory = (e) => {
+        e.preventDefault();
+        fetch('http://localhost:3001/api/categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newCategory)
+        })
+            .then(res => res.json())
+            .then(data => {
+                setCategories([...categories, data]);
+                setShowCategoryModal(false);
+                setNewCategory({ name: '', description: '' });
+            })
+            .catch(err => console.error('Error adding category:', err));
+    };
+
+    const handleDeleteCategory = (id) => {
+        if (window.confirm('Are you sure you want to delete this category?')) {
+            fetch(`http://localhost:3001/api/categories/${id}`, {
+                method: 'DELETE'
+            })
+                .then(() => setCategories(categories.filter(c => c._id !== id)))
+                .catch(err => console.error('Error deleting category:', err));
+        }
     };
 
     return (
@@ -64,9 +127,9 @@ const Admin = () => {
                 {/* Mobile Menu Button */}
                 <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#D8A24A] text-[#3B2A23] rounded-lg shadow-lg"
+                    className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-[#D8A24A] text-[#3B2A23] rounded-lg shadow-xl"
                 >
-                    <span className="material-symbols-outlined">
+                    <span className="material-symbols-outlined text-2xl">
                         {isMobileMenuOpen ? 'close' : 'menu'}
                     </span>
                 </button>
@@ -120,6 +183,13 @@ const Admin = () => {
                                 <span className="material-symbols-outlined text-2xl">contact_mail</span>
                                 <p className={`text-sm leading-normal ${activeView === 'inquiries' ? 'font-bold' : 'font-medium'}`}>Inquiries</p>
                             </button>
+                            <button
+                                onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); }}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'categories' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
+                            >
+                                <span className="material-symbols-outlined text-2xl">category</span>
+                                <p className={`text-sm leading-normal ${activeView === 'categories' ? 'font-bold' : 'font-medium'}`}>Categories</p>
+                            </button>
                         </nav>
                     </div>
                     <button onClick={() => setShowAddProduct(true)} className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#D8A24A] text-[#3B2A23] text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
@@ -128,7 +198,7 @@ const Admin = () => {
                 </aside>
 
                 {/* Main Content */}
-                <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto h-screen lg:ml-0 ml-0">
+                <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto h-screen lg:ml-0 ml-0 pt-16 lg:pt-4">
                     {/* Add Product Modal */}
                     {showAddProduct && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -151,10 +221,20 @@ const Admin = () => {
                                         className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
                                     />
                                     <input
-                                        type="text" placeholder="Stock" required
+                                        type="number" placeholder="Stock" required
                                         value={newProduct.stock} onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
                                         className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
                                     />
+                                    <select
+                                        value={newProduct.category} onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
+                                        required
+                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white"
+                                    >
+                                        <option value="">Select Category</option>
+                                        {categories.map(cat => (
+                                            <option key={cat._id} value={cat.name}>{cat.name}</option>
+                                        ))}
+                                    </select>
                                     <input
                                         type="file" accept="image/*"
                                         onChange={e => setNewProduct({ ...newProduct, image: e.target.files[0] })}
@@ -169,20 +249,76 @@ const Admin = () => {
                         </div>
                     )}
 
+                    {/* Edit Product Modal */}
+                    {showEditProduct && editingProduct && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                            <div className="bg-[#3B2A23] p-8 rounded-xl border border-[#FFF7ED]/20 w-full max-w-md">
+                                <h2 className="text-2xl font-bold mb-4 text-[#FFF7ED]">Edit Product</h2>
+                                <form onSubmit={handleEditProduct} className="space-y-4">
+                                    <input
+                                        type="text" placeholder="Product Name" required
+                                        value={editingProduct.name} onChange={e => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                    />
+                                    <textarea
+                                        placeholder="Description" required
+                                        value={editingProduct.description} onChange={e => setEditingProduct({ ...editingProduct, description: e.target.value })}
+                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                    />
+                                    <input
+                                        type="text" placeholder="Price (e.g. ₹249)" required
+                                        value={editingProduct.price} onChange={e => setEditingProduct({ ...editingProduct, price: e.target.value })}
+                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                    />
+                                    <input
+                                        type="number" placeholder="Stock" required
+                                        value={editingProduct.stock} onChange={e => setEditingProduct({ ...editingProduct, stock: e.target.value })}
+                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                    />
+                                    <select
+                                        value={editingProduct.category} onChange={e => setEditingProduct({ ...editingProduct, category: e.target.value })}
+                                        required
+                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white"
+                                    >
+                                        <option value="">Select Category</option>
+                                        {categories.map(cat => (
+                                            <option key={cat._id} value={cat.name}>{cat.name}</option>
+                                        ))}
+                                    </select>
+                                    <div>
+                                        <label className="text-sm text-[#EAD2C0] mb-1 block">Change Image (optional)</label>
+                                        <input
+                                            type="file" accept="image/*"
+                                            onChange={e => setEditingProduct({ ...editingProduct, image: e.target.files[0] })}
+                                            className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white"
+                                        />
+                                        {typeof editingProduct.image === 'string' && (
+                                            <p className="text-xs text-[#EAD2C0] mt-1">Current: {editingProduct.image.split('/').pop()}</p>
+                                        )}
+                                    </div>
+                                    <div className="flex justify-end gap-4 mt-6">
+                                        <button type="button" onClick={() => { setShowEditProduct(false); setEditingProduct(null); }} className="px-4 py-2 text-[#EAD2C0] hover:text-white">Cancel</button>
+                                        <button type="submit" className="px-4 py-2 bg-[#D8A24A] text-[#3B2A23] font-bold rounded">Update Product</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Dashboard View */}
                     {activeView === 'dashboard' && (
                         <div className="flex flex-col gap-8">
                             <div className="flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex flex-col gap-2">
-                                    <p className="text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Welcome, Owner</p>
-                                    <p className="text-base font-normal leading-normal text-[#EAD2C0]">Here's a look at your business performance today.</p>
+                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Welcome, Owner</p>
+                                    <p className="text-sm sm:text-base font-normal leading-normal text-[#EAD2C0]">Here's a look at your business performance today.</p>
                                 </div>
                             </div>
 
                             {/* Stats */}
-                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:gap-6 sm:grid-cols-2 lg:grid-cols-4">
                                 {(() => {
-                                    const totalRevenue = orders.reduce((acc, order) => acc + order.total, 0);
+                                    const totalRevenue = orders.reduce((acc, order) => acc + (order.totals?.total || order.total || 0), 0);
                                     const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
                                     const totalStock = products.reduce((acc, product) => acc + parseInt(product.stock || 0), 0);
                                     return [
@@ -192,9 +328,9 @@ const Admin = () => {
                                         { title: "Total Inventory", value: totalStock.toString(), change: "+10%", icon: "arrow_upward", color: "text-green-700" }
                                     ];
                                 })().map((stat, index) => (
-                                    <div key={index} className="flex flex-col gap-2 rounded-xl p-6 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                                        <p className="text-base font-medium leading-normal text-[#554B47]">{stat.title}</p>
-                                        <p className="text-3xl font-bold leading-tight tracking-tight text-[#3B2A23]">{stat.value}</p>
+                                    <div key={index} className="flex flex-col gap-1 sm:gap-2 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                                        <p className="text-xs sm:text-sm lg:text-base font-medium leading-normal text-[#554B47]">{stat.title}</p>
+                                        <p className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight tracking-tight text-[#3B2A23]">{stat.value}</p>
                                         <div className="flex items-center gap-1">
                                             <span className={`material-symbols-outlined text-lg ${stat.color}`}>{stat.icon}</span>
                                             <p className={`text-base font-medium leading-normal ${stat.color}`}>{stat.change}</p>
@@ -203,25 +339,28 @@ const Admin = () => {
                                 ))}
                             </div>
 
-                            <h2 className="text-2xl font-bold leading-tight tracking-tight text-[#FFF7ED] pt-4">Product Management</h2>
-                            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
+                            <h2 className="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-[#FFF7ED] pt-4">Product Management</h2>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
                                 {products.slice(0, 4).map((product, index) => (
-                                    <div key={index} className="flex flex-col gap-4 rounded-xl p-4 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
-                                        <div
-                                            className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg shadow-sm"
-                                            style={{ backgroundImage: `url('${product.image}')` }}
-                                        ></div>
-                                        <div className="flex flex-col gap-1">
-                                            <p className="text-base font-bold leading-normal text-[#3B2A23]">{product.name}</p>
-                                            <p className="text-sm font-normal leading-normal text-[#554B47]">Stock: {product.stock}</p>
-                                            <p className="text-sm font-normal leading-normal text-[#554B47]">₹{product.price}</p>
+                                    <div key={index} className="flex flex-col gap-2 sm:gap-3 lg:gap-4 rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
+                                        <div className="w-full aspect-square rounded-lg shadow-sm overflow-hidden">
+                                            <LazyImage
+                                                src={product.image}
+                                                alt={product.name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-0.5 sm:gap-1">
+                                            <p className="text-xs sm:text-sm lg:text-base font-bold leading-tight text-[#3B2A23] line-clamp-2">{product.name}</p>
+                                            <p className="text-xs sm:text-sm font-normal leading-normal text-[#554B47]">Stock: {product.stock}</p>
+                                            <p className="text-xs sm:text-sm font-normal leading-normal text-[#554B47]">₹{product.price}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <h2 className="text-2xl font-bold leading-tight tracking-tight text-[#FFF7ED] pt-4">Recent Orders</h2>
-                            <div className="overflow-x-auto rounded-xl border border-[#FFF7ED]/20">
+                            <h2 className="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-[#FFF7ED] pt-4">Recent Orders</h2>
+                            <div className="overflow-x-auto rounded-lg sm:rounded-xl border border-[#FFF7ED]/20 -mx-3 sm:mx-0">
                                 <table className="w-full text-left text-sm text-[#EAD2C0]">
                                     <thead className="bg-[#FFF7ED]/10 text-xs uppercase text-[#FFF7ED]">
                                         <tr>
@@ -245,7 +384,7 @@ const Admin = () => {
                                                 <td className="px-6 py-4">
                                                     {order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')}
                                                 </td>
-                                                <td className="px-6 py-4">₹{order.total.toFixed(2)}</td>
+                                                <td className="px-6 py-4">₹{(order.totals?.total || order.total || 0).toFixed(2)}</td>
                                                 <td className="px-6 py-4">
                                                     <span className="inline-flex items-center rounded-full bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-400 ring-1 ring-inset ring-yellow-400/20">
                                                         {order.status}
@@ -267,12 +406,12 @@ const Admin = () => {
                     {/* Products View */}
                     {activeView === 'products' && (
                         <div className="flex flex-col gap-8">
-                            <div className="flex flex-wrap items-center justify-between gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <p className="text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Product Management</p>
-                                    <p className="text-base font-normal leading-normal text-[#EAD2C0]">Manage your product inventory and listings.</p>
+                            <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+                                <div className="flex flex-col gap-1 sm:gap-2">
+                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Product Management</p>
+                                    <p className="text-sm sm:text-base font-normal leading-normal text-[#EAD2C0]">Manage your product inventory and listings.</p>
                                 </div>
-                                <button onClick={() => setShowAddProduct(true)} className="flex h-12 cursor-pointer items-center justify-center rounded-lg px-6 bg-[#D8A24A] text-[#3B2A23] text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
+                                <button onClick={() => setShowAddProduct(true)} className="flex h-10 sm:h-12 cursor-pointer items-center justify-center rounded-lg px-4 sm:px-6 bg-[#D8A24A] text-[#3B2A23] text-xs sm:text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
                                     <span className="material-symbols-outlined mr-2">add</span>
                                     Add New Product
                                 </button>
@@ -285,38 +424,55 @@ const Admin = () => {
                                     <p className="text-sm text-[#EAD2C0]/70">Add your first product to get started</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
                                     {products.map((product, index) => (
-                                        <div key={index} className="flex flex-col gap-4 rounded-xl p-4 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
-                                            <div
-                                                className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-lg shadow-sm"
-                                                style={{ backgroundImage: `url('${product.image}')` }}
-                                            ></div>
-                                            <div className="flex flex-col gap-1 flex-1">
-                                                <p className="text-base font-bold leading-normal text-[#3B2A23]">{product.name}</p>
-                                                <p className="text-sm font-normal leading-normal text-[#554B47]">Stock: {product.stock}</p>
-                                                <p className="text-sm font-normal leading-normal text-[#554B47]">₹{product.price}</p>
+                                        <div key={index} className="flex flex-col gap-2 sm:gap-3 lg:gap-4 rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                                            <div className="w-full aspect-square rounded-lg shadow-sm overflow-hidden">
+                                                <LazyImage
+                                                    src={product.image}
+                                                    alt={product.name}
+                                                    className="w-full h-full object-cover"
+                                                />
                                             </div>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (window.confirm('Are you sure you want to delete this product?')) {
-                                                        fetch(`http://localhost:3001/api/products/${product.id}`, {
-                                                            method: 'DELETE'
-                                                        })
-                                                            .then(res => {
-                                                                if (res.ok) {
-                                                                    setProducts(products.filter(p => p.id !== product.id));
-                                                                }
+                                            <div className="flex flex-col gap-0.5 sm:gap-1 flex-1">
+                                                <p className="text-xs sm:text-sm lg:text-base font-bold leading-tight text-[#3B2A23] line-clamp-2">{product.name}</p>
+                                                <p className="text-xs font-normal leading-normal text-[#554B47]">Category: {product.category || 'general'}</p>
+                                                <p className="text-xs sm:text-sm font-normal leading-normal text-[#554B47]">Stock: {product.stock}</p>
+                                                <p className="text-xs sm:text-sm font-normal leading-normal text-[#554B47]">₹{product.price}</p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditingProduct(product);
+                                                        setShowEditProduct(true);
+                                                    }}
+                                                    className="flex-1 py-1.5 sm:py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-600 rounded-lg text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-1"
+                                                >
+                                                    <span className="material-symbols-outlined text-base sm:text-lg">edit</span>
+                                                    <span className="hidden sm:inline">Edit</span>
+                                                </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (window.confirm('Are you sure you want to delete this product?')) {
+                                                            fetch(`http://localhost:3001/api/products/${product._id}`, {
+                                                                method: 'DELETE'
                                                             })
-                                                            .catch(err => console.error('Error deleting product:', err));
-                                                    }
-                                                }}
-                                                className="mt-2 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2"
-                                            >
-                                                <span className="material-symbols-outlined text-lg">delete</span>
-                                                Delete
-                                            </button>
+                                                                .then(res => {
+                                                                    if (res.ok) {
+                                                                        setProducts(products.filter(p => p._id !== product._id));
+                                                                    }
+                                                                })
+                                                                .catch(err => console.error('Error deleting product:', err));
+                                                        }
+                                                    }}
+                                                    className="flex-1 py-1.5 sm:py-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-lg text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-1"
+                                                >
+                                                    <span className="material-symbols-outlined text-base sm:text-lg">delete</span>
+                                                    <span className="hidden sm:inline">Delete</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -327,10 +483,10 @@ const Admin = () => {
                     {/* Orders View */}
                     {activeView === 'orders' && (
                         <div className="flex flex-col gap-8">
-                            <div className="flex flex-wrap items-center justify-between gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <p className="text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Order Management</p>
-                                    <p className="text-base font-normal leading-normal text-[#EAD2C0]">View and manage all customer orders.</p>
+                            <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+                                <div className="flex flex-col gap-1 sm:gap-2">
+                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Order Management</p>
+                                    <p className="text-sm sm:text-base font-normal leading-normal text-[#EAD2C0]">View and manage all customer orders.</p>
                                 </div>
                             </div>
 
@@ -341,8 +497,8 @@ const Admin = () => {
                                     <p className="text-sm text-[#EAD2C0]/70">Orders will appear here once customers place them</p>
                                 </div>
                             ) : (
-                                <div className="overflow-x-auto rounded-xl border border-[#FFF7ED]/20">
-                                    <table className="w-full text-left text-sm text-[#EAD2C0]">
+                                <div className="overflow-x-auto rounded-lg sm:rounded-xl border border-[#FFF7ED]/20 -mx-3 sm:mx-0">
+                                    <table className="w-full text-left text-xs sm:text-sm text-[#EAD2C0] min-w-[600px]">
                                         <thead className="bg-[#FFF7ED]/10 text-xs uppercase text-[#FFF7ED]">
                                             <tr>
                                                 <th scope="col" className="px-6 py-3">Order ID</th>
@@ -380,7 +536,7 @@ const Admin = () => {
                                                             ))}
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 font-bold">₹{order.total.toFixed(2)}</td>
+                                                    <td className="px-6 py-4 font-bold">₹{(order.totals?.total || order.total || 0).toFixed(2)}</td>
                                                     <td className="px-6 py-4">
                                                         <span className="inline-flex items-center rounded-full bg-yellow-400/10 px-2 py-1 text-xs font-medium text-yellow-400 ring-1 ring-inset ring-yellow-400/20">
                                                             {order.status}
@@ -397,10 +553,10 @@ const Admin = () => {
 
                     {/* Featured Products View */}
                     {activeView === 'featured' && (
-                        <div className="flex flex-col gap-6">
-                            <div className="flex flex-col gap-2">
-                                <p className="text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Featured Products</p>
-                                <p className="text-base font-normal leading-normal text-[#EAD2C0]">Select up to 6 products to display in the landing page bestsellers section</p>
+                        <div className="flex flex-col gap-4 sm:gap-6">
+                            <div className="flex flex-col gap-1 sm:gap-2">
+                                <p className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Featured Products</p>
+                                <p className="text-sm sm:text-base font-normal leading-normal text-[#EAD2C0]">Select up to 6 products to display in the landing page bestsellers section</p>
                                 <p className="text-sm text-[#D8A24A] mt-2">
                                     Currently Featured: {products.filter(p => p.featured === true || p.featured === 'true').length} / 6
                                 </p>
@@ -420,9 +576,9 @@ const Admin = () => {
                                                 const featuredCount = products.filter(p => p.featured === true || p.featured === 'true').length;
 
                                                 return (
-                                                    <div key={product.id} className={`bg-[#FFF7ED]/5 border ${isFeatured ? 'border-[#D8A24A] ring-2 ring-[#D8A24A]/50' : 'border-[#FFF7ED]/10'} rounded-lg p-3 transition-all hover:border-[#D8A24A]/50 flex flex-col`}>
+                                                    <div key={product._id} className={`bg-[#FFF7ED]/5 border ${isFeatured ? 'border-[#D8A24A] ring-2 ring-[#D8A24A]/50' : 'border-[#FFF7ED]/10'} rounded-lg p-3 transition-all hover:border-[#D8A24A]/50 flex flex-col`}>
                                                         <div className="aspect-square w-full overflow-hidden rounded-lg mb-2">
-                                                            <img
+                                                            <LazyImage
                                                                 src={product.image}
                                                                 alt={product.name}
                                                                 className="w-full h-full object-cover"
@@ -445,14 +601,14 @@ const Admin = () => {
                                                                 // Toggle featured status
                                                                 const newFeaturedStatus = !isFeatured;
 
-                                                                fetch(`http://localhost:3001/api/products/${product.id}`, {
+                                                                fetch(`http://localhost:3001/api/products/${product._id}`, {
                                                                     method: 'PATCH',
                                                                     headers: { 'Content-Type': 'application/json' },
                                                                     body: JSON.stringify({ featured: newFeaturedStatus })
                                                                 })
                                                                     .then(res => res.json())
                                                                     .then(updatedProduct => {
-                                                                        setProducts(prevProducts => prevProducts.map(p => p.id === product.id ? updatedProduct : p));
+                                                                        setProducts(prevProducts => prevProducts.map(p => p._id === product._id ? updatedProduct : p));
                                                                     })
                                                                     .catch(err => console.error('Error updating featured status:', err));
                                                             }}
@@ -537,12 +693,12 @@ const Admin = () => {
 
                     {/* Inquiries View */}
                     {activeView === 'inquiries' && (
-                        <div className="space-y-6">
-                            <h2 className="text-[#3B2A23] text-3xl font-black leading-tight tracking-wide">Inquiries</h2>
+                        <div className="space-y-4 sm:space-y-6">
+                            <h2 className="text-[#FFF7ED] text-2xl sm:text-3xl font-black leading-tight tracking-wide">Inquiries</h2>
 
                             {/* General Contact Inquiries */}
-                            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-lg">
-                                <h3 className="text-[#3B2A23] text-xl font-bold mb-4 flex items-center gap-2">
+                            <div className="bg-[#FFF7ED]/60 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg">
+                                <h3 className="text-[#3B2A23] text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[#D8A24A]">mail</span>
                                     General Contact ({inquiries.general.length})
                                 </h3>
@@ -565,8 +721,8 @@ const Admin = () => {
                             </div>
 
                             {/* Trade Inquiries */}
-                            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-lg">
-                                <h3 className="text-[#3B2A23] text-xl font-bold mb-4 flex items-center gap-2">
+                            <div className="bg-[#FFF7ED]/60 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg">
+                                <h3 className="text-[#3B2A23] text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[#D8A24A]">business</span>
                                     Trade Inquiries ({inquiries.trade.length})
                                 </h3>
@@ -597,8 +753,8 @@ const Admin = () => {
                             </div>
 
                             {/* Bulk Order Inquiries */}
-                            <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-lg">
-                                <h3 className="text-[#3B2A23] text-xl font-bold mb-4 flex items-center gap-2">
+                            <div className="bg-[#FFF7ED]/60 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg">
+                                <h3 className="text-[#3B2A23] text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[#D8A24A]">inventory</span>
                                     Bulk Orders ({inquiries.bulk.length})
                                 </h3>
@@ -638,6 +794,85 @@ const Admin = () => {
                                     </div>
                                 )}
                             </div>
+                        </div>
+                    )}
+
+                    {/* Categories View */}
+                    {activeView === 'categories' && (
+                        <div className="flex flex-col gap-8">
+                            <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+                                <div className="flex flex-col gap-1 sm:gap-2">
+                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Category Management</p>
+                                    <p className="text-sm sm:text-base font-normal leading-normal text-[#EAD2C0]">Manage product categories and collections.</p>
+                                </div>
+                                <button onClick={() => setShowCategoryModal(true)} className="flex h-10 sm:h-12 cursor-pointer items-center justify-center rounded-lg px-4 sm:px-6 bg-[#D8A24A] text-[#3B2A23] text-xs sm:text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
+                                    <span className="material-symbols-outlined mr-2">add</span>
+                                    Add New Category
+                                </button>
+                            </div>
+
+                            {/* Add Category Modal */}
+                            {showCategoryModal && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                                    <div className="bg-[#3B2A23] p-8 rounded-xl border border-[#FFF7ED]/20 w-full max-w-md">
+                                        <h2 className="text-2xl font-bold mb-4 text-[#FFF7ED]">Add New Category</h2>
+                                        <form onSubmit={handleAddCategory} className="space-y-4">
+                                            <input
+                                                type="text" placeholder="Category Name" required
+                                                value={newCategory.name} onChange={e => setNewCategory({ ...newCategory, name: e.target.value })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                            />
+                                            <textarea
+                                                placeholder="Description (optional)"
+                                                value={newCategory.description} onChange={e => setNewCategory({ ...newCategory, description: e.target.value })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                            />
+                                            <div className="flex justify-end gap-4 mt-6">
+                                                <button type="button" onClick={() => { setShowCategoryModal(false); setNewCategory({ name: '', description: '' }); }} className="px-4 py-2 text-[#EAD2C0] hover:text-white">Cancel</button>
+                                                <button type="submit" className="px-4 py-2 bg-[#D8A24A] text-[#3B2A23] font-bold rounded">Add Category</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            )}
+
+                            {categories.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-center">
+                                    <span className="material-symbols-outlined text-6xl text-[#EAD2C0] mb-4">category</span>
+                                    <p className="text-xl text-[#EAD2C0] mb-2">No categories yet</p>
+                                    <p className="text-sm text-[#EAD2C0]/70">Add your first category to organize products</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                                    {categories.map((category) => (
+                                        <div key={category._id} className="flex flex-col gap-3 sm:gap-4 rounded-lg sm:rounded-xl p-4 sm:p-6 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="bg-[#D8A24A]/20 rounded-lg p-2">
+                                                        <span className="material-symbols-outlined text-[#D8A24A] text-2xl">category</span>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-base sm:text-lg font-bold text-[#3B2A23]">{category.name}</p>
+                                                        <p className="text-xs sm:text-sm text-[#554B47]/70">{products.filter(p => p.category === category.name).length} products</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {category.description && (
+                                                <p className="text-xs sm:text-sm text-[#554B47]">{category.description}</p>
+                                            )}
+                                            <div className="flex gap-2 mt-2">
+                                                <button
+                                                    onClick={() => handleDeleteCategory(category._id)}
+                                                    className="flex-1 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-lg text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                                                >
+                                                    <span className="material-symbols-outlined text-lg">delete</span>
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
                 </main>

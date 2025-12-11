@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import LazyImage from '../components/LazyImage';
+import { useCart } from '../context/CartContext';
+import toast, { Toaster } from 'react-hot-toast';
 
 const ProductPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { product } = location.state || {};
     const [quantity, setQuantity] = useState(1);
+    const [selectedColor, setSelectedColor] = useState('Natural Beige');
+    const [selectedFragrance, setSelectedFragrance] = useState('Lavender');
+    const { addToCart } = useCart();
+
+    const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey'];
+    const availableFragrances = ['Lavender', 'Vanilla', 'Sandalwood', 'Rose', 'Citrus'];
 
     // Default data if no product is passed (for testing/direct access)
     const displayProduct = product || {
@@ -17,8 +26,16 @@ const ProductPage = () => {
         description: "An intoxicating blend of rare oud wood and golden amber. This candle evokes the warmth of a crackling fire on a cool midnight, wrapped in a blanket of rich, resinous aromas."
     };
 
+    const handleAddToCart = () => {
+        for (let i = 0; i < quantity; i++) {
+            addToCart(displayProduct, selectedColor, selectedFragrance);
+        }
+        toast.success(`Added ${quantity} ${displayProduct.name} to cart!`);
+    };
+
     return (
         <div className="relative min-h-screen w-full bg-[#3B2A23] font-['Inter',_sans-serif] text-[#554B47]">
+            <Toaster position="top-center" />
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
                 <img
@@ -34,12 +51,12 @@ const ProductPage = () => {
                 <Navbar />
 
                 <main className="flex-1">
-                    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-16">
-                        <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 sm:gap-8 xl:gap-16">
-                            {/* Product Images */}
-                            <div className="lg:col-span-6 space-y-4">
-                                <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl">
-                                    <img
+                    <div className="container mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 sm:gap-6 lg:gap-12">
+                            {/* Product Images - Compact on Mobile */}
+                            <div className="lg:col-span-6 space-y-3">
+                                <div className="relative aspect-square sm:aspect-[4/5] w-full overflow-hidden rounded-lg sm:rounded-xl">
+                                    <LazyImage
                                         className="w-full h-full object-cover"
                                         alt={displayProduct.name}
                                         src={displayProduct.image}
@@ -48,48 +65,101 @@ const ProductPage = () => {
 
                             </div>
 
-                            {/* Product Details */}
-                            <div className="lg:col-span-4 lg:pt-8">
-                                <div className="bg-[#FFF7ED]/80 backdrop-blur-[16px] rounded-xl p-4 sm:p-6 md:p-8 shadow-2xl shadow-black/30 border border-white/20">
-                                    <div className="flex flex-col space-y-4 sm:space-y-6">
+                            {/* Product Details - Compact on Mobile */}
+                            <div className="lg:col-span-4 lg:pt-6">
+                                <div className="bg-[#FFF7ED]/80 backdrop-blur-[16px] rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 lg:p-8 shadow-xl sm:shadow-2xl shadow-black/20 sm:shadow-black/30 border border-white/20">
+                                    <div className="flex flex-col space-y-3 sm:space-y-4 lg:space-y-6">
                                         <div>
-                                            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-['Italiana',_serif] text-[#554B47]">{displayProduct.name}</h1>
-                                            <p className="mt-2 text-xl sm:text-2xl text-[#554B47]/90">
+                                            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-['Italiana',_serif] text-[#554B47] leading-tight">{displayProduct.name}</h1>
+                                            <p className="mt-1 sm:mt-2 text-lg sm:text-xl lg:text-2xl text-[#554B47]/90 font-semibold">
                                                 {typeof displayProduct.price === 'string' ? displayProduct.price : `₹${displayProduct.price}`}
                                             </p>
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2 sm:gap-3">
                                             <div className="flex items-center gap-0.5">
-                                                <span className="material-symbols-outlined text-[#d9a24a] text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span className="material-symbols-outlined text-[#d9a24a] text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span className="material-symbols-outlined text-[#d9a24a] text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span className="material-symbols-outlined text-[#d9a24a] text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span className="material-symbols-outlined text-[#d9a24a]/50 text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star_half</span>
+                                                <span className="material-symbols-outlined text-[#d9a24a] text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                                <span className="material-symbols-outlined text-[#d9a24a] text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                                <span className="material-symbols-outlined text-[#d9a24a] text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                                <span className="material-symbols-outlined text-[#d9a24a] text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                                <span className="material-symbols-outlined text-[#d9a24a]/50 text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star_half</span>
                                             </div>
-                                            <a className="text-sm text-[#554B47]/70 hover:text-[#554B47] underline" href="#">128 reviews</a>
+                                            <a className="text-xs sm:text-sm text-[#554B47]/70 hover:text-[#554B47] underline" href="#">128 reviews</a>
                                         </div>
-                                        <p className="text-base leading-relaxed text-[#554B47]/90">
+                                        <p className="text-sm sm:text-base leading-relaxed text-[#554B47]/90">
                                             {displayProduct.description || "An intoxicating blend of rare oud wood and golden amber. This candle evokes the warmth of a crackling fire on a cool midnight, wrapped in a blanket of rich, resinous aromas."}
                                         </p>
-                                        <div className="border-t border-[#554B47]/20 pt-6">
-                                            <h2 className="text-2xl font-['Italiana',_serif] text-[#554B47] mb-3">Scent Profile</h2>
-                                            <div className="space-y-2 text-sm text-[#554B47]/80">
+                                        
+                                        {/* Bulk Order Info */}
+                                        <div className="bg-[#d9a24a]/10 border border-[#d9a24a]/30 rounded-lg p-3 sm:p-4">
+                                            <p className="text-xs sm:text-sm text-[#554B47] flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-[#d9a24a]">info</span>
+                                                <span>For orders of 100+ units, please contact us for <strong>bulk pricing</strong></span>
+                                            </p>
+                                        </div>
+
+                                        {/* Color Selection */}
+                                        <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4">
+                                            <h3 className="text-base sm:text-lg font-semibold text-[#554B47] mb-2">Select Color</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {availableColors.map((color) => (
+                                                    <button
+                                                        key={color}
+                                                        onClick={() => setSelectedColor(color)}
+                                                        className={`px-3 py-2 rounded-lg border text-xs sm:text-sm transition-all ${
+                                                            selectedColor === color
+                                                                ? 'bg-[#d9a24a] text-white border-[#d9a24a]'
+                                                                : 'bg-white/50 text-[#554B47] border-[#554B47]/20 hover:border-[#d9a24a]/50'
+                                                        }`}
+                                                    >
+                                                        {color}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Fragrance Selection */}
+                                        <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4">
+                                            <h3 className="text-base sm:text-lg font-semibold text-[#554B47] mb-2">Select Fragrance</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {availableFragrances.map((fragrance) => (
+                                                    <button
+                                                        key={fragrance}
+                                                        onClick={() => setSelectedFragrance(fragrance)}
+                                                        className={`px-3 py-2 rounded-lg border text-xs sm:text-sm transition-all ${
+                                                            selectedFragrance === fragrance
+                                                                ? 'bg-[#d9a24a] text-white border-[#d9a24a]'
+                                                                : 'bg-white/50 text-[#554B47] border-[#554B47]/20 hover:border-[#d9a24a]/50'
+                                                        }`}
+                                                    >
+                                                        {fragrance}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4 lg:pt-6">
+                                            <h2 className="text-lg sm:text-xl lg:text-2xl font-['Italiana',_serif] text-[#554B47] mb-2 sm:mb-3">Scent Profile</h2>
+                                            <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-[#554B47]/80">
                                                 <p><strong className="font-semibold text-[#554B47]/90">Top:</strong> Saffron, Black Currant</p>
                                                 <p><strong className="font-semibold text-[#554B47]/90">Middle:</strong> Rose, Incense</p>
                                                 <p><strong className="font-semibold text-[#554B47]/90">Base:</strong> Oud Wood, Amber, Sandalwood</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                                             <div className="flex items-center rounded-lg border border-[#554B47]/20">
-                                                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-2 text-[#554B47]/60 hover:text-[#554B47]">-</button>
-                                                <input className="w-10 text-center bg-transparent border-0 text-[#554B47] focus:ring-0" type="text" value={quantity} readOnly />
-                                                <button onClick={() => setQuantity(quantity + 1)} className="px-3 py-2 text-[#554B47]/60 hover:text-[#554B47]">+</button>
+                                                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-2 sm:px-3 py-1.5 sm:py-2 text-[#554B47]/60 hover:text-[#554B47] text-sm sm:text-base">-</button>
+                                                <input className="w-8 sm:w-10 text-center bg-transparent border-0 text-[#554B47] focus:ring-0 text-sm sm:text-base" type="text" value={quantity} readOnly />
+                                                <button onClick={() => setQuantity(quantity + 1)} className="px-2 sm:px-3 py-1.5 sm:py-2 text-[#554B47]/60 hover:text-[#554B47] text-sm sm:text-base">+</button>
                                             </div>
-                                            <button className="flex-1 bg-[#d9a24a] text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-[#d9a24a]/30 hover:brightness-110 transition-all">Add to Cart</button>
+                                            <button 
+                                                onClick={handleAddToCart}
+                                                className="flex-1 bg-[#d9a24a] text-white font-bold py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 lg:px-6 rounded-lg shadow-lg shadow-[#d9a24a]/30 hover:brightness-110 transition-all text-sm sm:text-base">
+                                                Add to Cart
+                                            </button>
                                         </div>
-                                        <div className="border-t border-[#554B47]/20 pt-6 space-y-3">
-                                            <h3 className="text-xl font-['Italiana',_serif] text-[#554B47]">Specifications</h3>
-                                            <ul className="space-y-2 text-sm text-[#554B47]/80 list-none">
+                                        <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4 lg:pt-6 space-y-2 sm:space-y-3">
+                                            <h3 className="text-base sm:text-lg lg:text-xl font-['Italiana',_serif] text-[#554B47]">Specifications</h3>
+                                            <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-[#554B47]/80 list-none">
                                                 <li><strong className="font-semibold text-[#554B47]/90">Wax:</strong> 100% Natural Soy Wax Blend</li>
                                                 <li><strong className="font-semibold text-[#554B47]/90">Wick:</strong> Lead-free Cotton Wick</li>
                                                 <li><strong className="font-semibold text-[#554B47]/90">Burn Time:</strong> Approx. 50-60 hours</li>

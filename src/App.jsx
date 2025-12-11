@@ -3,9 +3,12 @@ import ContactUs from './pages/ContactUs';
 import Shop from './pages/Shop';
 import ProductPage from './pages/ProductPage';
 import Admin from './pages/Admin';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import Checkout from './pages/Checkout';
+import Payment from './pages/Payment';
 import OrderConfirmation from './pages/OrderConfirmation';
 import { CartProvider } from './context/CartContext';
 import { Button } from './components/ui/button';
@@ -23,7 +26,10 @@ function App() {
             <Route path="/shop" element={<Shop />} />
             <Route path="/product" element={<ProductPage />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/payment" element={<Payment />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
           </Routes>
           <Footer />

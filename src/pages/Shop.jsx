@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
+import LazyImage from '../components/LazyImage';
 
 const Shop = () => {
     const navigate = useNavigate();
@@ -25,23 +26,29 @@ const Shop = () => {
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
 
-    // Define broad collection groups
-    const collectionGroups = {
-        'Premium': ['Premium Collection', 'Gourmet Collection', 'Classic Collection'],
-        'Seasonal': ['Holiday Collection', 'Winter Collection', 'Festival Collection'],
-        'Decorative': ['Decorative Collection', 'Party Collection', 'Botanical Collection', 'Romance Collection', 'Floral Collection', 'Cute Collection', 'Spiritual Collection', 'Celebration Collection']
+    // Define categories with display names
+    const categoryMap = {
+        'All': 'All',
+        'seasonal': 'Seasonal',
+        'premium': 'Premium',
+        'decorative': 'Decorative',
+        'christmas special': 'Christmas Special',
+        'general': 'General',
+        'holiday': 'Holiday',
+        'floral': 'Floral',
+        'romance': 'Romance',
+        'cute': 'Cute',
+        'gourmet': 'Gourmet'
     };
-
-    const collections = ['All', 'Premium', 'Seasonal', 'Decorative'];
+    const collections = Object.keys(categoryMap);
 
     // Filter and Sort Products
     const filteredAndSortedProducts = useMemo(() => {
         let filtered = products;
 
-        // Filter by Collection Group
+        // Filter by Category
         if (selectedCollection !== 'All') {
-            const allowedCollections = collectionGroups[selectedCollection] || [];
-            filtered = filtered.filter(p => allowedCollections.includes(p.collection));
+            filtered = filtered.filter(p => p.category && p.category.toLowerCase() === selectedCollection.toLowerCase());
         }
 
         // Filter by Search
@@ -140,7 +147,7 @@ const Shop = () => {
                                                 : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
                                                 } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
                                         >
-                                            {collection}
+                                            {categoryMap[collection]}
                                         </button>
                                     ))}
                                 </div>
@@ -188,25 +195,25 @@ const Shop = () => {
                             </p>
                         </div>
 
-                        {/* Product Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 p-2 sm:p-4">
+                        {/* Product Grid - Mobile Optimized */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 p-2 sm:p-4">
                             {currentProducts.map((product, index) => (
                                 <div
                                     key={index}
-                                    className={`bg-[#FFF7ED]/70 backdrop-blur-md border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_16px_40px_0_rgba(0,0,0,0.25),0_0_0_2px_rgba(216,162,74,0.5)] rounded-xl overflow-hidden flex flex-col group ${index % 4 === 1 || index % 4 === 3 ? 'lg:mt-16' : ''}`}
+                                    className={`bg-[#FFF7ED]/70 backdrop-blur-md border border-white/20 shadow-[0_4px_16px_0_rgba(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_24px_0_rgba(0,0,0,0.2),0_0_0_1px_rgba(216,162,74,0.5)] rounded-lg sm:rounded-xl overflow-hidden flex flex-col group ${index % 4 === 1 || index % 4 === 3 ? 'lg:mt-12' : ''}`}
                                 >
-                                    <div className="w-full aspect-[3/4] overflow-hidden cursor-pointer" onClick={() => handleProductClick(product)}>
-                                        <img
+                                    <div className="w-full aspect-square sm:aspect-[3/4] overflow-hidden cursor-pointer" onClick={() => handleProductClick(product)}>
+                                        <LazyImage
                                             className="h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
                                             alt={product.name}
                                             src={product.image}
                                         />
                                     </div>
-                                    <div className="p-4 flex flex-col flex-grow">
-                                        <h3 className="text-[#554B47] text-lg font-bold leading-normal">{product.name}</h3>
-                                        <p className="text-[#554B47]/70 text-sm font-normal leading-normal">{product.collection}</p>
-                                        <div className="mt-auto pt-4 flex justify-between items-center">
-                                            <p className="text-[#554B47] text-lg font-semibold">
+                                    <div className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
+                                        <h3 className="text-[#554B47] text-xs sm:text-sm lg:text-base font-bold leading-tight line-clamp-2">{product.name}</h3>
+                                        <p className="text-[#554B47]/70 text-[10px] sm:text-xs font-normal leading-tight mt-0.5 sm:mt-1 line-clamp-1">{product.collection}</p>
+                                        <div className="mt-auto pt-2 sm:pt-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                            <p className="text-[#554B47] text-sm sm:text-base lg:text-lg font-semibold">
                                                 ₹{product.price}
                                             </p>
                                             <button
@@ -214,7 +221,7 @@ const Shop = () => {
                                                     e.stopPropagation();
                                                     e.preventDefault();
                                                     addToCart(product);
-                                                    toast.success(`${product.name} added to cart!`, {
+                                                    toast.success(`${product.name} added!`, {
                                                         duration: 2000,
                                                         position: 'bottom-right',
                                                         style: {
@@ -224,9 +231,10 @@ const Shop = () => {
                                                         },
                                                     });
                                                 }}
-                                                className="bg-[#D8A24A] text-white h-10 px-4 rounded-lg text-sm font-bold hover:bg-opacity-90 transition-all"
+                                                className="w-full sm:w-auto bg-[#D8A24A] text-white h-7 sm:h-9 px-2 sm:px-3 lg:px-4 rounded text-[10px] sm:text-xs lg:text-sm font-bold hover:bg-opacity-90 transition-all whitespace-nowrap"
                                             >
-                                                Add to Cart
+                                                <span className="hidden sm:inline">Add to Cart</span>
+                                                <span className="sm:hidden">Add</span>
                                             </button>
                                         </div>
                                     </div>

@@ -14,35 +14,65 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('cartItems', JSON.stringify(cartItems));
     }, [cartItems]);
 
-    const addToCart = (product) => {
+    const addToCart = (product, color = 'Natural Beige', fragrance = 'Lavender') => {
         setCartItems((prevItems) => {
-            // Use a unique identifier - prefer id, fall back to name
-            const productId = product.id || product.name;
-            const existingItem = prevItems.find((item) => (item.id || item.name) === productId);
+            // Use a unique identifier combining product id, color, and fragrance
+            const productId = product.id || product._id || product.name;
+            const existingItem = prevItems.find((item) => 
+                (item.id || item._id || item.name) === productId && 
+                item.color === color && 
+                item.fragrance === fragrance
+            );
+            
             if (existingItem) {
                 return prevItems.map((item) =>
-                    (item.id || item.name) === productId
+                    (item.id || item._id || item.name) === productId && 
+                    item.color === color && 
+                    item.fragrance === fragrance
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
             }
-            return [...prevItems, { ...product, quantity: 1 }];
+            return [...prevItems, { 
+                ...product, 
+                id: productId,
+                quantity: 1,
+                color,
+                fragrance 
+            }];
         });
     };
 
-    const removeFromCart = (productId) => {
-        setCartItems((prevItems) => prevItems.filter((item) => (item.id || item.name) !== productId));
+    const removeFromCart = (productId, color, fragrance) => {
+        setCartItems((prevItems) => prevItems.filter((item) => {
+            const itemId = item.id || item._id || item.name;
+            return !(itemId === productId && item.color === color && item.fragrance === fragrance);
+        }));
     };
 
-    const updateQuantity = (productId, quantity) => {
+    const updateQuantity = (productId, quantity, color, fragrance) => {
         if (quantity < 1) {
-            removeFromCart(productId);
+            removeFromCart(productId, color, fragrance);
             return;
         }
         setCartItems((prevItems) =>
-            prevItems.map((item) =>
-                (item.id || item.name) === productId ? { ...item, quantity } : item
-            )
+            prevItems.map((item) => {
+                const itemId = item.id || item._id || item.name;
+                return itemId === productId && item.color === color && item.fragrance === fragrance
+                    ? { ...item, quantity }
+                    : item;
+            })
+        );
+    };
+
+    const updateColorFragrance = (productId, oldColor, oldFragrance, newColor, newFragrance) => {
+        setCartItems((prevItems) =>
+            prevItems.map((item) => {
+                const itemId = item.id || item._id || item.name;
+                return itemId === productId && item.color === oldColor && item.fragrance === oldFragrance
+                    ? { ...item, color: newColor, fragrance: newFragrance }
+                    : item;
+            })
         );
     };
 
@@ -66,7 +96,16 @@ export const CartProvider = ({ children }) => {
     };
 
     return (
-        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart, getCartTotal, getCartCount }}>
+        <CartContext.Provider value={{ 
+            cartItems, 
+            addToCart, 
+            removeFromCart, 
+            updateQuantity, 
+            updateColorFragrance,
+            clearCart, 
+            getCartTotal, 
+            getCartCount 
+        }}>
             {children}
         </CartContext.Provider>
     );

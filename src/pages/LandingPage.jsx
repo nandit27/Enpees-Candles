@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import toast from 'react-hot-toast';
+import LazyImage from '../components/LazyImage';
 import heroBg from '../assets/hero-bg.png';
 import productPlaceholder from '../assets/product-placeholder.png';
 import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
@@ -33,7 +34,7 @@ const LandingPage = () => {
             {/* Hero Section */}
             <div className="relative h-screen w-full overflow-hidden">
                 <div className="absolute inset-x-0 top-0 h-screen w-full overflow-hidden">
-                    <img
+                    <LazyImage
                         src={heroBg}
                         alt="Luxury Candle Background"
                         className="h-full w-full object-cover animate-fade-in"
@@ -46,9 +47,9 @@ const LandingPage = () => {
                     <Navbar className="fixed top-0 left-0 right-0 z-50 bg-[#3B2A23]/80 backdrop-blur-md" />
 
                     <main className="flex-grow">
-                        <section className="flex h-screen items-center justify-center px-6">
-                            <div className="w-full max-w-4xl rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg p-12 md:p-16 text-center">
-                                <h1 className="font-['Italiana',_serif] text-5xl md:text-7xl font-bold leading-tight tracking-wide text-[#554B47] drop-shadow-lg">
+                        <section className="flex h-screen items-center justify-center px-4 sm:px-6">
+                            <div className="w-full max-w-4xl rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg p-6 sm:p-10 md:p-14 lg:p-16 text-center">
+                                <h1 className="font-['Italiana',_serif] text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-wide text-[#554B47] drop-shadow-lg">
                                     Where every flame tells a handmade story.
                                 </h1>
                             </div>
@@ -57,58 +58,58 @@ const LandingPage = () => {
                 </div>
             </div>
 
-            {/* Collections Grid */}
-            <section className="relative bg-[#3B2A23] py-24 sm:py-32">
+            {/* Collections Grid - Mobile Optimized */}
+            <section className="relative bg-[#3B2A23] py-12 sm:py-20 lg:py-32">
                 <div className="absolute inset-0">
-                    <img alt="Elegant lifestyle setting with candles" className="h-full w-full object-cover opacity-30" src={productPlaceholder} />
+                    <LazyImage alt="Elegant lifestyle setting with candles" className="h-full w-full object-cover opacity-30" src={productPlaceholder} />
                 </div>
-                <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+                <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-2xl lg:max-w-none">
-                        <div className="grid grid-cols-1 items-start gap-x-8 gap-y-16 lg:grid-cols-2">
-                            <div className="space-y-8">
-                                <div className="group relative aspect-[3/4] w-full max-w-lg overflow-hidden rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
+                        <div className="grid grid-cols-2 items-start gap-3 sm:gap-6 lg:gap-8 lg:grid-cols-2">
+                            <div className="space-y-3 sm:space-y-6 lg:space-y-8">
+                                <div className="group relative aspect-square sm:aspect-[3/4] w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
                                     <div className="absolute inset-0 z-0">
-                                        <img className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Floral & Sweet" src={flowerCandle} />
+                                        <LazyImage className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Floral & Sweet" src={flowerCandle} />
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A23]/30 to-transparent"></div>
                                     </div>
-                                    <div className="relative z-10 flex h-full flex-col justify-end p-8">
-                                        <p className="font-['Italiana',_serif] text-3xl font-bold text-white">Floral & Sweet</p>
+                                    <div className="relative z-10 flex h-full flex-col justify-end p-3 sm:p-6 lg:p-8">
+                                        <p className="font-['Italiana',_serif] text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">Floral & Sweet</p>
                                     </div>
                                 </div>
-                                <div className="group relative aspect-[4/3] w-full max-w-lg self-end overflow-hidden rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg lg:ml-auto">
+                                <div className="group relative aspect-square sm:aspect-[4/3] w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
                                     <div className="absolute inset-0 z-0">
-                                        <img className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Seasonal Favorites" src={snowmanCandle} />
+                                        <LazyImage className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Seasonal Favorites" src={snowmanCandle} />
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A23]/30 to-transparent"></div>
                                     </div>
-                                    <div className="relative z-10 flex h-full flex-col justify-end p-8">
-                                        <p className="font-['Italiana',_serif] text-3xl font-bold text-white">Seasonal Favorites</p>
+                                    <div className="relative z-10 flex h-full flex-col justify-end p-3 sm:p-6 lg:p-8">
+                                        <p className="font-['Italiana',_serif] text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">Seasonal Favorites</p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="space-y-8 lg:mt-24">
-                                <div className="group relative aspect-[4/3] w-full max-w-lg overflow-hidden rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
+                            <div className="space-y-3 sm:space-y-6 lg:space-y-8 lg:mt-12">
+                                <div className="group relative aspect-square sm:aspect-[4/3] w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
                                     <div className="absolute inset-0 z-0">
-                                        <img className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Woody & Earthy" src={sandalwoodCandle} />
+                                        <LazyImage className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Woody & Earthy" src={sandalwoodCandle} />
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A23]/30 to-transparent"></div>
                                     </div>
-                                    <div className="relative z-10 flex h-full flex-col justify-end p-8">
-                                        <p className="font-['Italiana',_serif] text-3xl font-bold text-white">Woody & Earthy</p>
+                                    <div className="relative z-10 flex h-full flex-col justify-end p-3 sm:p-6 lg:p-8">
+                                        <p className="font-['Italiana',_serif] text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">Woody & Earthy</p>
                                     </div>
                                 </div>
-                                <div className="group relative aspect-[3/4] w-full max-w-lg overflow-hidden rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
+                                <div className="group relative aspect-square sm:aspect-[3/4] w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
                                     <div className="absolute inset-0 z-0">
-                                        <img className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Gift Sets" src={teddyCandle} />
+                                        <LazyImage className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Gift Sets" src={teddyCandle} />
                                         <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A23]/30 to-transparent"></div>
                                     </div>
-                                    <div className="relative z-10 flex h-full flex-col justify-end p-8">
-                                        <p className="font-['Italiana',_serif] text-3xl font-bold text-white">Gift Sets</p>
+                                    <div className="relative z-10 flex h-full flex-col justify-end p-3 sm:p-6 lg:p-8">
+                                        <p className="font-['Italiana',_serif] text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">Gift Sets</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-20 flex justify-center">
+                        <div className="mt-8 sm:mt-12 lg:mt-20 flex justify-center">
                             <Link to="/shop">
-                                <Button className="h-14 px-8 text-lg font-bold tracking-wider bg-[#D8A24A] text-[#554B47] hover:bg-[#D8A24A]/90 hover:shadow-lg hover:shadow-[#D8A24A]/30 transition-all rounded-xl">
+                                <Button className="h-10 sm:h-12 lg:h-14 px-6 sm:px-7 lg:px-8 text-sm sm:text-base lg:text-lg font-bold tracking-wider bg-[#D8A24A] text-[#554B47] hover:bg-[#D8A24A]/90 hover:shadow-lg hover:shadow-[#D8A24A]/30 transition-all rounded-lg sm:rounded-xl">
                                     Explore All Collections
                                 </Button>
                             </Link>
@@ -124,22 +125,22 @@ const LandingPage = () => {
                         <h2 className="font-['Italiana',_serif] text-4xl font-bold tracking-tight text-[#EAD2C0] sm:text-5xl">Our Best Sellers</h2>
                         <p className="mt-4 text-lg leading-8 text-[#EAD2C0]/80">Discover the scents our customers love the most. Hand-poured with passion.</p>
                     </div>
-                    <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+                    <div className="mx-auto mt-12 sm:mt-16 grid max-w-2xl grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 sm:gap-y-12 lg:mx-0 lg:max-w-none lg:grid-cols-3">
                         {products.map((product, index) => (
                             <article key={product.id} className="flex flex-col items-start justify-between">
                                 <Link to={`/product`} className="relative w-full">
-                                    <img alt={product.name} className="aspect-[1/1] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2]" src={product.image} />
-                                    <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-[#EAD2C0]/10"></div>
+                                    <LazyImage alt={product.name} className="aspect-square sm:aspect-[1/1] lg:aspect-[3/2] w-full rounded-lg sm:rounded-xl lg:rounded-2xl bg-gray-100 object-cover" src={product.image} />
+                                    <div className="absolute inset-0 rounded-lg sm:rounded-xl lg:rounded-2xl ring-1 ring-inset ring-[#EAD2C0]/10"></div>
                                 </Link>
                                 <div className="max-w-xl w-full">
-                                    <div className="mt-8 flex items-center gap-x-4 text-xs">
+                                    <div className="mt-3 sm:mt-6 lg:mt-8 flex items-center gap-x-2 sm:gap-x-4 text-[10px] sm:text-xs">
                                         <time className="text-[#EAD2C0]/60">Best Seller</time>
                                     </div>
                                     <div className="group">
-                                        <h3 className="mt-3 text-2xl font-['Italiana',_serif] font-semibold leading-6 text-[#EAD2C0] group-hover:text-[#D8A24A] transition-colors">
+                                        <h3 className="mt-2 sm:mt-3 text-sm sm:text-lg lg:text-xl xl:text-2xl font-['Italiana',_serif] font-semibold leading-tight sm:leading-6 text-[#EAD2C0] group-hover:text-[#D8A24A] transition-colors line-clamp-2">
                                             <Link to={`/product`}>{product.name}</Link>
                                         </h3>
-                                        <p className="mt-5 text-sm leading-6 text-[#EAD2C0]/80">{product.description}</p>
+                                        <p className="mt-2 sm:mt-3 lg:mt-5 text-xs sm:text-sm leading-tight sm:leading-6 text-[#EAD2C0]/80 line-clamp-2 sm:line-clamp-3">{product.description}</p>
                                     </div>
                                     <Button
                                         type="button"
@@ -147,7 +148,7 @@ const LandingPage = () => {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             addToCart(product);
-                                            toast.success(`${product.name} added to cart!`, {
+                                            toast.success(`${product.name} added!`, {
                                                 duration: 2000,
                                                 position: 'bottom-right',
                                                 style: {
@@ -157,7 +158,7 @@ const LandingPage = () => {
                                                 },
                                             });
                                         }}
-                                        className="mt-6 w-full bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold"
+                                        className="mt-3 sm:mt-4 lg:mt-6 w-full bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold text-xs sm:text-sm h-8 sm:h-10 lg:h-11"
                                     >
                                         Add to Cart
                                     </Button>

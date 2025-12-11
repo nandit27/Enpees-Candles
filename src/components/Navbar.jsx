@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 const Navbar = ({ className = "" }) => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [user, setUser] = useState(null);
     const navigate = useNavigate();
     const { getCartCount } = useCart();
     const cartCount = getCartCount();
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+        navigate('/');
+    };
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -22,10 +37,8 @@ const Navbar = ({ className = "" }) => {
         <header className={`relative flex items-center justify-between whitespace-nowrap border-b border-solid border-white/10 px-4 sm:px-10 md:px-20 lg:px-40 py-4 ${className}`}>
             <div className="flex items-center gap-8">
                 <Link to="/" className="flex items-center gap-4 text-white hover:opacity-80 transition-opacity">
-                    <div className="size-6 text-[#FFF7ED]">
-                        <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>local_fire_department</span>
-                    </div>
-                    <h1 className="text-[#FFF7ED] text-xl font-['Italiana',_serif] tracking-wider">Enpees Candles</h1>
+                    <img src="/IMG_3484.PNG" alt="Enpees Candles Logo" className="h-10 w-auto object-contain" />
+                    <h1 className="text-[#FFF7ED] text-xl font-['Italiana',_serif] tracking-wider hidden sm:block">Enpees Candles</h1>
                 </Link>
                 <nav className="hidden md:flex items-center gap-9">
                     <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/">Home</Link>
@@ -63,6 +76,18 @@ const Navbar = ({ className = "" }) => {
                             </span>
                         )}
                     </Link>
+                    {user ? (
+                        <div className="flex items-center gap-2">
+                            <span className="text-[#EAD2C0] text-sm hidden sm:block">Hi, {user.name.split(' ')[0]}</span>
+                            <button onClick={handleLogout} className="text-[#EAD2C0] hover:text-white text-sm font-medium transition-colors px-3 py-1 rounded-lg hover:bg-white/10">
+                                Logout
+                            </button>
+                        </div>
+                    ) : (
+                        <Link to="/login" className="text-[#EAD2C0] hover:text-white text-sm font-medium transition-colors px-3 py-1 rounded-lg hover:bg-white/10">
+                            Login
+                        </Link>
+                    )}
                 </div>
             )}
         </header>
