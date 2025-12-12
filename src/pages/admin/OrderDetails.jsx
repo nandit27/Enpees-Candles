@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import OrderTimeline from '../../components/OrderTimeline';
+import { API_ENDPOINTS } from '../../config/api';
 
 const OrderDetails = () => {
     const { orderId } = useParams();
@@ -19,7 +20,7 @@ const OrderDetails = () => {
 
     const fetchOrderDetails = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/api/admin/orders/${orderId}`);
+            const response = await fetch(API_ENDPOINTS.ADMIN_ORDER_BY_ID(orderId));
             const data = await response.json();
             setOrder(data);
         } catch (error) {
@@ -33,7 +34,7 @@ const OrderDetails = () => {
         if (!window.confirm('Confirm this order?')) return;
 
         try {
-            const response = await fetch(`http://localhost:3001/api/admin/orders/${orderId}/confirm`, {
+            const response = await fetch(API_ENDPOINTS.CONFIRM_ORDER(orderId), {
                 method: 'PATCH'
             });
             const updatedOrder = await response.json();
@@ -52,7 +53,7 @@ const OrderDetails = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:3001/api/admin/orders/${orderId}/ship`, {
+            const response = await fetch(API_ENDPOINTS.SHIP_ORDER(orderId), {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ trackingId, trackingLink })
@@ -73,7 +74,7 @@ const OrderDetails = () => {
         if (!window.confirm('Mark this order as delivered?')) return;
 
         try {
-            const response = await fetch(`http://localhost:3001/api/admin/orders/${orderId}/deliver`, {
+            const response = await fetch(API_ENDPOINTS.DELIVER_ORDER(orderId), {
                 method: 'PATCH'
             });
             const updatedOrder = await response.json();
@@ -92,7 +93,7 @@ const OrderDetails = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:3001/api/admin/orders/${orderId}/cancel`, {
+            const response = await fetch(API_ENDPOINTS.CANCEL_ORDER(orderId), {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ reason: cancelReason })

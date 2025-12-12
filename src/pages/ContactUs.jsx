@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import heroBg from '../assets/hero-bg.png';
 import productPlaceholder from '../assets/product-placeholder.png';
 import toast from 'react-hot-toast';
+import { API_ENDPOINTS } from '../config/api';
 
 const ContactUs = () => {
     const [activeTab, setActiveTab] = useState('general');
@@ -10,7 +11,7 @@ const ContactUs = () => {
 
     // Fetch products for dropdown
     useEffect(() => {
-        fetch('http://localhost:3001/api/products')
+        fetch(API_ENDPOINTS.PRODUCTS)
             .then(res => res.json())
             .then(data => setProducts(data))
             .catch(err => console.error('Error fetching products:', err));
@@ -41,7 +42,7 @@ const ContactUs = () => {
     const handleGeneralSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:3001/api/inquiries/general', {
+            const response = await fetch(API_ENDPOINTS.GENERAL_INQUIRY, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(generalForm)
@@ -70,7 +71,7 @@ const ContactUs = () => {
     const handleTradeSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:3001/api/inquiries/trade', {
+            const response = await fetch(API_ENDPOINTS.TRADE_INQUIRY, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(tradeForm)
@@ -135,7 +136,7 @@ const ContactUs = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3001/api/inquiries/bulk', {
+            const response = await fetch(API_ENDPOINTS.BULK_INQUIRY, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...bulkForm, totalQuantity })

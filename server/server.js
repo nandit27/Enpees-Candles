@@ -27,7 +27,8 @@ connectDB();
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3001',
-    'https://enpees-candles.vercel.app'
+    'https://enpees-candles.vercel.app',
+    process.env.FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({

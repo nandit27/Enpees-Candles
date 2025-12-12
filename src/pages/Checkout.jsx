@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import Navbar from '../components/Navbar';
 import toast from 'react-hot-toast';
 import { applyCoupon, calculateTotals, makeUpiLink } from '../lib/checkoutHelpers';
+import { API_ENDPOINTS } from '../config/api';
 
 const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey'];
 const availableFragrances = ['Lavender', 'Vanilla', 'Sandalwood', 'Rose', 'Citrus'];
@@ -77,7 +78,7 @@ const Checkout = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:3001/api/orders', {
+            const response = await fetch(API_ENDPOINTS.ORDERS, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

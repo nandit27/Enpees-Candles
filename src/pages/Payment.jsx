@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import { makeUpiLink } from '../lib/checkoutHelpers';
 import toast from 'react-hot-toast';
+import { API_ENDPOINTS } from '../config/api';
 
 const Payment = () => {
   const { state } = useLocation();
@@ -34,7 +35,7 @@ const Payment = () => {
     fd.append('screenshot', file);
     if (order?.id) fd.append('orderId', order.id);
     try {
-      const res = await fetch('http://localhost:3001/api/payments/confirm', { method: 'POST', body: fd });
+      const res = await fetch(API_ENDPOINTS.CONFIRM_PAYMENT, { method: 'POST', body: fd });
       const data = await res.json();
       if (res.ok) {
         toast.success('Payment confirmation uploaded successfully!');

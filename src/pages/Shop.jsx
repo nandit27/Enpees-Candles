@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
 import LazyImage from '../components/LazyImage';
+import { API_ENDPOINTS } from '../config/api';
 
 const Shop = () => {
     const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Shop = () => {
     const itemsPerPage = 12;
 
     useEffect(() => {
-        fetch('http://localhost:3001/api/products')
+        fetch(API_ENDPOINTS.PRODUCTS)
             .then(res => res.json())
             .then(data => setProducts(data))
             .catch(err => console.error('Error fetching products:', err));

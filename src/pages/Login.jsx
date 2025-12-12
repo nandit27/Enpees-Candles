@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
+import { API_ENDPOINTS } from '../config/api';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:3001/api/auth/login', {
+            const response = await fetch(API_ENDPOINTS.LOGIN, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

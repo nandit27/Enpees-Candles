@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import OrderTimeline from '../components/OrderTimeline';
+import { API_ENDPOINTS } from '../config/api';
 
 const UserOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -21,7 +22,7 @@ const UserOrders = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:3001/api/user/orders', {
+            const response = await fetch(API_ENDPOINTS.USER_ORDERS, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

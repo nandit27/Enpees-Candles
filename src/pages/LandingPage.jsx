@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import toast from 'react-hot-toast';
 import LazyImage from '../components/LazyImage';
+import { API_ENDPOINTS } from '../config/api';
 import heroBg from '../assets/hero-bg.png';
 import productPlaceholder from '../assets/product-placeholder.png';
 import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
@@ -19,7 +20,7 @@ const LandingPage = () => {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:3001/api/products')
+        fetch(API_ENDPOINTS.PRODUCTS)
             .then(res => res.json())
             .then(data => {
                 // Filter only featured products

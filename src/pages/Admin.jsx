@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LazyImage from '../components/LazyImage';
+import { API_ENDPOINTS } from '../config/api';
 import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
 import vanillaCandle from '../assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp';
 import sandalwoodCandle from '../assets/Chai_Biscuit_Glass_Candle___90.webp';
@@ -25,22 +26,22 @@ const Admin = () => {
     const itemsPerPage = 12;
 
     useEffect(() => {
-        fetch('http://localhost:3001/api/orders')
+        fetch(API_ENDPOINTS.ORDERS)
             .then(res => res.json())
             .then(data => setOrders(data))
             .catch(err => console.error('Error fetching orders:', err));
 
-        fetch('http://localhost:3001/api/products')
+        fetch(API_ENDPOINTS.PRODUCTS)
             .then(res => res.json())
             .then(data => setProducts(data))
             .catch(err => console.error('Error fetching products:', err));
 
-        fetch('http://localhost:3001/api/categories')
+        fetch(API_ENDPOINTS.CATEGORIES)
             .then(res => res.json())
             .then(data => setCategories(data))
             .catch(err => console.error('Error fetching categories:', err));
 
-        fetch('http://localhost:3001/api/inquiries')
+        fetch(API_ENDPOINTS.INQUIRIES)
             .then(res => res.json())
             .then(data => setInquiries(data))
             .catch(err => console.error('Error fetching inquiries:', err));
@@ -58,7 +59,7 @@ const Admin = () => {
             formData.append('image', newProduct.image);
         }
 
-        fetch('http://localhost:3001/api/products', {
+        fetch(API_ENDPOINTS.PRODUCTS, {
             method: 'POST',
             body: formData
         })
@@ -83,7 +84,7 @@ const Admin = () => {
             formData.append('image', editingProduct.image);
         }
 
-        fetch(`http://localhost:3001/api/products/${editingProduct._id}`, {
+        fetch(API_ENDPOINTS.PRODUCT_BY_ID(editingProduct._id), {
             method: 'PATCH',
             body: formData
         })
@@ -98,7 +99,7 @@ const Admin = () => {
 
     const handleAddCategory = (e) => {
         e.preventDefault();
-        fetch('http://localhost:3001/api/categories', {
+        fetch(API_ENDPOINTS.CATEGORIES, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newCategory)
@@ -114,7 +115,7 @@ const Admin = () => {
 
     const handleDeleteCategory = (id) => {
         if (window.confirm('Are you sure you want to delete this category?')) {
-            fetch(`http://localhost:3001/api/categories/${id}`, {
+            fetch(API_ENDPOINTS.CATEGORY_BY_ID(id), {
                 method: 'DELETE'
             })
                 .then(() => setCategories(categories.filter(c => c._id !== id)))
@@ -465,7 +466,7 @@ const Admin = () => {
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         if (window.confirm('Are you sure you want to delete this product?')) {
-                                                            fetch(`http://localhost:3001/api/products/${product._id}`, {
+                                                            fetch(API_ENDPOINTS.PRODUCT_BY_ID(product._id), {
                                                                 method: 'DELETE'
                                                             })
                                                                 .then(res => {
@@ -614,7 +615,7 @@ const Admin = () => {
                                                                 // Toggle featured status
                                                                 const newFeaturedStatus = !isFeatured;
 
-                                                                fetch(`http://localhost:3001/api/products/${product._id}`, {
+                                                                fetch(API_ENDPOINTS.PRODUCT_BY_ID(product._id), {
                                                                     method: 'PATCH',
                                                                     headers: { 'Content-Type': 'application/json' },
                                                                     body: JSON.stringify({ featured: newFeaturedStatus })
