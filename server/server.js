@@ -23,16 +23,34 @@ const PORT = process.env.PORT || 3001;
 // Connect to MongoDB
 connectDB();
 
-app.use(cors());
+// CORS Configuration
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3001',
+    'https://enpees-candles.vercel.app'
+].filter(Boolean);
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(bodyParser.json());
 
-// Ensure uploads directory exists
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
-if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
-
-// Multer setup for handling file uploads
+// Multer setup for handling file uploads (disabled for Vercel serverless)
+// Note: File uploads won't work on Vercel - use Cloudinary or S3 instead
+const UPLOADS_DIR = '/tmp/uploads'; // Use /tmp for serverless (temporary storage)
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, UPLOADS_DIR);
@@ -44,7 +62,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Serve uploaded images
+// Serve uploaded images (won't work properly on Vercel)
 app.use('/uploads', express.static(UPLOADS_DIR));
 
 // Auth routes
@@ -354,11 +372,16 @@ app.post('/api/inquiries/bulk', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`\n========================================`);
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📱 SMS Provider: ${process.env.SMS_PROVIDER || 'Development Mode'}`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🗄️  Database: MongoDB`);
-    console.log(`========================================\n`);
-});
+// For Vercel serverless deployment
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`\n========================================`);
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`🗄️  Database: MongoDB`);
+        console.log(`========================================\n`);
+    });
+}
+
+// Export for Vercel
+module.exports = app;
