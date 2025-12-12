@@ -5,10 +5,19 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const orderRoutes = require('./routes/orderRoutes');
 const { authMiddleware, adminMiddleware } = require('./middleware/auth');
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // Models
 const Product = require('./models/Product');
@@ -50,22 +59,20 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-// Multer setup for handling file uploads (disabled for Vercel serverless)
-// Note: File uploads won't work on Vercel - use Cloudinary or S3 instead
-const UPLOADS_DIR = '/tmp/uploads'; // Use /tmp for serverless (temporary storage)
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, UPLOADS_DIR);
-    },
-    filename: function (req, file, cb) {
-        const uniqueName = Date.now() + '_' + file.originalname.replace(/\s+/g, '_');
-        cb(null, uniqueName);
+// Configure Cloudinary Storage for Multer
+const cloudinaryStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'enpees-candles/products',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        transformation: [{ width: 1000, height: 1000, crop: 'limit' }]
     }
 });
-const upload = multer({ storage });
 
-// Serve uploaded images (won't work properly on Vercel)
-app.use('/uploads', express.static(UPLOADS_DIR));
+const upload = multer({ storage: cloudinaryStorage });
+
+// Serve product images from public folder (for existing images)
+app.use('/products', express.static(path.join(__dirname, 'public/products')));
 
 // Auth routes
 app.use('/api/auth', authRoutes);
@@ -216,8 +223,8 @@ app.get('/api/products', async (req, res) => {
 // POST /api/products
 app.post('/api/products', upload.single('image'), async (req, res) => {
     try {
-        // If an image file was uploaded, use its URL, otherwise fall back to any image field
-        const imageUrl = req.file ? `http://localhost:${PORT}/uploads/${req.file.filename}` : req.body.image;
+        // If an image file was uploaded to Cloudinary, use its URL
+        const imageUrl = req.file ? req.file.path : req.body.image;
 
         const productData = {
             ...req.body,
@@ -243,9 +250,9 @@ app.patch('/api/products/:id', upload.single('image'), async (req, res) => {
         const productId = req.params.id;
         const updates = { ...req.body };
 
-        // If an image file was uploaded, update the image URL
+        // If an image file was uploaded to Cloudinary, update the image URL
         if (req.file) {
-            updates.image = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+            updates.image = req.file.path;
         }
 
         // Parse numeric fields
