@@ -5,9 +5,9 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const otpService = require('./otpService');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
+const orderRoutes = require('./routes/orderRoutes');
 const { authMiddleware, adminMiddleware } = require('./middleware/auth');
 
 // Models
@@ -49,6 +49,9 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// Order routes
+app.use('/api', orderRoutes);
 
 // ===== CATEGORY ENDPOINTS =====
 
@@ -140,7 +143,8 @@ app.post('/api/orders', async (req, res) => {
         const orderData = {
             orderId,
             ...req.body,
-            user: req.user ? req.user._id : null
+            user: req.user ? req.user._id : null,
+            status: 'PLACED'
         };
 
         const newOrder = new Order(orderData);
@@ -155,6 +159,19 @@ app.post('/api/orders', async (req, res) => {
                 });
             }
         }
+
+        // Send order placed email
+        const mailService = require('./services/mailService');
+        const emailData = {
+            customerName: newOrder.customer.name,
+            customerEmail: newOrder.customer.email,
+            orderId: newOrder.orderId,
+            total: newOrder.totals.total,
+            items: newOrder.items
+        };
+        mailService.sendOrderPlacedMail(emailData).catch(err => 
+            console.error('Error sending order placed email:', err)
+        );
 
         res.status(201).json(newOrder);
     } catch (error) {
@@ -334,69 +351,6 @@ app.post('/api/inquiries/bulk', async (req, res) => {
     } catch (error) {
         console.error('Error submitting bulk order inquiry:', error);
         res.status(500).json({ error: 'Failed to submit inquiry' });
-    }
-});
-
-// ===== OTP ENDPOINTS =====
-
-// POST /api/otp/send - Send OTP to mobile number
-app.post('/api/otp/send', async (req, res) => {
-    try {
-        const { phone } = req.body;
-        
-        if (!phone) {
-            return res.status(400).json({ error: 'Phone number is required' });
-        }
-        
-        // Validate phone format (Indian mobile number)
-        const phoneRegex = /^[+]?[0-9]{10,13}$/;
-        if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-            return res.status(400).json({ error: 'Invalid phone number format' });
-        }
-        
-        const result = await otpService.sendOTP(phone);
-        
-        res.json({
-            success: true,
-            message: result.message,
-            devMode: result.devMode,
-            otp: result.otp, // Only in development mode
-            warning: result.warning
-        });
-    } catch (error) {
-        console.error('Error sending OTP:', error);
-        res.status(500).json({ 
-            error: 'Failed to send OTP',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
-    }
-});
-
-// POST /api/otp/verify - Verify OTP
-app.post('/api/otp/verify', (req, res) => {
-    try {
-        const { phone, otp } = req.body;
-        
-        if (!phone || !otp) {
-            return res.status(400).json({ error: 'Phone number and OTP are required' });
-        }
-        
-        const result = otpService.verifyOTP(phone, otp);
-        
-        if (!result.valid) {
-            return res.status(400).json({
-                valid: false,
-                error: result.error
-            });
-        }
-        
-        res.json({
-            valid: true,
-            message: result.message
-        });
-    } catch (error) {
-        console.error('Error verifying OTP:', error);
-        res.status(500).json({ error: 'Failed to verify OTP' });
     }
 });
 

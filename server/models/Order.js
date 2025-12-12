@@ -46,9 +46,34 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
-        default: 'Pending'
+        enum: ['PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+        default: 'PLACED'
     },
+    timeline: {
+        placed: {
+            completed: { type: Boolean, default: true },
+            timestamp: { type: Date, default: Date.now }
+        },
+        confirmed: {
+            completed: { type: Boolean, default: false },
+            timestamp: Date
+        },
+        shipped: {
+            completed: { type: Boolean, default: false },
+            timestamp: Date
+        },
+        delivered: {
+            completed: { type: Boolean, default: false },
+            timestamp: Date
+        },
+        cancelled: {
+            completed: { type: Boolean, default: false },
+            timestamp: Date
+        }
+    },
+    trackingId: String,
+    trackingLink: String,
+    cancellationReason: String,
     paymentMethod: {
         type: String,
         enum: ['online', 'cod'],
@@ -75,7 +100,7 @@ const orderSchema = new mongoose.Schema({
 });
 
 // Generate order ID before saving
-orderSchema.pre('save', function(next) {
+orderSchema.pre('save', function() {
     if (!this.orderId) {
         const date = new Date();
         const day = String(date.getDate()).padStart(2, '0');
@@ -89,7 +114,6 @@ orderSchema.pre('save', function(next) {
         this.orderId = datePrefix + randomSuffix;
     }
     this.updatedAt = Date.now();
-    next();
 });
 
 module.exports = mongoose.model('Order', orderSchema);

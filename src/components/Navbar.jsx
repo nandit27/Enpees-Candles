@@ -44,6 +44,9 @@ const Navbar = ({ className = "" }) => {
                     <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/">Home</Link>
                     <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/shop">Collections</Link>
                     <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/contact">Contact Us</Link>
+                    {user && (
+                        <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/my-orders">My Orders</Link>
+                    )}
                 </nav>
             </div>
             {isSearchOpen ? (
@@ -78,7 +81,10 @@ const Navbar = ({ className = "" }) => {
                     </Link>
                     {user ? (
                         <div className="flex items-center gap-2">
-                            <span className="text-[#EAD2C0] text-sm hidden sm:block">Hi, {user.name.split(' ')[0]}</span>
+                            <Link to="/my-orders" className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors md:hidden" title="My Orders">
+                                <span className="material-symbols-outlined">receipt_long</span>
+                            </Link>
+                            <span className="text-[#EAD2C0] text-sm hidden sm:block">Hi, {user.name?.split(' ')[0] || 'User'}</span>
                             <button onClick={handleLogout} className="text-[#EAD2C0] hover:text-white text-sm font-medium transition-colors px-3 py-1 rounded-lg hover:bg-white/10">
                                 Logout
                             </button>

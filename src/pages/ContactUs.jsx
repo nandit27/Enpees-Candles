@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import heroBg from '../assets/hero-bg.png';
 import productPlaceholder from '../assets/product-placeholder.png';
@@ -6,6 +6,15 @@ import toast from 'react-hot-toast';
 
 const ContactUs = () => {
     const [activeTab, setActiveTab] = useState('general');
+    const [products, setProducts] = useState([]);
+
+    // Fetch products for dropdown
+    useEffect(() => {
+        fetch('http://localhost:3001/api/products')
+            .then(res => res.json())
+            .then(data => setProducts(data))
+            .catch(err => console.error('Error fetching products:', err));
+    }, []);
 
     // General Contact Form State
     const [generalForm, setGeneralForm] = useState({ name: '', email: '', message: '' });
@@ -211,7 +220,7 @@ const ContactUs = () => {
                                     <button
                                         onClick={() => setActiveTab('general')}
                                         className={`px-4 py-2 text-sm font-semibold transition-all ${activeTab === 'general'
-                                            ? 'text-[#D8A24A] border-b-2 border-[#D8A24A]'
+                                            ? 'text-[#9F7A54] border-b-2 border-[#9F7A54]'
                                             : 'text-[#554B47]/60 hover:text-[#554B47]'
                                             }`}
                                     >
@@ -220,7 +229,7 @@ const ContactUs = () => {
                                     <button
                                         onClick={() => setActiveTab('trade')}
                                         className={`px-4 py-2 text-sm font-semibold transition-all ${activeTab === 'trade'
-                                            ? 'text-[#D8A24A] border-b-2 border-[#D8A24A]'
+                                            ? 'text-[#9F7A54] border-b-2 border-[#9F7A54]'
                                             : 'text-[#554B47]/60 hover:text-[#554B47]'
                                             }`}
                                     >
@@ -229,7 +238,7 @@ const ContactUs = () => {
                                     <button
                                         onClick={() => setActiveTab('bulk')}
                                         className={`px-4 py-2 text-sm font-semibold transition-all ${activeTab === 'bulk'
-                                            ? 'text-[#D8A24A] border-b-2 border-[#D8A24A]'
+                                            ? 'text-[#9F7A54] border-b-2 border-[#9F7A54]'
                                             : 'text-[#554B47]/60 hover:text-[#554B47]'
                                             }`}
                                     >
@@ -243,7 +252,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Full Name *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 name="name"
                                                 placeholder="Enter your full name"
                                                 type="text"
@@ -255,7 +264,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Email Address *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 name="email"
                                                 placeholder="Enter your email address"
                                                 type="email"
@@ -267,7 +276,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Message *</p>
                                             <textarea
-                                                className="flex w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 placeholder:text-[#554B47]/50 p-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 placeholder:text-[#554B47]/50 p-4 text-base font-normal leading-normal min-h-[140px]"
                                                 name="message"
                                                 placeholder="Your message..."
                                                 rows="5"
@@ -278,7 +287,7 @@ const ContactUs = () => {
                                         </label>
                                         <div>
                                             <button
-                                                className="w-full flex items-center justify-center rounded-lg h-12 px-6 bg-[#D8A24A] text-white font-bold leading-normal tracking-wide shadow-lg hover:brightness-110 transition-all duration-200"
+                                                className="w-full flex items-center justify-center rounded-lg h-14 px-6 bg-[#9F7A54] text-white font-bold leading-normal tracking-wide shadow-lg hover:bg-[#8A6A4A] transition-all duration-200"
                                                 type="submit"
                                             >
                                                 Send Message
@@ -293,7 +302,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Name *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 placeholder="Enter your name"
                                                 type="text"
                                                 required
@@ -304,7 +313,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Contact No *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 placeholder="Enter your contact number"
                                                 type="tel"
                                                 required
@@ -315,7 +324,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Company Name *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 placeholder="Enter your company name"
                                                 type="text"
                                                 required
@@ -326,7 +335,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Email *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 placeholder="Enter your email address"
                                                 type="email"
                                                 required
@@ -337,7 +346,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Remarks</p>
                                             <textarea
-                                                className="flex w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 placeholder:text-[#554B47]/50 p-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 placeholder:text-[#554B47]/50 p-4 text-base font-normal leading-normal min-h-[120px]"
                                                 placeholder="What is the purpose of your inquiry?"
                                                 rows="4"
                                                 value={tradeForm.remarks}
@@ -349,7 +358,7 @@ const ContactUs = () => {
                                         </label>
                                         <div>
                                             <button
-                                                className="w-full flex items-center justify-center rounded-lg h-12 px-6 bg-[#D8A24A] text-white font-bold leading-normal tracking-wide shadow-lg hover:brightness-110 transition-all duration-200"
+                                                className="w-full flex items-center justify-center rounded-lg h-14 px-6 bg-[#9F7A54] text-white font-bold leading-normal tracking-wide shadow-lg hover:bg-[#8A6A4A] transition-all duration-200"
                                                 type="submit"
                                             >
                                                 Send Inquiry
@@ -364,7 +373,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Name *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 placeholder="Enter your name"
                                                 type="text"
                                                 required
@@ -375,7 +384,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Company Name *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 placeholder="Enter your company name"
                                                 type="text"
                                                 required
@@ -386,7 +395,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Phone No *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 placeholder="Enter your phone number"
                                                 type="tel"
                                                 required
@@ -397,7 +406,7 @@ const ContactUs = () => {
                                         <label className="flex flex-col">
                                             <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Email *</p>
                                             <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                 placeholder="Enter your email address"
                                                 type="email"
                                                 required
@@ -412,7 +421,7 @@ const ContactUs = () => {
                                                 <button
                                                     type="button"
                                                     onClick={addBulkItem}
-                                                    className="text-[#D8A24A] hover:text-[#D8A24A]/80 text-sm font-semibold flex items-center gap-1"
+                                                    className="text-[#9F7A54] hover:text-[#8A6A4A] text-sm font-semibold flex items-center gap-1"
                                                 >
                                                     <span className="material-symbols-outlined text-lg">add_circle</span>
                                                     Add Item
@@ -422,18 +431,23 @@ const ContactUs = () => {
                                                 {bulkForm.items.map((item, index) => (
                                                     <div key={index} className="flex gap-2 items-start">
                                                         <div className="flex-1">
-                                                            <input
-                                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
-                                                                placeholder="Product name"
-                                                                type="text"
+                                                            <select
+                                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                                 required
                                                                 value={item.productName}
                                                                 onChange={(e) => updateBulkItem(index, 'productName', e.target.value)}
-                                                            />
+                                                            >
+                                                                <option value="">Select a product</option>
+                                                                {products.map((product) => (
+                                                                    <option key={product._id} value={product.name}>
+                                                                        {product.name} - ₹{product.price}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
                                                         </div>
                                                         <div className="w-32">
                                                             <input
-                                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#D8A24A]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-12 placeholder:text-[#554B47]/50 px-4 text-sm font-normal leading-normal"
+                                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
                                                                 placeholder="Qty"
                                                                 type="number"
                                                                 min="1"
@@ -446,7 +460,7 @@ const ContactUs = () => {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => removeBulkItem(index)}
-                                                                className="h-12 w-12 flex items-center justify-center text-red-500 hover:text-red-600 transition-colors"
+                                                                className="h-14 w-14 flex items-center justify-center text-red-500 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
                                                             >
                                                                 <span className="material-symbols-outlined">delete</span>
                                                             </button>
@@ -454,9 +468,9 @@ const ContactUs = () => {
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div className="flex items-center justify-between mt-3 p-3 bg-[#D8A24A]/10 rounded-lg border border-[#D8A24A]/30">
+                                            <div className="flex items-center justify-between mt-3 p-4 bg-[#9F7A54]/10 rounded-lg border border-[#9F7A54]/30">
                                                 <p className="text-[#554B47] text-sm font-semibold">Total Quantity:</p>
-                                                <p className="text-[#D8A24A] text-lg font-bold">
+                                                <p className="text-[#9F7A54] text-lg font-bold">
                                                     {bulkForm.items.reduce((sum, item) => sum + (parseInt(item.quantity) || 0), 0)} pieces
                                                 </p>
                                             </div>
@@ -466,7 +480,7 @@ const ContactUs = () => {
                                         </div>
                                         <div>
                                             <button
-                                                className="w-full flex items-center justify-center rounded-lg h-12 px-6 bg-[#D8A24A] text-white font-bold leading-normal tracking-wide shadow-lg hover:brightness-110 transition-all duration-200"
+                                                className="w-full flex items-center justify-center rounded-lg h-14 px-6 bg-[#9F7A54] text-white font-bold leading-normal tracking-wide shadow-lg hover:bg-[#8A6A4A] transition-all duration-200"
                                                 type="submit"
                                             >
                                                 Send Inquiry
@@ -486,21 +500,21 @@ const ContactUs = () => {
                                 <div className="relative flex flex-col justify-end h-full p-8 text-white">
                                     <div className="space-y-5">
                                         <div className="flex items-start gap-4">
-                                            <span className="material-symbols-outlined mt-1 text-[#D8A24A]">mail</span>
+                                            <span className="material-symbols-outlined mt-1 text-[#C9A875]">mail</span>
                                             <div>
                                                 <p className="font-semibold">Email</p>
                                                 <p className="text-white/80 text-sm">contact@enpees.com</p>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-4">
-                                            <span className="material-symbols-outlined mt-1 text-[#D8A24A]">call</span>
+                                            <span className="material-symbols-outlined mt-1 text-[#C9A875]">call</span>
                                             <div>
                                                 <p className="font-semibold">Phone</p>
                                                 <p className="text-white/80 text-sm">+1 (555) 123-4567</p>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-4">
-                                            <span className="material-symbols-outlined mt-1 text-[#D8A24A]">location_on</span>
+                                            <span className="material-symbols-outlined mt-1 text-[#C9A875]">location_on</span>
                                             <div>
                                                 <p className="font-semibold">Address</p>
                                                 <p className="text-white/80 text-sm">123 Luxe Lane, Ember City, 45678</p>

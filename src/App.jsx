@@ -3,6 +3,8 @@ import ContactUs from './pages/ContactUs';
 import Shop from './pages/Shop';
 import ProductPage from './pages/ProductPage';
 import Admin from './pages/Admin';
+import OrderDetails from './pages/admin/OrderDetails';
+import UserOrders from './pages/UserOrders';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Footer from './components/Footer';
@@ -26,6 +28,8 @@ function App() {
             <Route path="/shop" element={<Shop />} />
             <Route path="/product" element={<ProductPage />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/orders/:orderId" element={<OrderDetails />} />
+            <Route path="/my-orders" element={<UserOrders />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/checkout" element={<Checkout />} />

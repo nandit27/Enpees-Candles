@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import LazyImage from '../components/LazyImage';
 import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
 import vanillaCandle from '../assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp';
@@ -8,6 +8,7 @@ import oceanCandle from '../assets/Snowman_Candle ___199.webp';
 import heroBg from '../assets/hero-bg.png'; // Using as profile placeholder
 
 const Admin = () => {
+    const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -127,15 +128,23 @@ const Admin = () => {
                 {/* Mobile Menu Button */}
                 <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-[#D8A24A] text-[#3B2A23] rounded-lg shadow-xl"
+                    className="lg:hidden fixed top-4 left-4 z-[60] p-2 sm:p-3 bg-[#D8A24A] text-[#3B2A23] rounded-lg shadow-xl"
                 >
-                    <span className="material-symbols-outlined text-2xl">
+                    <span className="material-symbols-outlined text-xl sm:text-2xl">
                         {isMobileMenuOpen ? 'close' : 'menu'}
                     </span>
                 </button>
 
+                {/* Mobile Backdrop Overlay */}
+                {isMobileMenuOpen && (
+                    <div 
+                        className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    />
+                )}
+
                 {/* SideNavBar */}
-                <aside className={`flex h-screen w-64 flex-col justify-between p-4 sticky top-0 border-r border-[#EAD2C0]/10 bg-[#3B2A23] z-40 transition-transform duration-300 lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0 fixed' : '-translate-x-full fixed lg:relative'}`}>
+                <aside className={`fixed lg:sticky top-0 left-0 h-screen w-64 flex flex-col justify-between p-4 border-r border-[#EAD2C0]/10 bg-[#3B2A23] z-50 transition-transform duration-300 overflow-y-auto ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                     <div className="flex flex-col gap-8">
                         <Link to="/" className="flex items-center gap-3 px-3 hover:opacity-80 transition-opacity">
                             <div
@@ -198,11 +207,11 @@ const Admin = () => {
                 </aside>
 
                 {/* Main Content */}
-                <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto h-screen lg:ml-0 ml-0 pt-16 lg:pt-4">
+                <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto h-screen w-full pt-16 lg:pt-6">
                     {/* Add Product Modal */}
                     {showAddProduct && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                            <div className="bg-[#3B2A23] p-8 rounded-xl border border-[#FFF7ED]/20 w-full max-w-md">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                            <div className="bg-[#3B2A23] p-4 sm:p-8 rounded-xl border border-[#FFF7ED]/20 w-full max-w-md max-h-[90vh] overflow-y-auto">
                                 <h2 className="text-2xl font-bold mb-4 text-[#FFF7ED]">Add New Product</h2>
                                 <form onSubmit={handleAddProduct} className="space-y-4">
                                     <input
@@ -251,8 +260,8 @@ const Admin = () => {
 
                     {/* Edit Product Modal */}
                     {showEditProduct && editingProduct && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                            <div className="bg-[#3B2A23] p-8 rounded-xl border border-[#FFF7ED]/20 w-full max-w-md">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                            <div className="bg-[#3B2A23] p-4 sm:p-8 rounded-xl border border-[#FFF7ED]/20 w-full max-w-md max-h-[90vh] overflow-y-auto">
                                 <h2 className="text-2xl font-bold mb-4 text-[#FFF7ED]">Edit Product</h2>
                                 <form onSubmit={handleEditProduct} className="space-y-4">
                                     <input
@@ -316,7 +325,7 @@ const Admin = () => {
                             </div>
 
                             {/* Stats */}
-                            <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                 {(() => {
                                     const totalRevenue = orders.reduce((acc, order) => acc + (order.totals?.total || order.total || 0), 0);
                                     const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
@@ -340,7 +349,7 @@ const Admin = () => {
                             </div>
 
                             <h2 className="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-[#FFF7ED] pt-4">Product Management</h2>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                                 {products.slice(0, 4).map((product, index) => (
                                     <div key={index} className="flex flex-col gap-2 sm:gap-3 lg:gap-4 rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
                                         <div className="w-full aspect-square rounded-lg shadow-sm overflow-hidden">
@@ -373,7 +382,7 @@ const Admin = () => {
                                     </thead>
                                     <tbody>
                                         {orders.slice(0, 5).map((order) => (
-                                            <tr key={order.id} className="border-b border-[#FFF7ED]/10 bg-[#FFF7ED]/5 hover:bg-[#FFF7ED]/10">
+                                            <tr key={order._id || order.id} className="border-b border-[#FFF7ED]/10 bg-[#FFF7ED]/5 hover:bg-[#FFF7ED]/10">
                                                 <td className="px-6 py-4 font-medium text-[#FFF7ED]">{order.id}</td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col">
@@ -424,7 +433,7 @@ const Admin = () => {
                                     <p className="text-sm text-[#EAD2C0]/70">Add your first product to get started</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                                     {products.map((product, index) => (
                                         <div key={index} className="flex flex-col gap-2 sm:gap-3 lg:gap-4 rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
                                             <div className="w-full aspect-square rounded-lg shadow-sm overflow-hidden">
@@ -511,10 +520,14 @@ const Admin = () => {
                                         </thead>
                                         <tbody>
                                             {orders.map((order) => (
-                                                <tr key={order.id} className="border-b border-[#FFF7ED]/10 bg-[#FFF7ED]/5 hover:bg-[#FFF7ED]/10">
-                                                    <td className="px-6 py-4 font-medium text-[#FFF7ED]">{order.id}</td>
+                                                <tr 
+                                                    key={order._id} 
+                                                    onClick={() => navigate(`/admin/orders/${order._id}`)}
+                                                    className="border-b border-[#FFF7ED]/10 bg-[#FFF7ED]/5 hover:bg-[#FFF7ED]/10 cursor-pointer transition-colors"
+                                                >
+                                                    <td className="px-6 py-4 font-medium text-[#FFF7ED]">{order.orderId}</td>
                                                     <td className="px-6 py-4">
-                                                        {order.date ? new Date(order.date).toLocaleDateString('en-IN', {
+                                                        {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', {
                                                             day: '2-digit',
                                                             month: 'short',
                                                             year: 'numeric'
@@ -570,7 +583,7 @@ const Admin = () => {
 
                                 return (
                                     <>
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                                             {currentProducts.map(product => {
                                                 const isFeatured = product.featured === true || product.featured === 'true';
                                                 const featuredCount = products.filter(p => p.featured === true || p.featured === 'true').length;
@@ -813,8 +826,8 @@ const Admin = () => {
 
                             {/* Add Category Modal */}
                             {showCategoryModal && (
-                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                                    <div className="bg-[#3B2A23] p-8 rounded-xl border border-[#FFF7ED]/20 w-full max-w-md">
+                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                                    <div className="bg-[#3B2A23] p-4 sm:p-8 rounded-xl border border-[#FFF7ED]/20 w-full max-w-md max-h-[90vh] overflow-y-auto">
                                         <h2 className="text-2xl font-bold mb-4 text-[#FFF7ED]">Add New Category</h2>
                                         <form onSubmit={handleAddCategory} className="space-y-4">
                                             <input
@@ -843,7 +856,7 @@ const Admin = () => {
                                     <p className="text-sm text-[#EAD2C0]/70">Add your first category to organize products</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                     {categories.map((category) => (
                                         <div key={category._id} className="flex flex-col gap-3 sm:gap-4 rounded-lg sm:rounded-xl p-4 sm:p-6 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
                                             <div className="flex items-start justify-between">

@@ -44,11 +44,10 @@ export function calculateShipping(subtotal) {
 export function calculateTotals(subtotal, options = {}) {
   const { giftWrap = false, couponDiscount = 0, codCharge = 0 } = options;
   const shipping = calculateShipping(subtotal);
-  const tax = (subtotal - couponDiscount) * 0.18;
   const gift = giftWrap ? 100 : 0; // gift wrap fixed fee
   const cod = codCharge; // COD charge if applicable
-  const total = Math.max(0, subtotal - couponDiscount) + shipping + tax + gift + cod;
-  return { subtotal, shipping, tax, gift, couponDiscount, cod, total };
+  const total = Math.max(0, subtotal - couponDiscount) + shipping + gift + cod;
+  return { subtotal, shipping, gift, couponDiscount, cod, total };
 }
 
 // Helper to create UPI link (upi://pay?pa=...&pn=...)

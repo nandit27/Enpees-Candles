@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
@@ -25,11 +25,6 @@ const Checkout = () => {
     });
 
     const [errors, setErrors] = useState({});
-    const [otpSent, setOtpSent] = useState(false);
-    const [otpCooldown, setOtpCooldown] = useState(0);
-    const otpTimerRef = useRef(null);
-    const [otp, setOtp] = useState('');
-    const [otpVerified, setOtpVerified] = useState(false);
     const [couponCode, setCouponCode] = useState('');
     const [couponResult, setCouponResult] = useState(null);
     const [giftWrap, setGiftWrap] = useState(false);
@@ -44,18 +39,7 @@ const Checkout = () => {
         setErrors(prev => ({ ...prev, [name]: undefined }));
     };
 
-    useEffect(() => {
-        if (otpCooldown === 0 && otpTimerRef.current) {
-            clearInterval(otpTimerRef.current);
-            otpTimerRef.current = null;
-        }
-    }, [otpCooldown]);
 
-    useEffect(() => {
-        return () => {
-            if (otpTimerRef.current) clearInterval(otpTimerRef.current);
-        };
-    }, []);
 
     const validateForm = () => {
         const errs = {};
@@ -74,7 +58,6 @@ const Checkout = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return toast.error('Please fix form errors');
-        if (!otpVerified) return toast.error('Please verify mobile number with OTP');
 
         const subtotal = getCartTotal();
         const couponDiscount = couponResult && couponResult.valid ? couponResult.discount : 0;
@@ -121,55 +104,7 @@ const Checkout = () => {
         }
     };
 
-    // OTP functions
-    const sendOtp = async () => {
-        if (!formData.mobile || !/^[6-9]\d{9}$/.test(formData.mobile)) return setErrors(prev => ({ ...prev, mobile: 'Enter valid 10-digit mobile' }));
-        try {
-            const res = await fetch('http://localhost:3001/api/otp/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: formData.mobile })
-            });
-            if (res.ok) {
-                setOtpSent(true);
-                setOtpCooldown(30);
-                otpTimerRef.current = setInterval(() => setOtpCooldown(c => Math.max(0, c - 1)), 1000);
-                toast.success('OTP sent (mock). Check server console for code.');
-            } else {
-                toast.error('Failed to send OTP');
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error('Failed to send OTP');
-        }
-    };
 
-    const verifyOtp = async () => {
-        if (!otp) return setErrors(prev => ({ ...prev, otp: 'Enter OTP' }));
-        try {
-            const res = await fetch('http://localhost:3001/api/otp/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: formData.mobile, otp })
-            });
-            const data = await res.json();
-            if (res.ok && data.valid) {
-                setOtpVerified(true);
-                toast.success('Mobile verified');
-            } else {
-                setOtpVerified(false);
-                toast.error(data.error || 'Verification failed');
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error('Verification failed');
-        }
-    };
-
-    const resendOtp = () => {
-        if (otpCooldown > 0) return;
-        sendOtp();
-    };
 
     if (cartItems.length === 0) {
         return (
@@ -231,34 +166,17 @@ const Checkout = () => {
 
                                     <div>
                                         <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Mobile Number *</label>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="tel"
-                                                name="mobile"
-                                                required
-                                                value={formData.mobile}
-                                                onChange={handleChange}
-                                                placeholder="Enter 10-digit mobile"
-                                                className={`flex-1 p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.mobile ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white placeholder-[#EAD2C0]/50 focus:outline-none`}
-                                            />
-                                            <button type="button" onClick={sendOtp} disabled={otpCooldown>0} className="px-4 py-3 rounded-lg bg-[#D8A24A] text-[#3B2A23] font-semibold">
-                                                {otpCooldown>0 ? `Resend in ${otpCooldown}s` : (otpSent ? 'Resend OTP' : 'Send OTP')}
-                                            </button>
-                                        </div>
+                                        <input
+                                            type="tel"
+                                            name="mobile"
+                                            required
+                                            value={formData.mobile}
+                                            onChange={handleChange}
+                                            placeholder="Enter 10-digit mobile"
+                                            className={`w-full p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.mobile ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white placeholder-[#EAD2C0]/50 focus:outline-none focus:border-[#D8A24A] focus:ring-2 focus:ring-[#D8A24A]/50 transition-all`}
+                                        />
                                         {errors.mobile && <p className="text-xs text-red-400 mt-1">{errors.mobile}</p>}
                                     </div>
-
-                                    {otpSent && (
-                                        <div>
-                                            <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Enter OTP</label>
-                                            <div className="flex gap-2">
-                                                <input type="text" value={otp} onChange={(e)=>setOtp(e.target.value)} placeholder="6-digit code" className={`flex-1 p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.otp ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white`} />
-                                                <button type="button" onClick={verifyOtp} className="px-4 py-3 rounded-lg bg-green-500 text-white font-semibold">Verify</button>
-                                            </div>
-                                            {errors.otp && <p className="text-xs text-red-400 mt-1">{errors.otp}</p>}
-                                            {otpVerified && <p className="text-xs text-green-300 mt-1">Mobile verified</p>}
-                                        </div>
-                                    )}
 
                                     <div>
                                         <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Email Address *</label>
