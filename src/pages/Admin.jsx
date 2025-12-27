@@ -49,32 +49,22 @@ const Admin = () => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
-        console.log('Admin fetch - Token:', token ? token.substring(0, 20) + '...' : 'none');
-        console.log('Admin fetch - User:', user);
-        
         const headers = {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         };
-        console.log('Fetching from:', API_ENDPOINTS.ADMIN_ORDERS);
 
         fetch(API_ENDPOINTS.ADMIN_ORDERS, { headers })
             .then(res => {
-                console.log('Admin orders response status:', res.status);
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
                 }
                 return res.json();
             })
-            .then(data => {
-                console.log('Orders received:', data.length);
-                setOrders(data);
-            })
+            .then(data => setOrders(data))
             .catch(err => {
                 console.error('Error fetching orders:', err);
                 if (err.message.includes('401')) {
-                    console.error('Unauthorized - redirecting to login');
                     localStorage.clear();
                     navigate('/login');
                 }

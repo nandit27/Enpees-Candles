@@ -22,11 +22,25 @@ const OrderDetails = () => {
 
     const fetchOrderDetails = async () => {
         try {
-            const response = await fetch(API_ENDPOINTS.ADMIN_ORDER_BY_ID(orderId));
+            const token = localStorage.getItem('token');
+            const response = await fetch(API_ENDPOINTS.ADMIN_ORDER_BY_ID(orderId), {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const data = await response.json();
             setOrder(data);
         } catch (error) {
             console.error('Error fetching order:', error);
+            if (error.message.includes('401')) {
+                navigate('/login');
+            }
         } finally {
             setLoading(false);
         }
@@ -36,8 +50,13 @@ const OrderDetails = () => {
         if (!window.confirm('Confirm this order?')) return;
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(API_ENDPOINTS.CONFIRM_ORDER(orderId), {
-                method: 'PATCH'
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
             const updatedOrder = await response.json();
             setOrder(updatedOrder);
@@ -55,9 +74,13 @@ const OrderDetails = () => {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(API_ENDPOINTS.SHIP_ORDER(orderId), {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json' 
+                },
                 body: JSON.stringify({ trackingId, trackingLink })
             });
             const updatedOrder = await response.json();
@@ -76,8 +99,13 @@ const OrderDetails = () => {
         if (!window.confirm('Mark this order as delivered?')) return;
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(API_ENDPOINTS.DELIVER_ORDER(orderId), {
-                method: 'PATCH'
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
             const updatedOrder = await response.json();
             setOrder(updatedOrder);
@@ -95,9 +123,13 @@ const OrderDetails = () => {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(API_ENDPOINTS.CANCEL_ORDER(orderId), {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json' 
+                },
                 body: JSON.stringify({ reason: cancelReason })
             });
             const updatedOrder = await response.json();
@@ -127,9 +159,13 @@ const OrderDetails = () => {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(API_ENDPOINTS.PARTIAL_ORDER(orderId), {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json' 
+                },
                 body: JSON.stringify({ unavailableItems })
             });
             const updatedOrder = await response.json();
