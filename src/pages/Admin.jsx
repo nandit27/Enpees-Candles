@@ -50,29 +50,49 @@ const Admin = () => {
     useEffect(() => {
         const token = localStorage.getItem('token');
         const headers = {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
         };
 
         fetch(API_ENDPOINTS.ADMIN_ORDERS, { headers })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => setOrders(data))
-            .catch(err => console.error('Error fetching orders:', err));
+            .catch(err => {
+                console.error('Error fetching orders:', err);
+                if (err.message.includes('401')) {
+                    navigate('/login');
+                }
+            });
 
         fetch(API_ENDPOINTS.PRODUCTS)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
             .then(data => setProducts(data))
             .catch(err => console.error('Error fetching products:', err));
 
         fetch(API_ENDPOINTS.CATEGORIES)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
             .then(data => setCategories(data))
             .catch(err => console.error('Error fetching categories:', err));
 
         fetch(API_ENDPOINTS.INQUIRIES)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
             .then(data => setInquiries(data))
             .catch(err => console.error('Error fetching inquiries:', err));
-    }, []);
+    }, [navigate]);
 
     const handleAddProduct = (e) => {
         e.preventDefault();

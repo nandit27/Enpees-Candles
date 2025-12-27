@@ -11,17 +11,6 @@ const authMiddleware = async (req, res, next) => {
             return res.status(401).json({ error: 'No token provided, authorization denied' });
         }
 
-        // Check for hardcoded admin token
-        if (token.startsWith('admin-token-')) {
-            req.user = {
-                _id: 'admin-hardcoded',
-                email: 'admin@gmail.com',
-                name: 'Admin',
-                role: 'admin'
-            };
-            return next();
-        }
-
         const decoded = jwt.verify(token, JWT_SECRET);
         const user = await User.findById(decoded.userId).select('-password');
         
