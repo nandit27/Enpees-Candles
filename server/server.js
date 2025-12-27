@@ -73,7 +73,18 @@ const cloudinaryStorage = new CloudinaryStorage({
     }
 });
 
+// Separate storage for payment screenshots
+const paymentStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'enpees-candles/payments',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf'],
+        transformation: [{ width: 2000, height: 2000, crop: 'limit' }]
+    }
+});
+
 const upload = multer({ storage: cloudinaryStorage });
+const uploadPayment = multer({ storage: paymentStorage });
 
 // Serve product images from public folder (for existing images)
 app.use('/products', express.static(path.join(__dirname, 'public/products')));
@@ -301,12 +312,20 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // Endpoint to accept payment confirmation screenshot
-app.post('/api/payments/confirm', upload.single('screenshot'), async (req, res) => {
+app.post('/api/payments/confirm', uploadPayment.single('screenshot'), async (req, res) => {
     try {
+        console.log('📸 Payment screenshot upload request received');
+        console.log('Body:', req.body);
+        console.log('File:', req.file ? 'File received' : 'No file');
+        
         const { orderId } = req.body;
-        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+        if (!req.file) {
+            console.log('❌ No file in request');
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
         
         const screenshotUrl = req.file.path; // Cloudinary URL
+        console.log('✅ File uploaded to Cloudinary:', screenshotUrl);
         
         // Update order with payment screenshot
         if (orderId) {
@@ -342,8 +361,9 @@ app.post('/api/payments/confirm', upload.single('screenshot'), async (req, res) 
             res.json({ success: true, fileUrl: screenshotUrl, orderId: null });
         }
     } catch (error) {
-        console.error('Error uploading payment confirmation:', error);
-        res.status(500).json({ error: 'Failed to upload confirmation' });
+        console.error('❌ Error uploading payment confirmation:', error);
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ error: 'Failed to upload confirmation', details: error.message });
     }
 });
 

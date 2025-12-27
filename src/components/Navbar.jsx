@@ -68,9 +68,9 @@ const Navbar = ({ className = "" }) => {
                     <button onClick={() => setIsSearchOpen(true)} className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
                         <span className="material-symbols-outlined">search</span>
                     </button>
-                    <button className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
-                        <span className="material-symbols-outlined">favorite</span>
-                    </button>
+                    <Link to="/shop" className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors md:hidden" title="Collections">
+                        <span className="material-symbols-outlined">category</span>
+                    </Link>
                     <Link to="/checkout" className="relative flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
                         <span className="material-symbols-outlined">shopping_bag</span>
                         {cartCount > 0 && (
