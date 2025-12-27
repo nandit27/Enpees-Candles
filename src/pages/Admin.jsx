@@ -25,8 +25,35 @@ const Admin = () => {
     const [featuredPage, setFeaturedPage] = useState(1);
     const itemsPerPage = 12;
 
+    // Check admin authentication
     useEffect(() => {
-        fetch(API_ENDPOINTS.ORDERS)
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+        
+        if (!token || !user) {
+            navigate('/login');
+            return;
+        }
+
+        try {
+            const userData = JSON.parse(user);
+            if (userData.role !== 'admin') {
+                navigate('/');
+                return;
+            }
+        } catch (error) {
+            navigate('/login');
+            return;
+        }
+    }, [navigate]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+        fetch(API_ENDPOINTS.ADMIN_ORDERS, { headers })
             .then(res => res.json())
             .then(data => setOrders(data))
             .catch(err => console.error('Error fetching orders:', err));
@@ -123,6 +150,14 @@ const Admin = () => {
         }
     };
 
+    const handleLogout = () => {       
+        if (window.confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            navigate('/login');
+        }
+    };
+
     return (
         <div className="bg-[#3B2A23] font-['Inter',_sans-serif] h-screen overflow-hidden text-[#FFF7ED]">
             <div className="relative flex h-screen w-full">
@@ -147,7 +182,7 @@ const Admin = () => {
                 {/* SideNavBar */}
                 <aside className={`fixed lg:sticky top-0 left-0 h-screen w-64 flex flex-col justify-between p-4 border-r border-[#EAD2C0]/10 bg-[#3B2A23] z-50 transition-transform duration-300 overflow-y-auto ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                     <div className="flex flex-col gap-8">
-                        <Link to="/" className="flex items-center gap-3 px-3 hover:opacity-80 transition-opacity">
+                        <button onClick={() => setActiveView('dashboard')} className="flex items-center gap-3 px-3 hover:opacity-80 transition-opacity text-left">
                             <div
                                 className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
                                 style={{ backgroundImage: `url(${heroBg})` }}
@@ -156,7 +191,7 @@ const Admin = () => {
                                 <h1 className="text-base font-bold leading-normal text-[#FFF7ED]">Enpees Candles</h1>
                                 <p className="text-sm font-normal leading-normal text-[#EAD2C0]">Owner Dashboard</p>
                             </div>
-                        </Link>
+                        </button>
                         <nav className="flex flex-col gap-2">
                             <button
                                 onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }}
@@ -202,9 +237,15 @@ const Admin = () => {
                             </button>
                         </nav>
                     </div>
-                    <button onClick={() => setShowAddProduct(true)} className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#D8A24A] text-[#3B2A23] text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
-                        <span className="truncate">Add New Product</span>
-                    </button>
+                    <div className="space-y-3">
+                        <button onClick={() => setShowAddProduct(true)} className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#D8A24A] text-[#3B2A23] text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
+                            <span className="truncate">Add New Product</span>
+                        </button>
+                        <button onClick={handleLogout} className="flex min-w-[84px] w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-red-600 text-white text-sm font-bold leading-normal tracking-wide shadow-md hover:bg-red-700 transition-all">
+                            <span className="material-symbols-outlined text-lg">logout</span>
+                            <span className="truncate">Logout</span>
+                        </button>
+                    </div>
                 </aside>
 
                 {/* Main Content */}

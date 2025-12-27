@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { applyCoupon, calculateTotals, makeUpiLink } from '../lib/checkoutHelpers';
 import { API_ENDPOINTS } from '../config/api';
 
-const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey'];
+const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey', 'Others'];
 const availableFragrances = ['Woody Flora', 'Peach Miami', 'Jasmine', 'Mogra', 'Berry Blast', 'Kesar Chandan', 'British Rose', 'Vanilla', 'English Lavender'];
 
 const Checkout = () => {
@@ -426,7 +426,7 @@ const Checkout = () => {
                                                     <p className="text-xs text-[#EAD2C0]">Pay via UPI, QR code</p>
                                                 </div>
                                             </label>
-                                            <label className="flex items-center gap-3 p-3 rounded-lg border border-[#FFF7ED]/20 hover:border-[#D8A24A]/50 cursor-pointer transition-all">
+                                            {/* <label className="flex items-center gap-3 p-3 rounded-lg border border-[#FFF7ED]/20 hover:border-[#D8A24A]/50 cursor-pointer transition-all">
                                                 <input 
                                                     type="radio" 
                                                     name="paymentMethod" 
@@ -439,7 +439,7 @@ const Checkout = () => {
                                                     <p className="font-semibold text-white">Cash on Delivery (COD)</p>
                                                     <p className="text-xs text-[#EAD2C0]">Pay when you receive (+₹50 extra)</p>
                                                 </div>
-                                            </label>
+                                            </label> */}
                                         </div>
                                     </div>
 
@@ -547,14 +547,27 @@ const Checkout = () => {
                                                             <div className="flex items-center gap-2">
                                                                 <label className="text-xs text-[#EAD2C0] min-w-[60px]">Color:</label>
                                                                 <select
-                                                                    value={item.color || 'Natural Beige'}
-                                                                    onChange={(e) => updateColorFragrance(
-                                                                        itemId, 
-                                                                        item.color, 
-                                                                        item.fragrance,
-                                                                        e.target.value,
-                                                                        item.fragrance
-                                                                    )}
+                                                                    value={availableColors.includes(item.color) ? item.color : 'Others'}
+                                                                    onChange={(e) => {
+                                                                        if (e.target.value !== 'Others') {
+                                                                            updateColorFragrance(
+                                                                                itemId, 
+                                                                                item.color, 
+                                                                                item.fragrance,
+                                                                                e.target.value,
+                                                                                item.fragrance
+                                                                            );
+                                                                        } else {
+                                                                            // Switch to Others mode
+                                                                            updateColorFragrance(
+                                                                                itemId, 
+                                                                                item.color, 
+                                                                                item.fragrance,
+                                                                                '',
+                                                                                item.fragrance
+                                                                            );
+                                                                        }
+                                                                    }}
                                                                     className="flex-1 text-xs px-2 py-1 rounded bg-[#3B2A23] border border-[#FFF7ED]/20 text-white"
                                                                 >
                                                                     {availableColors.map(color => (
@@ -562,6 +575,24 @@ const Checkout = () => {
                                                                     ))}
                                                                 </select>
                                                             </div>
+                                                            {!availableColors.includes(item.color) && (
+                                                                <div className="flex items-start gap-2">
+                                                                    <label className="text-xs text-[#EAD2C0] min-w-[60px] pt-1">Custom:</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={item.color || ''}
+                                                                        onChange={(e) => updateColorFragrance(
+                                                                            itemId, 
+                                                                            item.color, 
+                                                                            item.fragrance,
+                                                                            e.target.value,
+                                                                            item.fragrance
+                                                                        )}
+                                                                        className="flex-1 text-xs px-2 py-1 rounded bg-[#3B2A23] border border-[#FFF7ED]/20 text-white"
+                                                                        placeholder="Enter custom color"
+                                                                    />
+                                                                </div>
+                                                            )}
                                                             <div className="flex items-center gap-2">
                                                                 <label className="text-xs text-[#EAD2C0] min-w-[60px]">Fragrance:</label>
                                                                 <select

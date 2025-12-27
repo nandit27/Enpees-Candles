@@ -171,7 +171,7 @@ app.post('/api/orders', async (req, res) => {
             orderId,
             ...req.body,
             user: req.user ? req.user._id : null,
-            status: 'PLACED'
+            status: 'PENDING'
         };
 
         const newOrder = new Order(orderData);

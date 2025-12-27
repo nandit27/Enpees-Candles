@@ -115,31 +115,62 @@ const UserOrders = () => {
                                 {/* Expanded Order Details */}
                                 {selectedOrder?._id === order._id && (
                                     <div className="mt-6 pt-6 border-t border-[#FFF7ED]/20">
+                                        {/* Partial Order Warning */}
+                                        {order.isPartialOrder && order.unavailableItems && order.unavailableItems.length > 0 && (
+                                            <div className="mb-6 bg-orange-500/20 border border-orange-400 rounded-lg p-4">
+                                                <div className="flex items-start gap-3">
+                                                    <span className="material-symbols-outlined text-orange-400 text-3xl">warning</span>
+                                                    <div>
+                                                        <h4 className="text-orange-300 font-bold text-lg">Partial Order</h4>
+                                                        <p className="text-orange-200 text-sm mt-1">
+                                                            Some items from your order were unavailable and will not be shipped. 
+                                                            Only the available items listed below will be delivered.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                             {/* Order Items */}
                                             <div>
                                                 <h4 className="text-[#FFF7ED] font-bold mb-4">Order Items</h4>
                                                 <div className="space-y-3">
-                                                    {order.items.map((item, index) => (
-                                                        <div key={index} className="flex gap-3 bg-[#FFF7ED]/5 p-3 rounded-lg">
-                                                            {item.image && (
-                                                                <img 
-                                                                    src={item.image} 
-                                                                    alt={item.name} 
-                                                                    className="w-16 h-16 object-cover rounded"
-                                                                />
-                                                            )}
-                                                            <div className="flex-1">
-                                                                <p className="text-[#FFF7ED] font-semibold text-sm">{item.name}</p>
-                                                                <p className="text-[#EAD2C0] text-xs">Qty: {item.quantity}</p>
-                                                                {item.color && <p className="text-[#EAD2C0] text-xs">Color: {item.color}</p>}
-                                                                {item.fragrance && <p className="text-[#EAD2C0] text-xs">Fragrance: {item.fragrance}</p>}
+                                                    {order.items.map((item, index) => {
+                                                        const isUnavailable = order.unavailableItems?.includes(item._id);
+                                                        return (
+                                                            <div 
+                                                                key={index} 
+                                                                className={`flex gap-3 p-3 rounded-lg ${
+                                                                    isUnavailable 
+                                                                        ? 'bg-red-500/10 border border-red-500/30 opacity-60' 
+                                                                        : 'bg-[#FFF7ED]/5'
+                                                                }`}
+                                                            >
+                                                                {item.image && (
+                                                                    <img 
+                                                                        src={item.image} 
+                                                                        alt={item.name} 
+                                                                        className="w-16 h-16 object-cover rounded"
+                                                                    />
+                                                                )}
+                                                                <div className="flex-1">
+                                                                    <div className="flex items-start justify-between">
+                                                                        <p className="text-[#FFF7ED] font-semibold text-sm">{item.name}</p>
+                                                                        {isUnavailable && (
+                                                                            <span className="text-xs bg-red-500 text-white px-2 py-1 rounded">Not Available</span>
+                                                                        )}
+                                                                    </div>
+                                                                    <p className="text-[#EAD2C0] text-xs">Qty: {item.quantity}</p>
+                                                                    {item.color && <p className="text-[#EAD2C0] text-xs">Color: {item.color}</p>}
+                                                                    {item.fragrance && <p className="text-[#EAD2C0] text-xs">Fragrance: {item.fragrance}</p>}
+                                                                </div>
+                                                                <div className={`font-bold text-sm ${isUnavailable ? 'text-[#EAD2C0] line-through' : 'text-[#FFF7ED]'}`}>
+                                                                    ₹{item.price * item.quantity}
+                                                                </div>
                                                             </div>
-                                                            <div className="text-[#FFF7ED] font-bold text-sm">
-                                                                ₹{item.price * item.quantity}
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
 
                                                 {/* Shipping Address */}

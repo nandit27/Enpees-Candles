@@ -32,6 +32,7 @@ export const API_ENDPOINTS = {
     SHIP_ORDER: (id) => `${API_BASE_URL}/admin/orders/${id}/ship`,
     DELIVER_ORDER: (id) => `${API_BASE_URL}/admin/orders/${id}/deliver`,
     CANCEL_ORDER: (id) => `${API_BASE_URL}/admin/orders/${id}/cancel`,
+    PARTIAL_ORDER: (id) => `${API_BASE_URL}/admin/orders/${id}/partial`,
     
     // Inquiries
     INQUIRIES: `${API_BASE_URL}/inquiries`,

@@ -4,7 +4,7 @@ const OrderTimeline = ({ order }) => {
     const steps = [
         {
             key: 'placed',
-            label: 'Order Placed',
+            label: 'Order Pending',
             icon: 'shopping_bag',
             description: 'Your order has been received'
         },

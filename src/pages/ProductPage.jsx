@@ -12,9 +12,11 @@ const ProductPage = () => {
     const [quantity, setQuantity] = useState(1);
     const [selectedColor, setSelectedColor] = useState('Natural Beige');
     const [selectedFragrance, setSelectedFragrance] = useState('Woody Flora');
+    const [showZoomModal, setShowZoomModal] = useState(false);
+    const [customColor, setCustomColor] = useState('');
     const { addToCart } = useCart();
 
-    const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey'];
+    const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey', 'Others'];
     const availableFragrances = ['Woody Flora', 'Peach Miami', 'Jasmine', 'Mogra', 'Berry Blast', 'Kesar Chandan', 'British Rose', 'Vanilla', 'English Lavender'];
 
     // Default data if no product is passed (for testing/direct access)
@@ -27,8 +29,13 @@ const ProductPage = () => {
     };
 
     const handleAddToCart = () => {
+        const colorToUse = selectedColor === 'Others' ? customColor : selectedColor;
+        if (selectedColor === 'Others' && !customColor.trim()) {
+            toast.error('Please specify a custom color');
+            return;
+        }
         for (let i = 0; i < quantity; i++) {
-            addToCart(displayProduct, selectedColor, selectedFragrance);
+            addToCart(displayProduct, colorToUse, selectedFragrance);
         }
         toast.success(`Added ${quantity} ${displayProduct.name} to cart!`);
     };
@@ -55,12 +62,21 @@ const ProductPage = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 sm:gap-6 lg:gap-12">
                             {/* Product Images - Compact on Mobile */}
                             <div className="lg:col-span-6 space-y-3">
-                                <div className="relative aspect-square sm:aspect-[4/5] w-full overflow-hidden rounded-lg sm:rounded-xl">
+                                <div 
+                                    className="relative aspect-square sm:aspect-[4/5] w-full overflow-hidden rounded-lg sm:rounded-xl cursor-pointer group"
+                                    onClick={() => setShowZoomModal(true)}
+                                >
                                     <LazyImage
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
                                         alt={displayProduct.name}
                                         src={displayProduct.image}
                                     />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-white text-5xl opacity-0 group-hover:opacity-100 transition-opacity">zoom_in</span>
+                                    </div>
+                                    <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                        Click to view full size
+                                    </div>
                                 </div>
 
                             </div>
@@ -115,6 +131,17 @@ const ProductPage = () => {
                                                     </button>
                                                 ))}
                                             </div>
+                                            {selectedColor === 'Others' && (
+                                                <div className="mt-3">
+                                                    <textarea
+                                                        value={customColor}
+                                                        onChange={(e) => setCustomColor(e.target.value)}
+                                                        placeholder="Please specify your desired color"
+                                                        className="w-full p-3 rounded-lg border border-[#554B47]/20 bg-white/50 text-[#554B47] placeholder-[#554B47]/50 focus:outline-none focus:border-[#d9a24a] focus:ring-2 focus:ring-[#d9a24a]/50 text-sm"
+                                                        rows="2"
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Fragrance Selection */}
@@ -270,6 +297,27 @@ const ProductPage = () => {
                     </div>
                 </main>
             </div>
+
+            {/* Zoom Modal */}
+            {showZoomModal && (
+                <div 
+                    className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+                    onClick={() => setShowZoomModal(false)}
+                >
+                    <button 
+                        className="absolute top-4 right-4 text-white hover:text-[#D8A24A] transition-colors"
+                        onClick={() => setShowZoomModal(false)}
+                    >
+                        <span className="material-symbols-outlined text-4xl">close</span>
+                    </button>
+                    <img 
+                        src={displayProduct.image} 
+                        alt={displayProduct.name}
+                        className="max-w-full max-h-full object-contain"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </div>
     );
 };

@@ -46,8 +46,8 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['PLACED', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
-        default: 'PLACED'
+        enum: ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+        default: 'PENDING'
     },
     timeline: {
         placed: {
@@ -74,6 +74,11 @@ const orderSchema = new mongoose.Schema({
     trackingId: String,
     trackingLink: String,
     cancellationReason: String,
+    unavailableItems: [{ type: mongoose.Schema.Types.ObjectId }],
+    isPartialOrder: {
+        type: Boolean,
+        default: false
+    },
     paymentMethod: {
         type: String,
         enum: ['online', 'cod'],

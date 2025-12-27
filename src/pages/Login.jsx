@@ -24,6 +24,26 @@ const Login = () => {
         setLoading(true);
 
         try {
+            // Check for hardcoded admin credentials first
+            if (formData.email === 'admin@gmail.com' && formData.password === 'poojan') {
+                const adminUser = {
+                    email: 'admin@gmail.com',
+                    name: 'Admin',
+                    role: 'admin',
+                    _id: 'admin-hardcoded'
+                };
+                
+                // Create a simple token (in production, this should be a proper JWT)
+                const adminToken = 'admin-token-' + Date.now();
+                
+                localStorage.setItem('token', adminToken);
+                localStorage.setItem('user', JSON.stringify(adminUser));
+                toast.success('Admin login successful!');
+                navigate('/admin');
+                setLoading(false);
+                return;
+            }
+
             const response = await fetch(API_ENDPOINTS.LOGIN, {
                 method: 'POST',
                 headers: {

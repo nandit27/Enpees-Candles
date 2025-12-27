@@ -10,9 +10,11 @@ const OrderDetails = () => {
     const [loading, setLoading] = useState(true);
     const [showTrackingModal, setShowTrackingModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showPartialOrderModal, setShowPartialOrderModal] = useState(false);
     const [trackingId, setTrackingId] = useState('');
     const [trackingLink, setTrackingLink] = useState('');
     const [cancelReason, setCancelReason] = useState('');
+    const [unavailableItems, setUnavailableItems] = useState([]);
 
     useEffect(() => {
         fetchOrderDetails();
@@ -109,6 +111,38 @@ const OrderDetails = () => {
         }
     };
 
+    const handlePartialOrder = async () => {
+        if (unavailableItems.length === 0) {
+            alert('Please select at least one unavailable item');
+            return;
+        }
+
+        if (unavailableItems.length === order.items.length) {
+            alert('Cannot process partial order. All items are unavailable. Please cancel the order instead.');
+            return;
+        }
+
+        if (!window.confirm('Mark this order as partial and proceed to shipping? Customer will be notified about unavailable items.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(API_ENDPOINTS.PARTIAL_ORDER(orderId), {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ unavailableItems })
+            });
+            const updatedOrder = await response.json();
+            setOrder(updatedOrder);
+            setShowPartialOrderModal(false);
+            setUnavailableItems([]);
+            alert('Partial order processed! Customer has been notified about unavailable items.');
+        } catch (error) {
+            console.error('Error processing partial order:', error);
+            alert('Failed to process partial order');
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-[#3B2A23]">
@@ -125,10 +159,10 @@ const OrderDetails = () => {
         );
     }
 
-    const canConfirm = order.status === 'PLACED';
+    const canConfirm = order.status === 'PENDING';
     const canShip = order.status === 'CONFIRMED';
     const canDeliver = order.status === 'SHIPPED';
-    const canCancel = ['PLACED', 'CONFIRMED'].includes(order.status);
+    const canCancel = ['PENDING', 'CONFIRMED'].includes(order.status);
 
     return (
         <div className="min-h-screen bg-[#3B2A23] p-4 sm:p-6 lg:p-8">
@@ -157,6 +191,24 @@ const OrderDetails = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Partial Order Alert */}
+            {order.isPartialOrder && order.unavailableItems && order.unavailableItems.length > 0 && (
+                <div className="max-w-7xl mx-auto mb-4 sm:mb-6">
+                    <div className="bg-orange-500/20 border border-orange-400 rounded-xl p-4 sm:p-6">
+                        <div className="flex items-start gap-3">
+                            <span className="material-symbols-outlined text-orange-400 text-3xl">warning</span>
+                            <div className="flex-1">
+                                <h3 className="text-orange-300 font-bold text-lg mb-2">Partial Order Processed</h3>
+                                <p className="text-orange-200 text-sm">
+                                    {order.unavailableItems.length} item(s) marked as unavailable. 
+                                    Customer has been notified via email that only the available items will be shipped.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 {/* Left Column - Order Info */}
@@ -192,20 +244,35 @@ const OrderDetails = () => {
                     <div className="bg-[#FFF7ED]/10 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-[#FFF7ED]/20">
                         <h2 className="text-lg sm:text-xl font-bold text-[#FFF7ED] mb-3 sm:mb-4">Order Items</h2>
                         <div className="space-y-4">
-                            {order.items.map((item, index) => (
-                                <div key={index} className="flex gap-4 pb-4 border-b border-[#FFF7ED]/10 last:border-0">
-                                    {item.image && (
-                                        <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
-                                    )}
-                                    <div className="flex-1">
-                                        <p className="text-[#FFF7ED] font-semibold">{item.name}</p>
-                                        <p className="text-[#EAD2C0] text-sm">Quantity: {item.quantity}</p>
-                                        {item.color && <p className="text-[#EAD2C0] text-sm">Color: {item.color}</p>}
-                                        {item.fragrance && <p className="text-[#EAD2C0] text-sm">Fragrance: {item.fragrance}</p>}
+                            {order.items.map((item, index) => {
+                                const isUnavailable = order.unavailableItems?.includes(item._id);
+                                return (
+                                    <div 
+                                        key={index} 
+                                        className={`flex gap-4 pb-4 border-b border-[#FFF7ED]/10 last:border-0 ${
+                                            isUnavailable ? 'opacity-60' : ''
+                                        }`}
+                                    >
+                                        {item.image && (
+                                            <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
+                                        )}
+                                        <div className="flex-1">
+                                            <div className="flex items-start justify-between mb-2">
+                                                <h3 className="text-[#FFF7ED] font-semibold">{item.name}</h3>
+                                                {isUnavailable && (
+                                                    <span className="text-xs bg-red-500 text-white px-2 py-1 rounded ml-2">Not Available</span>
+                                                )}
+                                            </div>
+                                            <p className="text-[#EAD2C0] text-sm">Quantity: {item.quantity}</p>
+                                            <p className="text-[#EAD2C0] text-sm">Color: {item.color}</p>
+                                            <p className="text-[#EAD2C0] text-sm">Fragrance: {item.fragrance}</p>
+                                            <p className={`font-semibold mt-1 ${isUnavailable ? 'text-[#EAD2C0] line-through' : 'text-[#D8A24A]'}`}>
+                                                ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="text-[#FFF7ED] font-bold">₹{item.price * item.quantity}</div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                         <div className="mt-6 pt-4 border-t border-[#FFF7ED]/20">
                             <div className="flex justify-between text-[#EAD2C0] mb-2">
@@ -291,6 +358,16 @@ const OrderDetails = () => {
                                 >
                                     <span className="material-symbols-outlined">check_circle</span>
                                     Mark as Delivered
+                                </button>
+                            )}
+
+                            {canConfirm && (
+                                <button
+                                    onClick={() => setShowPartialOrderModal(true)}
+                                    className="w-full py-2 sm:py-3 bg-orange-600 hover:bg-orange-700 text-white text-sm sm:text-base font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined">inventory_2</span>
+                                    Process Partial Order
                                 </button>
                             )}
 
@@ -381,6 +458,76 @@ const OrderDetails = () => {
                                 className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg"
                             >
                                 Cancel Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Partial Order Modal */}
+            {showPartialOrderModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-[#3B2A23] rounded-xl border border-[#FFF7ED]/20 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-2xl font-bold text-[#FFF7ED] mb-4">Process Partial Order</h2>
+                        <p className="text-[#EAD2C0] text-sm mb-4">
+                            Select items that are <strong>NOT AVAILABLE</strong> for this order. The remaining items will be shipped to the customer.
+                        </p>
+                        <div className="space-y-4">
+                            {/* Unavailable Items Section */}
+                            <div className="border border-[#FFF7ED]/20 rounded-lg p-4">
+                                <label className="block text-[#EAD2C0] mb-3 font-semibold">Mark Unavailable Items *</label>
+                                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                                    {order.items.map((item, index) => (
+                                        <label key={index} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[#FFF7ED]/5 cursor-pointer border border-[#FFF7ED]/10">
+                                            <input
+                                                type="checkbox"
+                                                checked={unavailableItems.includes(item._id)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setUnavailableItems([...unavailableItems, item._id]);
+                                                    } else {
+                                                        setUnavailableItems(unavailableItems.filter(id => id !== item._id));
+                                                    }
+                                                }}
+                                                className="mt-1 w-4 h-4"
+                                            />
+                                            <div className="flex-1">
+                                                <p className="text-[#FFF7ED] text-sm font-medium">{item.name}</p>
+                                                <p className="text-[#EAD2C0] text-xs">
+                                                    Qty: {item.quantity} | Color: {item.color} | Fragrance: {item.fragrance}
+                                                </p>
+                                            </div>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            {/* Summary */}
+                            {unavailableItems.length > 0 && (
+                                <div className="bg-orange-500/20 border border-orange-400/50 rounded-lg p-3">
+                                    <p className="text-orange-200 text-sm">
+                                        <strong>{unavailableItems.length}</strong> item(s) marked as unavailable
+                                        <br />
+                                        <strong>{order.items.length - unavailableItems.length}</strong> item(s) will be shipped
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                onClick={() => {
+                                    setShowPartialOrderModal(false);
+                                    setUnavailableItems([]);
+                                }}
+                                className="flex-1 py-2 bg-[#FFF7ED]/10 hover:bg-[#FFF7ED]/20 text-[#EAD2C0] rounded-lg"
+                            >
+                                Go Back
+                            </button>
+                            <button
+                                onClick={handlePartialOrder}
+                                className="flex-1 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg"
+                            >
+                                Process Partial Order
                             </button>
                         </div>
                     </div>

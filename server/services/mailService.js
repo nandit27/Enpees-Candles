@@ -106,6 +106,44 @@ const emailTemplates = {
             
             <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
         </div>
+    `,
+
+    partialOrder: (orderData) => `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #EAD2C0; border-radius: 10px; background-color: #FFF7ED;">
+            <h2 style="color: #3B2A23; text-align: center;">Partial Order Update 📦</h2>
+            <p style="color: #554B47;">Dear ${orderData.customerName},</p>
+            <p style="color: #554B47;">We wanted to inform you about your order status.</p>
+            
+            <div style="background-color: #D8A24A; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #3B2A23; margin: 0;">Order ID: ${orderData.orderId}</h3>
+                <p style="color: #3B2A23; margin: 5px 0;">Status: Partial Order - Confirmed</p>
+            </div>
+            
+            <div style="background-color: #f0ad4e; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #3B2A23; margin-top: 0;">⚠️ Important Notice</h3>
+                <p style="color: #3B2A23; margin: 5px 0;">Some items from your order are currently unavailable and will not be shipped.</p>
+            </div>
+
+            <h3 style="color: #3B2A23;">Items NOT Available (Will Not Be Shipped):</h3>
+            <ul style="color: #d9534f; background-color: #f2dede; padding: 15px; border-radius: 5px;">
+                ${orderData.unavailableItems.map(item => `
+                    <li><strong>${item.name}</strong> x ${item.quantity} - Color: ${item.color}, Fragrance: ${item.fragrance}</li>
+                `).join('')}
+            </ul>
+
+            <h3 style="color: #3B2A23;">Items That WILL Be Shipped:</h3>
+            <ul style="color: #5cb85c; background-color: #dff0d8; padding: 15px; border-radius: 5px;">
+                ${orderData.availableItems.map(item => `
+                    <li><strong>${item.name}</strong> x ${item.quantity} - Color: ${item.color}, Fragrance: ${item.fragrance}</li>
+                `).join('')}
+            </ul>
+            
+            <p style="color: #554B47;">We sincerely apologize for any inconvenience. The available items have been confirmed and will be shipped to you soon.</p>
+            <p style="color: #554B47;">You'll receive tracking details once your partial order is shipped.</p>
+            <p style="color: #554B47;">If you have any questions or concerns, please don't hesitate to contact us.</p>
+            
+            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
+        </div>
     `
 };
 
@@ -171,6 +209,15 @@ const mailService = {
         return await sendEmail(
             orderData.customerEmail,
             `Order Delivered - ${orderData.orderId}`,
+            html
+        );
+    },
+
+    sendPartialOrderMail: async (orderData) => {
+        const html = emailTemplates.partialOrder(orderData);
+        return await sendEmail(
+            orderData.customerEmail,
+            `Partial Order Update - ${orderData.orderId}`,
             html
         );
     }

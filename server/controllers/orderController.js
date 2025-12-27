@@ -173,6 +173,62 @@ const orderController = {
         }
     },
 
+    // Process partial order
+    partialOrder: async (req, res) => {
+        try {
+            const orderId = req.params.id;
+            const { unavailableItems } = req.body;
+
+            if (!unavailableItems || unavailableItems.length === 0) {
+                return res.status(400).json({ error: 'Unavailable items list is required' });
+            }
+
+            const order = await Order.findById(orderId);
+            if (!order) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+
+            // Validate that not all items are unavailable
+            if (unavailableItems.length === order.items.length) {
+                return res.status(400).json({ error: 'Cannot process partial order. All items are unavailable. Please cancel the order instead.' });
+            }
+
+            // Update order with partial order information
+            order.isPartialOrder = true;
+            order.unavailableItems = unavailableItems;
+            order.status = 'CONFIRMED';
+            order.timeline.confirmed = {
+                completed: true,
+                timestamp: new Date()
+            };
+            await order.save();
+
+            // Get unavailable item details for email
+            const unavailableItemDetails = order.items.filter(item => 
+                unavailableItems.includes(item._id.toString())
+            );
+            const availableItemDetails = order.items.filter(item => 
+                !unavailableItems.includes(item._id.toString())
+            );
+
+            // Send partial order email
+            const emailData = {
+                customerName: order.customer.name,
+                customerEmail: order.customer.email,
+                orderId: order.orderId,
+                unavailableItems: unavailableItemDetails,
+                availableItems: availableItemDetails,
+                total: order.totals.total
+            };
+            await mailService.sendPartialOrderMail(emailData);
+
+            res.json(order);
+        } catch (error) {
+            console.error('Error processing partial order:', error);
+            res.status(500).json({ error: 'Failed to process partial order' });
+        }
+    },
+
     // Get user's orders
     getUserOrders: async (req, res) => {
         try {
