@@ -49,22 +49,33 @@ const Admin = () => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+        console.log('Admin fetch - Token:', token ? token.substring(0, 20) + '...' : 'none');
+        console.log('Admin fetch - User:', user);
+        
         const headers = {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         };
+        console.log('Fetching from:', API_ENDPOINTS.ADMIN_ORDERS);
 
         fetch(API_ENDPOINTS.ADMIN_ORDERS, { headers })
             .then(res => {
+                console.log('Admin orders response status:', res.status);
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
                 }
                 return res.json();
             })
-            .then(data => setOrders(data))
+            .then(data => {
+                console.log('Orders received:', data.length);
+                setOrders(data);
+            })
             .catch(err => {
                 console.error('Error fetching orders:', err);
                 if (err.message.includes('401')) {
+                    console.error('Unauthorized - redirecting to login');
+                    localStorage.clear();
                     navigate('/login');
                 }
             });
@@ -445,15 +456,15 @@ const Admin = () => {
                                     <tbody>
                                         {orders.slice(0, 5).map((order) => (
                                             <tr key={order._id || order.id} className="border-b border-[#FFF7ED]/10 bg-[#FFF7ED]/5 hover:bg-[#FFF7ED]/10">
-                                                <td className="px-6 py-4 font-medium text-[#FFF7ED]">{order.id}</td>
+                                                <td className="px-6 py-4 font-medium text-[#FFF7ED]">{order.orderId || order.id || 'N/A'}</td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col">
-                                                        <span className="font-bold">{order.customer.name}</span>
-                                                        <span className="text-xs opacity-70">{order.customer.email}</span>
+                                                        <span className="font-bold">{order.customer?.name || 'Unknown'}</span>
+                                                        <span className="text-xs opacity-70">{order.customer?.email || 'N/A'}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    {order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')}
+                                                    {order.items?.map(item => `${item?.name || 'Item'} (x${item?.quantity || 1})`).join(', ') || 'No items'}
                                                 </td>
                                                 <td className="px-6 py-4">₹{(order.totals?.total || order.total || 0).toFixed(2)}</td>
                                                 <td className="px-6 py-4">
@@ -587,7 +598,7 @@ const Admin = () => {
                                                     onClick={() => navigate(`/admin/orders/${order._id}`)}
                                                     className="border-b border-[#FFF7ED]/10 bg-[#FFF7ED]/5 hover:bg-[#FFF7ED]/10 cursor-pointer transition-colors"
                                                 >
-                                                    <td className="px-6 py-4 font-medium text-[#FFF7ED]">{order.orderId}</td>
+                                                    <td className="px-6 py-4 font-medium text-[#FFF7ED]">{order.orderId || 'N/A'}</td>
                                                     <td className="px-6 py-4">
                                                         {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', {
                                                             day: '2-digit',
@@ -597,18 +608,18 @@ const Admin = () => {
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col">
-                                                            <span className="font-bold">{order.customer.name}</span>
-                                                            <span className="text-xs opacity-70">{order.customer.email}</span>
-                                                            <span className="text-xs opacity-70 mt-1">{order.customer.address}, {order.customer.city}</span>
+                                                            <span className="font-bold">{order.customer?.name || 'Unknown'}</span>
+                                                            <span className="text-xs opacity-70">{order.customer?.email || 'N/A'}</span>
+                                                            <span className="text-xs opacity-70 mt-1">{order.customer?.address1 || order.customer?.address || ''}{order.customer?.city ? `, ${order.customer.city}` : ''}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col gap-1">
-                                                            {order.items.map((item, idx) => (
+                                                            {order.items?.map((item, idx) => (
                                                                 <span key={idx} className="text-xs">
-                                                                    {item.name} (x{item.quantity})
+                                                                    {item?.name || 'Item'} (x{item?.quantity || 1})
                                                                 </span>
-                                                            ))}
+                                                            )) || <span className="text-xs">No items</span>}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 font-bold">₹{(order.totals?.total || order.total || 0).toFixed(2)}</td>
