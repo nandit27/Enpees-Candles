@@ -12,6 +12,7 @@ import LandingPage from './pages/LandingPage';
 import Checkout from './pages/Checkout';
 import Payment from './pages/Payment';
 import OrderConfirmation from './pages/OrderConfirmation';
+import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './context/CartContext';
 import { Button } from './components/ui/button';
 import { Toaster } from 'react-hot-toast';
@@ -23,18 +24,18 @@ function App() {
         <Toaster />
         <div className="flex flex-col min-h-screen">
           <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/product" element={<ProductPage />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/orders/:orderId" element={<OrderDetails />} />
-            <Route path="/my-orders" element={<UserOrders />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/" element={<ProtectedRoute><LandingPage /></ProtectedRoute>} />
+            <Route path="/contact" element={<ProtectedRoute><ContactUs /></ProtectedRoute>} />
+            <Route path="/shop" element={<ProtectedRoute><Shop /></ProtectedRoute>} />
+            <Route path="/product" element={<ProtectedRoute><ProductPage /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="/admin/orders/:orderId" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
+            <Route path="/my-orders" element={<ProtectedRoute><UserOrders /></ProtectedRoute>} />
+            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+            <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
+            <Route path="/order-confirmation" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
           </Routes>
           <Footer />
         </div>
