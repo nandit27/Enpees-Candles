@@ -33,7 +33,7 @@ const Payment = () => {
     setUploading(true);
     const fd = new FormData();
     fd.append('screenshot', file);
-    if (order?.id) fd.append('orderId', order.id);
+    if (order?.orderId) fd.append('orderId', order.orderId);
     try {
       const res = await fetch(API_ENDPOINTS.CONFIRM_PAYMENT, { method: 'POST', body: fd });
       const data = await res.json();
@@ -88,7 +88,7 @@ const Payment = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-[#EAD2C0] mb-1">Order ID</p>
-                  <p className="text-lg font-semibold">{order?.id || '—'}</p>
+                  <p className="text-lg font-semibold">{order?.orderId || '—'}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-[#EAD2C0] mb-1">Amount to Pay</p>

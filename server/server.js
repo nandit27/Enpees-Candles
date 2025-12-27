@@ -187,18 +187,21 @@ app.post('/api/orders', async (req, res) => {
             }
         }
 
-        // Send order placed email
-        const mailService = require('./services/mailService');
-        const emailData = {
-            customerName: newOrder.customer.name,
-            customerEmail: newOrder.customer.email,
-            orderId: newOrder.orderId,
-            total: newOrder.totals.total,
-            items: newOrder.items
-        };
-        mailService.sendOrderPlacedMail(emailData).catch(err => 
-            console.error('Error sending order placed email:', err)
-        );
+        // Send order placed email only for COD orders
+        // For online payments, email will be sent after payment screenshot upload
+        if (newOrder.paymentMethod === 'cod') {
+            const mailService = require('./services/mailService');
+            const emailData = {
+                customerName: newOrder.customer.name,
+                customerEmail: newOrder.customer.email,
+                orderId: newOrder.orderId,
+                total: newOrder.totals.total,
+                items: newOrder.items
+            };
+            mailService.sendOrderPlacedMail(emailData).catch(err => 
+                console.error('Error sending order placed email:', err)
+            );
+        }
 
         res.status(201).json(newOrder);
     } catch (error) {
@@ -294,14 +297,46 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // Endpoint to accept payment confirmation screenshot
-app.post('/api/payments/confirm', upload.single('screenshot'), (req, res) => {
+app.post('/api/payments/confirm', upload.single('screenshot'), async (req, res) => {
     try {
         const { orderId } = req.body;
         if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-        const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
-        // In production you'd update order record; for mock just return file URL
-        console.log(`✅ Payment screenshot uploaded for order ${orderId}: ${fileUrl}`);
-        res.json({ success: true, fileUrl, orderId });
+        
+        const screenshotUrl = req.file.path; // Cloudinary URL
+        
+        // Update order with payment screenshot
+        if (orderId) {
+            const order = await Order.findOneAndUpdate(
+                { orderId: orderId },
+                { paymentScreenshot: screenshotUrl },
+                { new: true }
+            );
+            
+            if (order) {
+                console.log(`✅ Payment screenshot uploaded for order ${orderId}: ${screenshotUrl}`);
+                
+                // Send order placed email after payment confirmation
+                const mailService = require('./services/mailService');
+                const emailData = {
+                    customerName: order.customer.name,
+                    customerEmail: order.customer.email,
+                    orderId: order.orderId,
+                    total: order.totals.total,
+                    items: order.items
+                };
+                mailService.sendOrderPlacedMail(emailData).catch(err => 
+                    console.error('Error sending order placed email:', err)
+                );
+                
+                res.json({ success: true, fileUrl: screenshotUrl, orderId });
+            } else {
+                console.log(`⚠️ Order not found: ${orderId}`);
+                res.status(404).json({ error: 'Order not found' });
+            }
+        } else {
+            console.log(`⚠️ No orderId provided`);
+            res.json({ success: true, fileUrl: screenshotUrl, orderId: null });
+        }
     } catch (error) {
         console.error('Error uploading payment confirmation:', error);
         res.status(500).json({ error: 'Failed to upload confirmation' });

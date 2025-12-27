@@ -79,6 +79,10 @@ const orderSchema = new mongoose.Schema({
         enum: ['online', 'cod'],
         default: 'online'
     },
+    paymentScreenshot: {
+        type: String,
+        default: null
+    },
     courierCompany: String,
     giftWrapApplied: {
         type: Boolean,

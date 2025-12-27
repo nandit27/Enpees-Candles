@@ -49,7 +49,7 @@ const orderController = {
             const emailData = {
                 customerName: order.customer.name,
                 customerEmail: order.customer.email,
-                orderId: order.id,
+                orderId: order.orderId,
                 total: order.totals.total,
                 items: order.items
             };
@@ -91,7 +91,7 @@ const orderController = {
             const emailData = {
                 customerName: order.customer.name,
                 customerEmail: order.customer.email,
-                orderId: order.id,
+                orderId: order.orderId,
                 trackingId: trackingId,
                 trackingLink: trackingLink
             };
@@ -126,7 +126,7 @@ const orderController = {
             const emailData = {
                 customerName: order.customer.name,
                 customerEmail: order.customer.email,
-                orderId: order.id
+                orderId: order.orderId
             };
             await mailService.sendOrderDeliveredMail(emailData);
 
@@ -161,7 +161,7 @@ const orderController = {
             const emailData = {
                 customerName: order.customer.name,
                 customerEmail: order.customer.email,
-                orderId: order.id,
+                orderId: order.orderId,
                 reason: reason
             };
             await mailService.sendOrderCancelledMail(emailData);

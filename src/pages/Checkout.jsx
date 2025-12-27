@@ -8,7 +8,7 @@ import { applyCoupon, calculateTotals, makeUpiLink } from '../lib/checkoutHelper
 import { API_ENDPOINTS } from '../config/api';
 
 const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey'];
-const availableFragrances = ['Lavender', 'Vanilla', 'Sandalwood', 'Rose', 'Citrus'];
+const availableFragrances = ['Woody Flora', 'Peach Miami', 'Jasmine', 'Mogra', 'Berry Blast', 'Kesar Chandan', 'British Rose', 'Vanilla', 'English Lavender'];
 
 const Checkout = () => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, updateColorFragrance, removeFromCart } = useCart();
@@ -33,6 +33,90 @@ const Checkout = () => {
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('online'); // 'online' or 'cod'
     const [courierCompany, setCourierCompany] = useState('');
+    const [savedAddresses, setSavedAddresses] = useState([]);
+    const [selectedAddressId, setSelectedAddressId] = useState('');
+    const [saveAddress, setSaveAddress] = useState(false);
+    const [showAddressModal, setShowAddressModal] = useState(false);
+
+    // Fetch user data and saved addresses on component mount
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const response = await fetch(API_ENDPOINTS.AUTH_ME, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        // Pre-fill basic user info
+                        setFormData(prev => ({
+                            ...prev,
+                            name: data.user.name || '',
+                            email: data.user.email || '',
+                            mobile: data.user.mobile || ''
+                        }));
+                        
+                        // Set saved addresses
+                        if (data.user.addresses && data.user.addresses.length > 0) {
+                            setSavedAddresses(data.user.addresses);
+                            
+                            // Auto-select default address if available
+                            const defaultAddr = data.user.addresses.find(addr => addr.isDefault);
+                            if (defaultAddr) {
+                                setSelectedAddressId(defaultAddr._id);
+                                fillAddressFromSaved(defaultAddr);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    const fillAddressFromSaved = (address) => {
+        setFormData(prev => ({
+            ...prev,
+            address1: address.address1 || '',
+            address2: address.address2 || '',
+            landmark: address.landmark || '',
+            city: address.city || '',
+            state: address.state || '',
+            pincode: address.pincode || ''
+        }));
+    };
+
+    const handleAddressSelection = (e) => {
+        const addressId = e.target.value;
+        setSelectedAddressId(addressId);
+        
+        if (addressId) {
+            const address = savedAddresses.find(addr => addr._id === addressId);
+            if (address) {
+                fillAddressFromSaved(address);
+            }
+        } else {
+            // Clear address fields if "New Address" is selected
+            setFormData(prev => ({
+                ...prev,
+                address1: '',
+                address2: '',
+                landmark: '',
+                city: '',
+                state: '',
+                pincode: ''
+            }));
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -78,6 +162,34 @@ const Checkout = () => {
         };
 
         try {
+            // Save address if checkbox is checked and user is logged in
+            if (saveAddress) {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    try {
+                        await fetch(API_ENDPOINTS.SAVE_ADDRESS, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                address1: formData.address1,
+                                address2: formData.address2,
+                                landmark: formData.landmark,
+                                city: formData.city,
+                                state: formData.state,
+                                pincode: formData.pincode,
+                                isDefault: savedAddresses.length === 0 // First address becomes default
+                            })
+                        });
+                        toast.success('Address saved to your profile');
+                    } catch (err) {
+                        console.error('Failed to save address:', err);
+                    }
+                }
+            }
+
             const response = await fetch(API_ENDPOINTS.ORDERS, {
                 method: 'POST',
                 headers: {
@@ -151,6 +263,29 @@ const Checkout = () => {
                                     Shipping Details
                                 </h2>
                                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                                    {/* Saved Addresses Section */}
+                                    {savedAddresses.length > 0 && (
+                                        <div className="p-4 rounded-xl bg-[#3B2A23]/50 border border-[#FFF7ED]/10">
+                                            <label className="block text-sm font-semibold mb-3 text-[#EAD2C0]">
+                                                Select Saved Address
+                                                <span className="text-xs font-normal ml-2 text-[#EAD2C0]/70">or enter a new one below</span>
+                                            </label>
+                                            <select
+                                                value={selectedAddressId}
+                                                onChange={handleAddressSelection}
+                                                className="w-full p-4 rounded-lg bg-[#3B2A23]/80 border border-[#FFF7ED]/30 text-white focus:outline-none focus:border-[#D8A24A]"
+                                            >
+                                                <option value="">Enter New Address</option>
+                                                {savedAddresses.map((addr) => (
+                                                    <option key={addr._id} value={addr._id}>
+                                                        {addr.address1}, {addr.city}, {addr.state} - {addr.pincode}
+                                                        {addr.isDefault && ' (Default)'}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+
                                     <div>
                                         <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Full Name *</label>
                                         <input
@@ -346,6 +481,25 @@ const Checkout = () => {
                                         </div>
                                         {errors.terms && <p className="text-xs text-red-400 mt-2 ml-7">{errors.terms}</p>}
                                     </div>
+
+                                    {/* Save Address Checkbox */}
+                                    {localStorage.getItem('token') && !selectedAddressId && (
+                                        <div className="p-4 rounded-xl bg-[#D8A24A]/10 border border-[#D8A24A]/30">
+                                            <div className="flex items-start gap-3">
+                                                <input 
+                                                    id="saveAddress" 
+                                                    type="checkbox" 
+                                                    checked={saveAddress} 
+                                                    onChange={(e) => setSaveAddress(e.target.checked)}
+                                                    className="w-4 h-4 mt-1"
+                                                />
+                                                <label htmlFor="saveAddress" className="text-sm text-[#EAD2C0] flex-1">
+                                                    <span className="font-semibold">Save this address to my profile</span>
+                                                    <p className="text-xs mt-1 text-[#EAD2C0]/70">Use this address for future orders</p>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <Button type="submit" className="w-full mt-4 bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold py-4 text-lg rounded-xl shadow-lg">
                                         <span className="material-symbols-outlined mr-2">check_circle</span>

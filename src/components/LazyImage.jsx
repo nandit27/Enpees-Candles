@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// Create a simple in-memory cache for loaded images
+const imageCache = new Set();
+
 const LazyImage = ({ 
     src, 
     alt, 
@@ -8,11 +11,18 @@ const LazyImage = ({
     onLoad,
     ...props 
 }) => {
-    const [isLoaded, setIsLoaded] = useState(false);
+    // Check if image is already cached
+    const [isLoaded, setIsLoaded] = useState(imageCache.has(src));
     const [isInView, setIsInView] = useState(false);
     const imgRef = useRef(null);
 
     useEffect(() => {
+        // If image is already cached, no need to wait for IntersectionObserver
+        if (imageCache.has(src)) {
+            setIsInView(true);
+            return;
+        }
+
         // Use Intersection Observer to detect when image enters viewport
         const observer = new IntersectionObserver(
             (entries) => {
@@ -38,10 +48,12 @@ const LazyImage = ({
                 observer.unobserve(imgRef.current);
             }
         };
-    }, []);
+    }, [src]);
 
     const handleLoad = () => {
         setIsLoaded(true);
+        // Add to cache so it won't be fetched again
+        imageCache.add(src);
         if (onLoad) {
             onLoad();
         }

@@ -230,6 +230,33 @@ const OrderDetails = () => {
                         <h2 className="text-lg sm:text-xl font-bold text-[#FFF7ED] mb-4 sm:mb-6">Order Timeline</h2>
                         <OrderTimeline order={order} />
                     </div>
+
+                    {/* Payment Screenshot */}
+                    {order.paymentScreenshot && (
+                        <div className="bg-[#FFF7ED]/10 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-[#FFF7ED]/20">
+                            <h2 className="text-lg sm:text-xl font-bold text-[#FFF7ED] mb-4">Payment Confirmation</h2>
+                            <div className="flex items-center gap-3 mb-3">
+                                <span className="material-symbols-outlined text-green-400">verified</span>
+                                <p className="text-[#EAD2C0] text-sm">Customer uploaded payment screenshot</p>
+                            </div>
+                            <a 
+                                href={order.paymentScreenshot} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="block"
+                            >
+                                <img 
+                                    src={order.paymentScreenshot} 
+                                    alt="Payment Screenshot" 
+                                    className="w-full max-w-md rounded-lg border border-[#FFF7ED]/20 hover:border-[#D8A24A]/50 transition-all cursor-pointer"
+                                />
+                                <p className="text-xs text-[#EAD2C0] mt-2 flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-sm">open_in_new</span>
+                                    Click to view full size
+                                </p>
+                            </a>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Column - Actions */}

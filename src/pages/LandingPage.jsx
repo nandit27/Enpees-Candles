@@ -129,7 +129,7 @@ const LandingPage = () => {
                     <div className="mx-auto mt-12 sm:mt-16 grid max-w-2xl grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 sm:gap-y-12 lg:mx-0 lg:max-w-none lg:grid-cols-3">
                         {products.map((product, index) => (
                             <article key={product._id || index} className="flex flex-col items-start justify-between">
-                                <Link to={`/product`} className="relative w-full">
+                                <Link to={`/product`} state={{ product }} className="relative w-full">
                                     <LazyImage alt={product.name} className="aspect-square sm:aspect-[1/1] lg:aspect-[3/2] w-full rounded-lg sm:rounded-xl lg:rounded-2xl bg-gray-100 object-cover" src={product.image} />
                                     <div className="absolute inset-0 rounded-lg sm:rounded-xl lg:rounded-2xl ring-1 ring-inset ring-[#EAD2C0]/10"></div>
                                 </Link>
@@ -139,7 +139,7 @@ const LandingPage = () => {
                                     </div>
                                     <div className="group">
                                         <h3 className="mt-2 sm:mt-3 text-sm sm:text-lg lg:text-xl xl:text-2xl font-['Italiana',_serif] font-semibold leading-tight sm:leading-6 text-[#EAD2C0] group-hover:text-[#D8A24A] transition-colors line-clamp-2">
-                                            <Link to={`/product`}>{product.name}</Link>
+                                            <Link to={`/product`} state={{ product }}>{product.name}</Link>
                                         </h3>
                                         <p className="mt-2 sm:mt-3 lg:mt-5 text-xs sm:text-sm leading-tight sm:leading-6 text-[#EAD2C0]/80 line-clamp-2 sm:line-clamp-3">{product.description}</p>
                                     </div>

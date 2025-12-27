@@ -11,11 +11,11 @@ const ProductPage = () => {
     const { product } = location.state || {};
     const [quantity, setQuantity] = useState(1);
     const [selectedColor, setSelectedColor] = useState('Natural Beige');
-    const [selectedFragrance, setSelectedFragrance] = useState('Lavender');
+    const [selectedFragrance, setSelectedFragrance] = useState('Woody Flora');
     const { addToCart } = useCart();
 
     const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey'];
-    const availableFragrances = ['Lavender', 'Vanilla', 'Sandalwood', 'Rose', 'Citrus'];
+    const availableFragrances = ['Woody Flora', 'Peach Miami', 'Jasmine', 'Mogra', 'Berry Blast', 'Kesar Chandan', 'British Rose', 'Vanilla', 'English Lavender'];
 
     // Default data if no product is passed (for testing/direct access)
     const displayProduct = product || {

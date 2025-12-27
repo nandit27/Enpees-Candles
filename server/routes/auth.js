@@ -118,4 +118,129 @@ router.get('/me', async (req, res) => {
     }
 });
 
+// Save address to user profile
+router.post('/save-address', async (req, res) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        
+        if (!token) {
+            return res.status(401).json({ error: 'No token provided' });
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await User.findById(decoded.userId);
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const { address1, address2, landmark, city, state, pincode, isDefault } = req.body;
+
+        // If this is being set as default, unset other defaults
+        if (isDefault) {
+            user.addresses.forEach(addr => addr.isDefault = false);
+        }
+
+        user.addresses.push({
+            address1,
+            address2,
+            landmark,
+            city,
+            state,
+            pincode,
+            isDefault: isDefault || false
+        });
+
+        await user.save();
+
+        res.json({
+            success: true,
+            message: 'Address saved successfully',
+            addresses: user.addresses
+        });
+    } catch (error) {
+        console.error('Save address error:', error);
+        res.status(500).json({ error: 'Failed to save address' });
+    }
+});
+
+// Update address
+router.put('/addresses/:addressId', async (req, res) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        
+        if (!token) {
+            return res.status(401).json({ error: 'No token provided' });
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await User.findById(decoded.userId);
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const address = user.addresses.id(req.params.addressId);
+        if (!address) {
+            return res.status(404).json({ error: 'Address not found' });
+        }
+
+        const { address1, address2, landmark, city, state, pincode, isDefault } = req.body;
+
+        // If this is being set as default, unset other defaults
+        if (isDefault) {
+            user.addresses.forEach(addr => addr.isDefault = false);
+        }
+
+        address.address1 = address1;
+        address.address2 = address2;
+        address.landmark = landmark;
+        address.city = city;
+        address.state = state;
+        address.pincode = pincode;
+        address.isDefault = isDefault || false;
+
+        await user.save();
+
+        res.json({
+            success: true,
+            message: 'Address updated successfully',
+            addresses: user.addresses
+        });
+    } catch (error) {
+        console.error('Update address error:', error);
+        res.status(500).json({ error: 'Failed to update address' });
+    }
+});
+
+// Delete address
+router.delete('/addresses/:addressId', async (req, res) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        
+        if (!token) {
+            return res.status(401).json({ error: 'No token provided' });
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await User.findById(decoded.userId);
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.addresses.id(req.params.addressId).remove();
+        await user.save();
+
+        res.json({
+            success: true,
+            message: 'Address deleted successfully',
+            addresses: user.addresses
+        });
+    } catch (error) {
+        console.error('Delete address error:', error);
+        res.status(500).json({ error: 'Failed to delete address' });
+    }
+});
+
 module.exports = router;
