@@ -1,7 +1,7 @@
 // API Configuration
 // Uses environment variable or defaults to localhost for development
 // Production URL: https://enpees-candles.vercel.app/api
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://enpees-candles.vercel.app/api';
 
 export const API_ENDPOINTS = {
     // Auth
