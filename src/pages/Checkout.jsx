@@ -768,6 +768,14 @@ const Checkout = () => {
                                         <span className="text-[#D8A24A] font-bold mt-0.5">4.</span>
                                         <p className="flex-1 text-sm"><strong>No Return Policy:</strong> All sales are final. We do not accept returns or provide refunds.</p>
                                     </div>
+                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#FFF7ED]/5">
+                                        <span className="text-[#D8A24A] font-bold mt-0.5">5.</span>
+                                        <p className="flex-1 text-sm"><strong>Order Cancellation:</strong> Once order is dispatched, it cannot be cancelled. For cancellation requests before dispatch, contact us on WhatsApp at <a href="https://wa.me/919173958589" className="text-[#D8A24A] underline hover:text-[#D8A24A]/80" target="_blank" rel="noopener noreferrer">9173958589</a>.</p>
+                                    </div>
+                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#FFF7ED]/5">
+                                        <span className="text-[#D8A24A] font-bold mt-0.5">6.</span>
+                                        <p className="flex-1 text-sm"><strong>Custom Packaging:</strong> For specific requirements in packaging, extra charges will apply and will be communicated to you before processing.</p>
+                                    </div>
                                 </div>
                                 <div className="mt-6 p-4 rounded-lg bg-[#D8A24A]/10 border border-[#D8A24A]/30">
                                     <p className="text-xs text-[#EAD2C0]">

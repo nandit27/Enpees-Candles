@@ -140,6 +140,13 @@ const emailTemplates = {
             
             <p style="color: #554B47;">We sincerely apologize for any inconvenience. The available items have been confirmed and will be shipped to you soon.</p>
             <p style="color: #554B47;">You'll receive tracking details once your partial order is shipped.</p>
+            
+            <div style="background-color: #d9edf7; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #5bc0de;">
+                <h3 style="color: #31708f; margin-top: 0;">💰 Refund Information</h3>
+                <p style="color: #31708f; margin: 5px 0; font-size: 18px;"><strong>Refund Amount: ₹${orderData.refundAmount?.toFixed(2) || '0.00'}</strong></p>
+                <p style="color: #31708f; margin: 5px 0;">Refund for unavailable items will be initiated within 3-6 business days to your original payment method.</p>
+            </div>
+            
             <p style="color: #554B47;">If you have any questions or concerns, please don't hesitate to contact us.</p>
             
             <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>

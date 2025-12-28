@@ -131,6 +131,24 @@ const UserOrders = () => {
                                             </div>
                                         )}
 
+                                        {/* Cancellation Info */}
+                                        {order.status !== 'SHIPPED' && order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
+                                            <div className="mb-6 bg-blue-500/20 border border-blue-400 rounded-lg p-4">
+                                                <div className="flex items-start gap-3">
+                                                    <span className="material-symbols-outlined text-blue-400 text-2xl">info</span>
+                                                    <div>
+                                                        <h4 className="text-blue-300 font-bold">Need to Cancel?</h4>
+                                                        <p className="text-blue-200 text-sm mt-1">
+                                                            For cancelling this order, contact us on WhatsApp: <a href="https://wa.me/919173958589" className="text-blue-300 underline hover:text-blue-200" target="_blank" rel="noopener noreferrer">9173958589</a>
+                                                        </p>
+                                                        <p className="text-blue-200 text-xs mt-1 italic">
+                                                            Note: Once order is dispatched, it cannot be cancelled.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                             {/* Order Items */}
                                             <div>

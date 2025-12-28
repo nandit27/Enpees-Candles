@@ -193,23 +193,33 @@ const orderController = {
                 return res.status(400).json({ error: 'Cannot process partial order. All items are unavailable. Please cancel the order instead.' });
             }
 
-            // Update order with partial order information
-            order.isPartialOrder = true;
-            order.unavailableItems = unavailableItems;
-            order.status = 'CONFIRMED';
-            order.timeline.confirmed = {
-                completed: true,
-                timestamp: new Date()
-            };
-            await order.save();
-
-            // Get unavailable item details for email
+            // Calculate refund amount for unavailable items
             const unavailableItemDetails = order.items.filter(item => 
                 unavailableItems.includes(item._id.toString())
             );
             const availableItemDetails = order.items.filter(item => 
                 !unavailableItems.includes(item._id.toString())
             );
+
+            // Calculate subtotal for unavailable items
+            const unavailableSubtotal = unavailableItemDetails.reduce((sum, item) => 
+                sum + (item.price * item.quantity), 0
+            );
+
+            // Calculate new totals
+            const newSubtotal = order.totals.subtotal - unavailableSubtotal;
+            const refundAmount = unavailableSubtotal;
+
+            // Update order with partial order information
+            order.isPartialOrder = true;
+            order.unavailableItems = unavailableItems;
+            order.refundAmount = refundAmount;
+            order.status = 'CONFIRMED';
+            order.timeline.confirmed = {
+                completed: true,
+                timestamp: new Date()
+            };
+            await order.save();
 
             // Send partial order email
             const emailData = {
@@ -218,7 +228,8 @@ const orderController = {
                 orderId: order.orderId,
                 unavailableItems: unavailableItemDetails,
                 availableItems: availableItemDetails,
-                total: order.totals.total
+                total: order.totals.total,
+                refundAmount: refundAmount
             };
             await mailService.sendPartialOrderMail(emailData);
 

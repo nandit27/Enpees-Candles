@@ -236,10 +236,20 @@ const OrderDetails = () => {
                             <span className="material-symbols-outlined text-orange-400 text-3xl">warning</span>
                             <div className="flex-1">
                                 <h3 className="text-orange-300 font-bold text-lg mb-2">Partial Order Processed</h3>
-                                <p className="text-orange-200 text-sm">
+                                <p className="text-orange-200 text-sm mb-3">
                                     {order.unavailableItems.length} item(s) marked as unavailable. 
                                     Customer has been notified via email that only the available items will be shipped.
                                 </p>
+                                {order.refundAmount > 0 && (
+                                    <div className="bg-blue-500/30 border border-blue-400 rounded-lg p-3 mt-3">
+                                        <p className="text-blue-200 text-lg font-bold">
+                                            💰 Refund Amount: ₹{order.refundAmount.toFixed(2)}
+                                        </p>
+                                        <p className="text-blue-200 text-xs mt-1">
+                                            To be initiated within 3-6 business days
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -79,6 +79,10 @@ const orderSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    refundAmount: {
+        type: Number,
+        default: 0
+    },
     paymentMethod: {
         type: String,
         enum: ['online', 'cod'],
