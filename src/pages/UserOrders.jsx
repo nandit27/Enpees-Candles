@@ -182,9 +182,12 @@ const UserOrders = () => {
                                                                     <p className="text-[#EAD2C0] text-xs">Qty: {item.quantity}</p>
                                                                     {item.color && <p className="text-[#EAD2C0] text-xs">Color: {item.color}</p>}
                                                                     {item.fragrance && <p className="text-[#EAD2C0] text-xs">Fragrance: {item.fragrance}</p>}
+                                                                    {item.offerPrice && (
+                                                                        <p className="text-xs text-[#EAD2C0]/60 line-through">M.R.P: ₹{item.price}</p>
+                                                                    )}
                                                                 </div>
-                                                                <div className={`font-bold text-sm ${isUnavailable ? 'text-[#EAD2C0] line-through' : 'text-[#FFF7ED]'}`}>
-                                                                    ₹{item.price * item.quantity}
+                                                                <div className={`font-bold text-sm ${isUnavailable ? 'text-[#EAD2C0] line-through' : item.offerPrice ? 'text-red-400' : 'text-[#FFF7ED]'}`}>
+                                                                    ₹{(item.offerPrice || item.price) * item.quantity}
                                                                 </div>
                                                             </div>
                                                         );

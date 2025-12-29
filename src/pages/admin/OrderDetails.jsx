@@ -321,9 +321,18 @@ const OrderDetails = () => {
                                             <p className="text-[#EAD2C0] text-sm">Quantity: {item.quantity}</p>
                                             <p className="text-[#EAD2C0] text-sm">Color: {item.color}</p>
                                             <p className="text-[#EAD2C0] text-sm">Fragrance: {item.fragrance}</p>
-                                            <p className={`font-semibold mt-1 ${isUnavailable ? 'text-[#EAD2C0] line-through' : 'text-[#D8A24A]'}`}>
-                                                ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
-                                            </p>
+                                            {item.offerPrice ? (
+                                                <div className="mt-1">
+                                                    <p className="text-xs text-[#EAD2C0]/60 line-through">M.R.P: ₹{item.price}</p>
+                                                    <p className={`font-semibold ${isUnavailable ? 'text-[#EAD2C0] line-through' : 'text-red-400'}`}>
+                                                        ₹{item.offerPrice} x {item.quantity} = ₹{item.offerPrice * item.quantity}
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <p className={`font-semibold mt-1 ${isUnavailable ? 'text-[#EAD2C0] line-through' : 'text-[#D8A24A]'}`}>
+                                                    ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 );

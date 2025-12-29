@@ -83,7 +83,8 @@ export const CartProvider = ({ children }) => {
     const getCartTotal = () => {
         return cartItems.reduce((total, item) => {
             // Handle both numbers (new) and strings (old legacy data)
-            const rawPrice = item.price;
+            // Use offer price if available, otherwise use regular price
+            const rawPrice = item.offerPrice || item.price;
             const price = typeof rawPrice === 'number'
                 ? rawPrice
                 : parseFloat(String(rawPrice).replace(/[^0-9.]/g, "")) || 0;

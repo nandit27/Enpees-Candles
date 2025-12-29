@@ -519,10 +519,12 @@ const Checkout = () => {
                                 <div className="space-y-3 sm:space-y-4 max-h-[400px] overflow-y-auto pr-2">
                                     {cartItems.map((item, index) => {
                                         // Handle both numbers (new) and strings (old legacy data)
-                                        const rawPrice = item.price;
+                                        // Use offer price if available
+                                        const rawPrice = item.offerPrice || item.price;
                                         const itemPrice = typeof rawPrice === 'number'
                                             ? rawPrice
                                             : parseFloat(String(rawPrice).replace(/[^0-9.]/g, "")) || 0;
+                                        const regularPrice = typeof item.price === 'number' ? item.price : parseFloat(String(item.price).replace(/[^0-9.]/g, "")) || 0;
                                         const itemTotal = itemPrice * item.quantity;
                                         const itemId = item.id || item._id || item.name;
                                         return (
@@ -536,13 +538,18 @@ const Checkout = () => {
                                                             className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                                                         />
                                                     )}
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="font-bold text-[#FFF7ED]">{item.name}</p>
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            <span className="text-sm text-[#EAD2C0]">₹{itemPrice.toFixed(2)}</span>
-                                                        </div>
-                                                        
-                                                        {/* Color and Fragrance Selection */}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-bold text-[#FFF7ED]">{item.name}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {item.offerPrice ? (
+                                                <>
+                                                    <span className="text-sm font-bold text-red-400">₹{item.offerPrice}</span>
+                                                    <span className="text-xs text-[#EAD2C0]/60 line-through">₹{itemPrice.toFixed(2)}</span>
+                                                </>
+                                            ) : (
+                                                <span className="text-sm text-[#EAD2C0]">₹{itemPrice.toFixed(2)}</span>
+                                            )}
+                                        </div>                                                        {/* Color and Fragrance Selection */}
                                                         <div className="mt-2 space-y-2">
                                                             <div className="flex items-center gap-2">
                                                                 <label className="text-xs text-[#EAD2C0] min-w-[60px]">Color:</label>
