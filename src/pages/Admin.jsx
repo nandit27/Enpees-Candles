@@ -292,6 +292,14 @@ const Admin = () => {
                                         value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
                                         className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
                                     />
+                                    <div className="space-y-1">
+                                        <input
+                                            type="text" placeholder="Offer Price (Optional - e.g. ₹199)"
+                                            value={newProduct.offerPrice || ''} onChange={e => setNewProduct({ ...newProduct, offerPrice: e.target.value })}
+                                            className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                        />
+                                        <p className="text-xs text-[#EAD2C0]/60 px-2">Leave empty if no discount. Will show as -50% if offer price is set.</p>
+                                    </div>
                                     <input
                                         type="number" placeholder="Stock" required
                                         value={newProduct.stock} onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
@@ -342,6 +350,14 @@ const Admin = () => {
                                         value={editingProduct.price} onChange={e => setEditingProduct({ ...editingProduct, price: e.target.value })}
                                         className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
                                     />
+                                    <div className="space-y-1">
+                                        <input
+                                            type="text" placeholder="Offer Price (Optional - e.g. ₹199)"
+                                            value={editingProduct.offerPrice || ''} onChange={e => setEditingProduct({ ...editingProduct, offerPrice: e.target.value })}
+                                            className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                        />
+                                        <p className="text-xs text-[#EAD2C0]/60 px-2">Leave empty if no discount. Will show as -50% if offer price is set.</p>
+                                    </div>
                                     <input
                                         type="number" placeholder="Stock" required
                                         value={editingProduct.stock} onChange={e => setEditingProduct({ ...editingProduct, stock: e.target.value })}

@@ -87,9 +87,24 @@ const ProductPage = () => {
                                     <div className="flex flex-col space-y-3 sm:space-y-4 lg:space-y-6">
                                         <div>
                                             <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-['Italiana',_serif] text-[#554B47] leading-tight">{displayProduct.name}</h1>
-                                            <p className="mt-1 sm:mt-2 text-lg sm:text-xl lg:text-2xl text-[#554B47]/90 font-semibold">
-                                                {typeof displayProduct.price === 'string' ? displayProduct.price : `₹${displayProduct.price}`}
-                                            </p>
+                                            {displayProduct.offerPrice ? (
+                                                <div className="mt-2">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="bg-red-600 text-white text-xs px-2 py-1 rounded font-bold">Limited time deal</span>
+                                                    </div>
+                                                    <div className="flex items-baseline gap-2">
+                                                        <span className="text-red-600 text-sm font-bold">-{Math.round((1 - displayProduct.offerPrice / displayProduct.price) * 100)}%</span>
+                                                        <span className="text-2xl sm:text-3xl lg:text-4xl text-[#554B47] font-bold">₹{displayProduct.offerPrice}</span>
+                                                    </div>
+                                                    <p className="text-sm text-[#554B47]/60 mt-1">
+                                                        M.R.P: <span className="line-through">₹{displayProduct.price}</span>
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <p className="mt-1 sm:mt-2 text-lg sm:text-xl lg:text-2xl text-[#554B47]/90 font-semibold">
+                                                    {typeof displayProduct.price === 'string' ? displayProduct.price : `₹${displayProduct.price}`}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="flex items-center gap-2 sm:gap-3">
                                             <div className="flex items-center gap-0.5">

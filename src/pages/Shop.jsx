@@ -213,10 +213,22 @@ const Shop = () => {
                                     <div className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
                                         <h3 className="text-[#554B47] text-xs sm:text-sm lg:text-base font-bold leading-tight line-clamp-2">{product.name}</h3>
                                         <p className="text-[#554B47]/70 text-[10px] sm:text-xs font-normal leading-tight mt-0.5 sm:mt-1 line-clamp-1">{product.collection}</p>
-                                        <div className="mt-auto pt-2 sm:pt-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                                            <p className="text-[#554B47] text-sm sm:text-base lg:text-lg font-semibold">
-                                                ₹{product.price}
-                                            </p>
+                                        <div className="mt-auto pt-2 sm:pt-3">
+                                            {product.offerPrice ? (
+                                                <div className="mb-2">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">-{Math.round((1 - product.offerPrice / product.price) * 100)}%</span>
+                                                        <span className="text-red-600 text-base sm:text-lg font-bold">₹{product.offerPrice}</span>
+                                                    </div>
+                                                    <p className="text-[#554B47]/60 text-xs line-through">
+                                                        M.R.P: ₹{product.price}
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <p className="text-[#554B47] text-sm sm:text-base lg:text-lg font-semibold mb-2">
+                                                    ₹{product.price}
+                                                </p>
+                                            )}
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();

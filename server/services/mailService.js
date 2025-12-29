@@ -45,7 +45,6 @@ const emailTemplates = {
                 <p style="color: #3B2A23; margin: 5px 0;">Status: Confirmed</p>
             </div>
             
-            <p style="color: #554B47;">Expected processing time: 2-3 business days</p>
             <p style="color: #554B47;">You'll receive another email with tracking details once your order is shipped.</p>
             
             <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>

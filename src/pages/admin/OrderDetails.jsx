@@ -283,6 +283,15 @@ const OrderDetails = () => {
                                     {order.customer.city}, {order.customer.state} - {order.customer.pincode}
                                 </p>
                             </div>
+                            {order.courierCompany && (
+                                <div className="sm:col-span-2">
+                                    <p className="text-sm text-[#EAD2C0]/70">Courier Preference</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="material-symbols-outlined text-[#D8A24A] text-xl">local_shipping</span>
+                                        <p className="font-semibold text-[#D8A24A]">{order.courierCompany}</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
