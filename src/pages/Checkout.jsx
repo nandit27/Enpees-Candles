@@ -544,7 +544,7 @@ const Checkout = () => {
                                             {item.offerPrice ? (
                                                 <>
                                                     <span className="text-sm font-bold text-red-400">₹{item.offerPrice}</span>
-                                                    <span className="text-xs text-[#EAD2C0]/60 line-through">₹{itemPrice.toFixed(2)}</span>
+                                                    <span className="text-xs text-[#EAD2C0]/60 line-through">₹{regularPrice.toFixed(2)}</span>
                                                 </>
                                             ) : (
                                                 <span className="text-sm text-[#EAD2C0]">₹{itemPrice.toFixed(2)}</span>
