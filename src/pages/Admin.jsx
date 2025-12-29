@@ -14,7 +14,7 @@ const Admin = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [inquiries, setInquiries] = useState({ general: [], trade: [], bulk: [] });
-    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', stock: '', category: '', image: null });
+    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', image: null });
     const [editingProduct, setEditingProduct] = useState(null);
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [showEditProduct, setShowEditProduct] = useState(false);
@@ -101,6 +101,9 @@ const Admin = () => {
         formData.append('name', newProduct.name);
         formData.append('description', newProduct.description);
         formData.append('price', newProduct.price);
+        if (newProduct.offerPrice) {
+            formData.append('offerPrice', newProduct.offerPrice);
+        }
         formData.append('stock', newProduct.stock);
         formData.append('category', newProduct.category);
         if (newProduct.image) {
@@ -115,7 +118,7 @@ const Admin = () => {
             .then(data => {
                 setProducts([...products, data]);
                 setShowAddProduct(false);
-                setNewProduct({ name: '', description: '', price: '', stock: '', category: '', image: null });
+                setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', image: null });
             })
             .catch(err => console.error('Error adding product:', err));
     };
@@ -126,6 +129,9 @@ const Admin = () => {
         formData.append('name', editingProduct.name);
         formData.append('description', editingProduct.description);
         formData.append('price', editingProduct.price);
+        if (editingProduct.offerPrice) {
+            formData.append('offerPrice', editingProduct.offerPrice);
+        }
         formData.append('stock', editingProduct.stock);
         formData.append('category', editingProduct.category);
         if (editingProduct.image && typeof editingProduct.image !== 'string') {
