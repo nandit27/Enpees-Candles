@@ -30,6 +30,7 @@ const orderSchema = new mongoose.Schema({
         },
         name: String,
         price: Number,
+        offerPrice: Number,  // Discounted price if offer is active
         quantity: Number,
         color: String,
         fragrance: String,

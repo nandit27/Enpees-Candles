@@ -25,7 +25,10 @@ const emailTemplates = {
             <h3 style="color: #3B2A23;">Order Items:</h3>
             <ul style="color: #554B47;">
                 ${orderData.items.map(item => `
-                    <li>${item.name} x ${item.quantity} - ₹${item.price}</li>
+                    <li>
+                        ${item.name} x ${item.quantity} - ₹${item.offerPrice || item.price}
+                        ${item.offerPrice ? `<span style="text-decoration: line-through; color: #999; font-size: 0.9em;"> (M.R.P: ₹${item.price})</span>` : ''}
+                    </li>
                 `).join('')}
             </ul>
             
