@@ -114,13 +114,20 @@ const Admin = () => {
             method: 'POST',
             body: formData
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to add product');
+                return res.json();
+            })
             .then(data => {
                 setProducts([...products, data]);
                 setShowAddProduct(false);
                 setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', image: null });
+                alert('Product added successfully!');
             })
-            .catch(err => console.error('Error adding product:', err));
+            .catch(err => {
+                console.error('Error adding product:', err);
+                alert('Failed to add product. Please try again.');
+            });
     };
 
     const handleEditProduct = (e) => {
@@ -142,13 +149,20 @@ const Admin = () => {
             method: 'PATCH',
             body: formData
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to update product');
+                return res.json();
+            })
             .then(data => {
                 setProducts(products.map(p => p._id === data._id ? data : p));
                 setShowEditProduct(false);
                 setEditingProduct(null);
+                alert('Product updated successfully!');
             })
-            .catch(err => console.error('Error updating product:', err));
+            .catch(err => {
+                console.error('Error updating product:', err);
+                alert('Failed to update product. Please try again.');
+            });
     };
 
     const handleAddCategory = (e) => {
@@ -554,11 +568,14 @@ const Admin = () => {
                                                                 method: 'DELETE'
                                                             })
                                                                 .then(res => {
-                                                                    if (res.ok) {
-                                                                        setProducts(products.filter(p => p._id !== product._id));
-                                                                    }
+                                                                    if (!res.ok) throw new Error('Failed to delete product');
+                                                                    setProducts(products.filter(p => p._id !== product._id));
+                                                                    alert('Product deleted successfully!');
                                                                 })
-                                                                .catch(err => console.error('Error deleting product:', err));
+                                                                .catch(err => {
+                                                                    console.error('Error deleting product:', err);
+                                                                    alert('Failed to delete product. Please try again.');
+                                                                });
                                                         }
                                                     }}
                                                     className="flex-1 py-1.5 sm:py-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-lg text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-1"

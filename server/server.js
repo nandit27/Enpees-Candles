@@ -252,6 +252,11 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
             category: req.body.category || 'general'
         };
 
+        // Add offerPrice if provided
+        if (req.body.offerPrice) {
+            productData.offerPrice = parseFloat(req.body.offerPrice);
+        }
+
         const newProduct = new Product(productData);
         await newProduct.save();
         
@@ -276,6 +281,7 @@ app.patch('/api/products/:id', upload.single('image'), async (req, res) => {
         // Parse numeric fields
         if (updates.price) updates.price = parseFloat(updates.price);
         if (updates.stock) updates.stock = parseInt(updates.stock);
+        if (updates.offerPrice) updates.offerPrice = parseFloat(updates.offerPrice);
 
         const product = await Product.findByIdAndUpdate(
             productId,
