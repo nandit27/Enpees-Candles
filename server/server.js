@@ -245,15 +245,16 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
         const imageUrl = req.file ? req.file.path : req.body.image;
 
         const productData = {
-            ...req.body,
-            image: imageUrl,
+            name: req.body.name,
+            description: req.body.description,
             price: parseFloat(req.body.price) || 0,
             stock: parseInt(req.body.stock) || 0,
-            category: req.body.category || 'general'
+            category: req.body.category || 'general',
+            image: imageUrl
         };
 
-        // Add offerPrice if provided
-        if (req.body.offerPrice) {
+        // Add offerPrice if provided and valid
+        if (req.body.offerPrice && req.body.offerPrice !== '' && req.body.offerPrice !== 'null') {
             productData.offerPrice = parseFloat(req.body.offerPrice);
         }
 
@@ -263,7 +264,12 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
         res.status(201).json(newProduct);
     } catch (error) {
         console.error('Error creating product:', error);
-        res.status(500).json({ error: 'Failed to create product' });
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ 
+            error: 'Failed to create product',
+            message: error.message,
+            details: error.errors ? Object.keys(error.errors).map(key => error.errors[key].message) : []
+        });
     }
 });
 
@@ -271,17 +277,31 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
 app.patch('/api/products/:id', upload.single('image'), async (req, res) => {
     try {
         const productId = req.params.id;
-        const updates = { ...req.body };
+        const updates = {};
+
+        // Only include fields that are present
+        if (req.body.name) updates.name = req.body.name;
+        if (req.body.description) updates.description = req.body.description;
+        if (req.body.price) updates.price = parseFloat(req.body.price);
+        if (req.body.stock !== undefined) updates.stock = parseInt(req.body.stock);
+        if (req.body.category) updates.category = req.body.category;
+
+        // Handle offerPrice - can be null, empty string, or a number
+        if (req.body.offerPrice !== undefined) {
+            if (req.body.offerPrice === '' || req.body.offerPrice === 'null' || req.body.offerPrice === null) {
+                updates.offerPrice = null;
+            } else {
+                updates.offerPrice = parseFloat(req.body.offerPrice);
+            }
+        }
 
         // If an image file was uploaded to Cloudinary, update the image URL
         if (req.file) {
             updates.image = req.file.path;
         }
 
-        // Parse numeric fields
-        if (updates.price) updates.price = parseFloat(updates.price);
-        if (updates.stock) updates.stock = parseInt(updates.stock);
-        if (updates.offerPrice) updates.offerPrice = parseFloat(updates.offerPrice);
+        updates.updatedAt = Date.now();
+
 
         const product = await Product.findByIdAndUpdate(
             productId,
@@ -296,7 +316,11 @@ app.patch('/api/products/:id', upload.single('image'), async (req, res) => {
         res.json(product);
     } catch (error) {
         console.error('Error updating product:', error);
-        res.status(500).json({ error: 'Failed to update product' });
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ 
+            error: 'Failed to update product',
+            message: error.message 
+        });
     }
 });
 

@@ -18,7 +18,14 @@ const productSchema = new mongoose.Schema({
     offerPrice: {
         type: Number,
         default: null,
-        min: 0
+        min: 0,
+        validate: {
+            validator: function(value) {
+                // Allow null/undefined or positive numbers
+                return value === null || value === undefined || value >= 0;
+            },
+            message: 'Offer price must be a positive number or null'
+        }
     },
     stock: {
         type: Number,
