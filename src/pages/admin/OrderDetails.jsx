@@ -292,6 +292,17 @@ const OrderDetails = () => {
                                     </div>
                                 </div>
                             )}
+                            {order.giftWrapApplied && (
+                                <div className="sm:col-span-2">
+                                    <div className="bg-purple-500/20 border border-purple-400 rounded-lg p-3 flex items-center gap-3">
+                                        <span className="material-symbols-outlined text-purple-400 text-2xl">redeem</span>
+                                        <div>
+                                            <p className="font-bold text-purple-300">Gift Wrapping Requested</p>
+                                            <p className="text-xs text-purple-200">Please pack this order with gift wrapping (+₹100)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
