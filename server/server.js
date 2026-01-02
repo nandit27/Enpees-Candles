@@ -38,6 +38,8 @@ const allowedOrigins = [
     'http://localhost:3001',
     'https://enpees-candles.vercel.app',
     'https://enpees-candles-cxjs.vercel.app',
+    'https://www.enpeescandles.com',
+    'https://enpeescandles.com',
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
