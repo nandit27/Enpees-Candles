@@ -107,7 +107,7 @@ const Payment = () => {
                 </div>
                 <div className="w-full flex items-center justify-center p-6 bg-white rounded-xl">
                   <img 
-                    src="/IMG_3484.PNG" 
+                    src="/IMG_9865.PNG" 
                     alt="Payment QR Code" 
                     className="w-full max-w-[250px] h-auto rounded-lg"
                   />
