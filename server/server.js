@@ -287,6 +287,7 @@ app.patch('/api/products/:id', upload.single('image'), async (req, res) => {
         if (req.body.price) updates.price = parseFloat(req.body.price);
         if (req.body.stock !== undefined) updates.stock = parseInt(req.body.stock);
         if (req.body.category) updates.category = req.body.category;
+        if (req.body.dimensions !== undefined) updates.dimensions = req.body.dimensions;
 
         // Handle offerPrice - can be null, empty string, or a number
         if (req.body.offerPrice !== undefined) {

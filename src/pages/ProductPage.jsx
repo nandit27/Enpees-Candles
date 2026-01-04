@@ -121,7 +121,7 @@ const ProductPage = () => {
                                 <div className="bg-[#FFF7ED]/80 backdrop-blur-[16px] rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 lg:p-8 shadow-xl sm:shadow-2xl shadow-black/20 sm:shadow-black/30 border border-white/20">
                                     <div className="flex flex-col space-y-3 sm:space-y-4 lg:space-y-6">
                                         <div>
-                                            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-['Italiana',_serif] text-[#554B47] leading-tight">{displayProduct.name}</h1>
+                                            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-['Italiana',_serif] text-[#554B47] leading-tight font-bold">{displayProduct.name}</h1>
                                             {displayProduct.offerPrice ? (
                                                 <div className="mt-2">
                                                     <div className="flex items-center gap-2 mb-1">

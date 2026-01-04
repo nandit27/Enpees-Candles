@@ -67,7 +67,7 @@ const LandingPage = () => {
                 <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Welcome Message */}
                     <div className="text-center mb-12 sm:mb-16 lg:mb-20">
-                        <p className="font-['Italiana',_serif] text-2xl sm:text-3xl lg:text-4xl text-[#EAD2C0] leading-relaxed">
+                        <p className="font-['Italiana',_serif] text-2xl sm:text-3xl lg:text-4xl text-[#EAD2C0] leading-relaxed font-bold">
                             Welcome to Enpees Candle, where every candle tells the story of meticulous craftsmanship and quality
                         </p>
                     </div>
