@@ -146,7 +146,7 @@ const Shop = () => {
                                                 : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
                                                 } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
                                         >
-                                            {categoryMap[collection]}
+                                            {collection}
                                         </button>
                                     ))}
                                 </div>
