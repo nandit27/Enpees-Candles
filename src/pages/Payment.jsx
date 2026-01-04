@@ -9,8 +9,8 @@ import { API_ENDPOINTS } from '../config/api';
 const Payment = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const order = state?.order || null;
-  const amount = order?.totals?.total || 0;
+  const orderData = state?.orderData || null;
+  const amount = orderData?.totals?.total || 0;
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -31,25 +31,31 @@ const Payment = () => {
   const uploadConfirmation = async () => {
     if (!file) return toast.error('Select a screenshot to upload');
     setUploading(true);
-    const fd = new FormData();
-    fd.append('screenshot', file);
-    if (order?.orderId) fd.append('orderId', order.orderId);
+    
     try {
+      // Send payment screenshot along with order data to create order atomically
+      const fd = new FormData();
+      fd.append('screenshot', file);
+      fd.append('orderData', JSON.stringify(orderData));
+      
       const res = await fetch(API_ENDPOINTS.CONFIRM_PAYMENT, { method: 'POST', body: fd });
       const data = await res.json();
+      
       if (res.ok) {
-        toast.success('Payment confirmation uploaded successfully!');
-        navigate('/order-confirmation');
+        toast.success('Payment confirmed! Order placed successfully!');
+        navigate('/order-confirmation', { state: { order: data.order } });
       } else {
-        toast.error(data.error || 'Upload failed');
+        toast.error(data.error || 'Failed to confirm payment');
       }
     } catch (err) {
       console.error(err);
-      toast.error('Upload failed');
-    } finally { setUploading(false); }
+      toast.error('Failed to confirm payment');
+    } finally { 
+      setUploading(false); 
+    }
   };
 
-  if (!order) {
+  if (!orderData) {
     return (
       <div className="min-h-screen bg-[#3B2A23] font-['Inter',_sans-serif] text-[#FFF7ED]">
         <Navbar />
@@ -87,10 +93,6 @@ const Payment = () => {
             <div className="p-6 rounded-xl bg-[#3B2A23]/50 border border-[#FFF7ED]/10">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-[#EAD2C0] mb-1">Order ID</p>
-                  <p className="text-lg font-semibold">{order?.orderId || '—'}</p>
-                </div>
-                <div className="text-right">
                   <p className="text-sm text-[#EAD2C0] mb-1">Amount to Pay</p>
                   <p className="text-3xl font-bold text-[#D8A24A]">₹{amount.toFixed(2)}</p>
                 </div>

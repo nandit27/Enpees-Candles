@@ -190,26 +190,30 @@ const Checkout = () => {
                 }
             }
 
-            const response = await fetch(API_ENDPOINTS.ORDERS, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(orderData)
-            });
+            // For online payments, don't create order yet - pass data to payment page
+            // For COD, create order immediately
+            if (paymentMethod === 'cod') {
+                const response = await fetch(API_ENDPOINTS.ORDERS, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                });
 
-            if (response.ok) {
-                const created = await response.json();
-                clearCart();
-                if (paymentMethod === 'cod') {
+                if (response.ok) {
+                    const created = await response.json();
+                    clearCart();
                     toast.success('Order placed successfully! You will pay on delivery.', { duration: 3000 });
                     navigate('/order-confirmation', { state: { order: created } });
                 } else {
-                    toast.success('Order created. Proceed to payment', { duration: 2500 });
-                    navigate('/payment', { state: { order: created } });
+                    toast.error('Failed to place order. Please try again.');
                 }
             } else {
-                toast.error('Failed to place order. Please try again.');
+                // Online payment - pass order data without creating order
+                clearCart();
+                toast.success('Proceed to payment', { duration: 2500 });
+                navigate('/payment', { state: { orderData: orderData } });
             }
         } catch (error) {
             console.error('Error placing order:', error);

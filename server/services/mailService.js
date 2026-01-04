@@ -179,15 +179,29 @@ const sendEmail = async (to, subject, html) => {
 const mailService = {
     sendOrderPlacedMail: async (orderData) => {
         const html = emailTemplates.orderPlaced(orderData);
-        return await sendEmail(
+        const adminEmail = 'enpeescandles@gmail.com';
+        
+        // Send to customer
+        const customerResult = await sendEmail(
             orderData.customerEmail,
             `Order Placed - ${orderData.orderId}`,
             html
         );
+        
+        // Send to admin - ONLY when order is first placed
+        const adminResult = await sendEmail(
+            adminEmail,
+            `New Order Received - ${orderData.orderId}`,
+            html
+        );
+        
+        return { customer: customerResult, admin: adminResult };
     },
 
     sendOrderConfirmedMail: async (orderData) => {
         const html = emailTemplates.orderConfirmed(orderData);
+        
+        // Send only to customer
         return await sendEmail(
             orderData.customerEmail,
             `Order Confirmed - ${orderData.orderId}`,
@@ -197,6 +211,8 @@ const mailService = {
 
     sendOrderShippedMail: async (orderData) => {
         const html = emailTemplates.orderShipped(orderData);
+        
+        // Send only to customer
         return await sendEmail(
             orderData.customerEmail,
             `Order Shipped - ${orderData.orderId}`,
@@ -206,6 +222,8 @@ const mailService = {
 
     sendOrderCancelledMail: async (orderData) => {
         const html = emailTemplates.orderCancelled(orderData);
+        
+        // Send only to customer
         return await sendEmail(
             orderData.customerEmail,
             `Order Cancelled - ${orderData.orderId}`,
@@ -215,6 +233,8 @@ const mailService = {
 
     sendOrderDeliveredMail: async (orderData) => {
         const html = emailTemplates.orderDelivered(orderData);
+        
+        // Send only to customer
         return await sendEmail(
             orderData.customerEmail,
             `Order Delivered - ${orderData.orderId}`,
@@ -224,6 +244,8 @@ const mailService = {
 
     sendPartialOrderMail: async (orderData) => {
         const html = emailTemplates.partialOrder(orderData);
+        
+        // Send only to customer
         return await sendEmail(
             orderData.customerEmail,
             `Partial Order Update - ${orderData.orderId}`,

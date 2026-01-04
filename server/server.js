@@ -350,52 +350,78 @@ app.post('/api/payments/confirm', uploadPayment.single('screenshot'), async (req
         console.log('Body:', req.body);
         console.log('File:', req.file ? 'File received' : 'No file');
         
-        const { orderId } = req.body;
         if (!req.file) {
             console.log('❌ No file in request');
             return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        if (!req.body.orderData) {
+            console.log('❌ No order data provided');
+            return res.status(400).json({ error: 'Order data is required' });
         }
         
         const screenshotUrl = req.file.path; // Cloudinary URL
         console.log('✅ File uploaded to Cloudinary:', screenshotUrl);
         
-        // Update order with payment screenshot
-        if (orderId) {
-            const order = await Order.findOneAndUpdate(
-                { orderId: orderId },
-                { paymentScreenshot: screenshotUrl },
-                { new: true }
-            );
-            
-            if (order) {
-                console.log(`✅ Payment screenshot uploaded for order ${orderId}: ${screenshotUrl}`);
-                
-                // Send order placed email after payment confirmation
-                const mailService = require('./services/mailService');
-                const emailData = {
-                    customerName: order.customer.name,
-                    customerEmail: order.customer.email,
-                    orderId: order.orderId,
-                    total: order.totals.total,
-                    items: order.items
-                };
-                mailService.sendOrderPlacedMail(emailData).catch(err => 
-                    console.error('Error sending order placed email:', err)
-                );
-                
-                res.json({ success: true, fileUrl: screenshotUrl, orderId });
-            } else {
-                console.log(`⚠️ Order not found: ${orderId}`);
-                res.status(404).json({ error: 'Order not found' });
+        // Parse order data
+        const orderData = JSON.parse(req.body.orderData);
+        
+        // Get today's order count for sequential ID
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayOrderCount = await Order.countDocuments({
+            createdAt: { $gte: today }
+        });
+
+        // Generate order ID: DDMMYY + sequential number
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = String(date.getFullYear()).slice(-2);
+        const datePrefix = day + month + year;
+        const sequential = String(todayOrderCount + 1).padStart(3, '0');
+        const orderId = datePrefix + sequential;
+
+        // Create order with payment screenshot
+        const newOrderData = {
+            orderId,
+            ...orderData,
+            paymentScreenshot: screenshotUrl,
+            status: 'PENDING'
+        };
+
+        const newOrder = new Order(newOrderData);
+        await newOrder.save();
+        console.log(`✅ Order created: ${orderId}`);
+
+        // Update stock for each item
+        for (const item of orderData.items) {
+            if (item.productId || item.id) {
+                const productId = item.productId || item.id;
+                await Product.findByIdAndUpdate(productId, {
+                    $inc: { stock: -item.quantity }
+                });
             }
-        } else {
-            console.log(`⚠️ No orderId provided`);
-            res.json({ success: true, fileUrl: screenshotUrl, orderId: null });
         }
+
+        // Send order placed email to customer and admin
+        const mailService = require('./services/mailService');
+        const emailData = {
+            customerName: newOrder.customer.name,
+            customerEmail: newOrder.customer.email,
+            orderId: newOrder.orderId,
+            total: newOrder.totals.total,
+            items: newOrder.items
+        };
+        mailService.sendOrderPlacedMail(emailData).catch(err => 
+            console.error('Error sending order placed email:', err)
+        );
+        
+        res.json({ success: true, order: newOrder, fileUrl: screenshotUrl });
     } catch (error) {
         console.error('❌ Error uploading payment confirmation:', error);
         console.error('Error stack:', error.stack);
-        res.status(500).json({ error: 'Failed to upload confirmation', details: error.message });
+        res.status(500).json({ error: 'Failed to confirm payment', details: error.message });
     }
 });
 
