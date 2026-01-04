@@ -9,7 +9,8 @@ import { API_ENDPOINTS } from '../config/api';
 const ProductPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { product } = location.state || {};
+    const { product: initialProduct } = location.state || {};
+    const [product, setProduct] = useState(initialProduct);
     const [quantity, setQuantity] = useState(1);
     const [selectedColor, setSelectedColor] = useState('Natural Beige');
     const [selectedFragrance, setSelectedFragrance] = useState('Woody Flora');
@@ -20,6 +21,16 @@ const ProductPage = () => {
 
     const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey', 'Others'];
     const availableFragrances = ['Woody Flora', 'Peach Miami', 'Jasmine', 'Mogra', 'Berry Blast', 'Kesar Chandan', 'British Rose', 'Vanilla', 'English Lavender'];
+
+    // Fetch latest product data if product ID is available
+    useEffect(() => {
+        if (initialProduct && initialProduct._id) {
+            fetch(API_ENDPOINTS.PRODUCT_BY_ID(initialProduct._id))
+                .then(res => res.json())
+                .then(data => setProduct(data))
+                .catch(err => console.error('Error fetching product:', err));
+        }
+    }, [initialProduct]);
 
     // Fetch related products
     useEffect(() => {
