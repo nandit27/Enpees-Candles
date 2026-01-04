@@ -15,33 +15,31 @@ const Shop = () => {
     const [sortBy, setSortBy] = useState('default'); // 'default', 'price-low', 'price-high'
     const [selectedCollection, setSelectedCollection] = useState('All');
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const itemsPerPage = 12;
 
     useEffect(() => {
+        // Fetch products
         fetch(API_ENDPOINTS.PRODUCTS)
             .then(res => res.json())
             .then(data => setProducts(data))
             .catch(err => console.error('Error fetching products:', err));
+        
+        // Fetch categories
+        fetch(API_ENDPOINTS.CATEGORIES)
+            .then(res => res.json())
+            .then(data => setCategories(data))
+            .catch(err => console.error('Error fetching categories:', err));
     }, []);
 
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
 
-    // Define categories with display names
-    const categoryMap = {
-        'All': 'All',
-        'seasonal': 'Seasonal',
-        'premium': 'Premium',
-        'decorative': 'Decorative',
-        'christmas special': 'Christmas Special',
-        'general': 'General',
-        'holiday': 'Holiday',
-        'floral': 'Floral',
-        'romance': 'Romance',
-        'cute': 'Cute',
-        'gourmet': 'Gourmet'
-    };
-    const collections = Object.keys(categoryMap);
+    // Build collections list from fetched categories
+    const collections = useMemo(() => {
+        const allCategories = ['All', ...categories.map(cat => cat.name)];
+        return allCategories;
+    }, [categories]);
 
     // Filter and Sort Products
     const filteredAndSortedProducts = useMemo(() => {

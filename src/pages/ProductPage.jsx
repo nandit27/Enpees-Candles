@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import LazyImage from '../components/LazyImage';
 import { useCart } from '../context/CartContext';
 import toast, { Toaster } from 'react-hot-toast';
+import { API_ENDPOINTS } from '../config/api';
 
 const ProductPage = () => {
     const location = useLocation();
@@ -14,10 +15,33 @@ const ProductPage = () => {
     const [selectedFragrance, setSelectedFragrance] = useState('Woody Flora');
     const [showZoomModal, setShowZoomModal] = useState(false);
     const [customColor, setCustomColor] = useState('');
+    const [relatedProducts, setRelatedProducts] = useState([]);
     const { addToCart } = useCart();
 
     const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey', 'Others'];
     const availableFragrances = ['Woody Flora', 'Peach Miami', 'Jasmine', 'Mogra', 'Berry Blast', 'Kesar Chandan', 'British Rose', 'Vanilla', 'English Lavender'];
+
+    // Fetch related products
+    useEffect(() => {
+        fetch(API_ENDPOINTS.PRODUCTS)
+            .then(res => res.json())
+            .then(data => {
+                // Filter products: same category but different product, or just random if no product
+                let filtered = data;
+                if (product && product._id) {
+                    filtered = data.filter(p => p._id !== product._id);
+                    // Prefer same category
+                    const sameCategory = filtered.filter(p => p.category === product.category);
+                    if (sameCategory.length >= 4) {
+                        filtered = sameCategory;
+                    }
+                }
+                // Get random 4 products
+                const shuffled = filtered.sort(() => 0.5 - Math.random());
+                setRelatedProducts(shuffled.slice(0, 4));
+            })
+            .catch(err => console.error('Error fetching related products:', err));
+    }, [product]);
 
     // Default data if no product is passed (for testing/direct access)
     const displayProduct = product || {
@@ -180,11 +204,16 @@ const ProductPage = () => {
                                         </div>
 
                                         <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4 lg:pt-6">
-                                            <h2 className="text-lg sm:text-xl lg:text-2xl font-['Italiana',_serif] text-[#554B47] mb-2 sm:mb-3">Scent Profile</h2>
-                                            <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-[#554B47]/80">
-                                                <p><strong className="font-semibold text-[#554B47]/90">Top:</strong> Saffron, Black Currant</p>
-                                                <p><strong className="font-semibold text-[#554B47]/90">Middle:</strong> Rose, Incense</p>
-                                                <p><strong className="font-semibold text-[#554B47]/90">Base:</strong> Oud Wood, Amber, Sandalwood</p>
+                                            <h2 className="text-lg sm:text-xl lg:text-2xl font-['Italiana',_serif] text-[#554B47] mb-2 sm:mb-3">Dimensions</h2>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                <div className="bg-white/50 rounded-lg p-3 text-center">
+                                                    <p className="text-xs text-[#554B47]/60 mb-1">Height</p>
+                                                    <p className="text-sm font-semibold text-[#554B47]">4"</p>
+                                                </div>
+                                                <div className="bg-white/50 rounded-lg p-3 text-center">
+                                                    <p className="text-xs text-[#554B47]/60 mb-1">Width</p>
+                                                    <p className="text-sm font-semibold text-[#554B47]">3.5"</p>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
@@ -257,38 +286,9 @@ const ProductPage = () => {
                     <div className="mt-16 lg:mt-24 px-4 sm:px-10 md:px-20 lg:px-40 pb-24">
                         <h2 className="text-3xl lg:text-4xl font-['Italiana',_serif] text-white mb-8 text-center">You Might Also Love</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {[
-                                {
-                                    title: "Sandalwood Suede",
-                                    price: 90,
-                                    image: "/src/assets/Chai_Biscuit_Glass_Candle___90.webp",
-                                    collection: "Gourmet Collection",
-                                    description: "A warm and inviting sandalwood scent with notes of suede."
-                                },
-                                {
-                                    title: "Velvet Tonka",
-                                    price: 60,
-                                    image: "/src/assets/Teddy_Heart_Candle__60.webp",
-                                    collection: "Cute Collection",
-                                    description: "Smooth tonka bean blended with velvet musk."
-                                },
-                                {
-                                    title: "Golden Myrrh",
-                                    price: 199,
-                                    image: "/src/assets/Flower_Glass_Jar_Candle__199.webp",
-                                    collection: "Premium Collection",
-                                    description: "Rich myrrh with golden amber notes."
-                                },
-                                {
-                                    title: "Spiced Ember",
-                                    price: 15,
-                                    image: "/src/assets/Diya_Scented_Candle__15.webp",
-                                    collection: "Festival Collection",
-                                    description: "Spicy embers glowing in the dark."
-                                }
-                            ].map((item, index) => (
+                            {relatedProducts.map((item, index) => (
                                 <div
-                                    key={index}
+                                    key={item._id || index}
                                     className="group cursor-pointer"
                                     onClick={() => {
                                         navigate('/product', { state: { product: item } });
@@ -296,14 +296,15 @@ const ProductPage = () => {
                                     }}
                                 >
                                     <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl">
-                                        <img
+                                        <LazyImage
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                            alt={item.title}
+                                            alt={item.name}
                                             src={item.image}
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                                         <div className="absolute bottom-4 left-4 text-white">
-                                            <h3 className="font-['Italiana',_serif] text-xl">{item.title}</h3>
+                                            <h3 className="font-['Italiana',_serif] text-xl">{item.name}</h3>
+                                            <p className="text-sm mt-1">₹{item.offerPrice || item.price}</p>
                                         </div>
                                     </div>
                                 </div>
