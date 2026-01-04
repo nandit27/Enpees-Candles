@@ -106,19 +106,11 @@ const Payment = () => {
                   <h3 className="text-xl font-bold font-['Italiana',_serif]">Scan QR to Pay</h3>
                 </div>
                 <div className="w-full flex items-center justify-center p-6 bg-white rounded-xl">
-                  {/* QR Code Placeholder - In production, generate actual QR with payment gateway */}
-                  <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="200" height="200" fill="#FFF7ED" rx="8"/>
-                    {/* Simple QR-like pattern */}
-                    <rect x="20" y="20" width="60" height="60" fill="#3B2A23" rx="4"/>
-                    <rect x="120" y="20" width="60" height="60" fill="#3B2A23" rx="4"/>
-                    <rect x="20" y="120" width="60" height="60" fill="#3B2A23" rx="4"/>
-                    <rect x="35" y="35" width="30" height="30" fill="#FFF7ED" rx="2"/>
-                    <rect x="135" y="35" width="30" height="30" fill="#FFF7ED" rx="2"/>
-                    <rect x="35" y="135" width="30" height="30" fill="#FFF7ED" rx="2"/>
-                    <rect x="100" y="90" width="80" height="80" fill="#3B2A23" rx="4"/>
-                    <text x="50%" y="92%" dominantBaseline="middle" textAnchor="middle" fontSize="14" fill="#3B2A23" fontWeight="bold">₹{amount.toFixed(2)}</text>
-                  </svg>
+                  <img 
+                    src="/IMG_3484.PNG" 
+                    alt="Payment QR Code" 
+                    className="w-full max-w-[250px] h-auto rounded-lg"
+                  />
                 </div>
                 <p className="text-sm text-[#EAD2C0] text-center mt-4">Open any UPI app and scan to pay</p>
               </div>

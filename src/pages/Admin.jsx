@@ -14,7 +14,7 @@ const Admin = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [inquiries, setInquiries] = useState({ general: [], trade: [], bulk: [] });
-    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', image: null });
+    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: '', image: null });
     const [editingProduct, setEditingProduct] = useState(null);
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [showEditProduct, setShowEditProduct] = useState(false);
@@ -106,6 +106,9 @@ const Admin = () => {
         }
         formData.append('stock', newProduct.stock);
         formData.append('category', newProduct.category);
+        if (newProduct.dimensions) {
+            formData.append('dimensions', newProduct.dimensions);
+        }
         if (newProduct.image) {
             formData.append('image', newProduct.image);
         }
@@ -121,7 +124,7 @@ const Admin = () => {
             .then(data => {
                 setProducts([...products, data]);
                 setShowAddProduct(false);
-                setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', image: null });
+                setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: '', image: null });
                 alert('Product added successfully!');
             })
             .catch(err => {
@@ -141,6 +144,9 @@ const Admin = () => {
         }
         formData.append('stock', editingProduct.stock);
         formData.append('category', editingProduct.category);
+        if (editingProduct.dimensions) {
+            formData.append('dimensions', editingProduct.dimensions);
+        }
         if (editingProduct.image && typeof editingProduct.image !== 'string') {
             formData.append('image', editingProduct.image);
         }
@@ -172,13 +178,20 @@ const Admin = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newCategory)
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to add category');
+                return res.json();
+            })
             .then(data => {
                 setCategories([...categories, data]);
                 setShowCategoryModal(false);
                 setNewCategory({ name: '', description: '' });
+                alert('Category added successfully!');
             })
-            .catch(err => console.error('Error adding category:', err));
+            .catch(err => {
+                console.error('Error adding category:', err);
+                alert('Failed to add category. Please try again.');
+            });
     };
 
     const handleDeleteCategory = (id) => {
@@ -186,8 +199,15 @@ const Admin = () => {
             fetch(API_ENDPOINTS.CATEGORY_BY_ID(id), {
                 method: 'DELETE'
             })
-                .then(() => setCategories(categories.filter(c => c._id !== id)))
-                .catch(err => console.error('Error deleting category:', err));
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to delete category');
+                    setCategories(categories.filter(c => c._id !== id));
+                    alert('Category deleted successfully!');
+                })
+                .catch(err => {
+                    console.error('Error deleting category:', err);
+                    alert('Failed to delete category. Please try again.');
+                });
         }
     };
 
@@ -325,6 +345,11 @@ const Admin = () => {
                                         value={newProduct.stock} onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
                                         className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
                                     />
+                                    <input
+                                        type="text" placeholder="Product Dimensions (e.g., 10cm x 8cm)"
+                                        value={newProduct.dimensions || ''} onChange={e => setNewProduct({ ...newProduct, dimensions: e.target.value })}
+                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                    />
                                     <select
                                         value={newProduct.category} onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
                                         required
@@ -381,6 +406,11 @@ const Admin = () => {
                                     <input
                                         type="number" placeholder="Stock" required
                                         value={editingProduct.stock} onChange={e => setEditingProduct({ ...editingProduct, stock: e.target.value })}
+                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                    />
+                                    <input
+                                        type="text" placeholder="Product Dimensions (e.g., 10cm x 8cm)"
+                                        value={editingProduct.dimensions || ''} onChange={e => setEditingProduct({ ...editingProduct, dimensions: e.target.value })}
                                         className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
                                     />
                                     <select

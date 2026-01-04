@@ -46,6 +46,24 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    dimensions: {
+        type: String,
+        default: ''
+    },
+    specifications: {
+        wax: {
+            type: String,
+            default: '100% soya wax'
+        },
+        fragrance: {
+            type: String,
+            default: 'Natural Fragrance'
+        },
+        burningTime: {
+            type: String,
+            default: 'Long Burning time'
+        }
+    },
     colors: [{
         type: String
     }],

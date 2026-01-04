@@ -5,6 +5,12 @@ import productPlaceholder from '../assets/product-placeholder.png';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
 
+const CONTACT_INFO = {
+    address: 'Sanidhya, Fieldmarshal road, Mota Mava, Rajkot - 360005',
+    phone: '+91 91739 58589',
+    email: 'contact@enpeescandles.com'
+};
+
 const ContactUs = () => {
     const [activeTab, setActiveTab] = useState('general');
     const [products, setProducts] = useState([]);
@@ -504,21 +510,21 @@ const ContactUs = () => {
                                             <span className="material-symbols-outlined mt-1 text-[#C9A875]">mail</span>
                                             <div>
                                                 <p className="font-semibold">Email</p>
-                                                <p className="text-white/80 text-sm">contact@enpees.com</p>
+                                                <p className="text-white/80 text-sm">{CONTACT_INFO.email}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-4">
                                             <span className="material-symbols-outlined mt-1 text-[#C9A875]">call</span>
                                             <div>
                                                 <p className="font-semibold">Phone</p>
-                                                <p className="text-white/80 text-sm">+1 (555) 123-4567</p>
+                                                <a href={`tel:${CONTACT_INFO.phone}`} className="text-white/80 text-sm hover:text-[#C9A875] transition-colors">{CONTACT_INFO.phone}</a>
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-4">
                                             <span className="material-symbols-outlined mt-1 text-[#C9A875]">location_on</span>
                                             <div>
                                                 <p className="font-semibold">Address</p>
-                                                <p className="text-white/80 text-sm">123 Luxe Lane, Ember City, 45678</p>
+                                                <p className="text-white/80 text-sm">{CONTACT_INFO.address}</p>
                                             </div>
                                         </div>
                                     </div>

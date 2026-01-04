@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
@@ -20,31 +21,35 @@ const Footer = () => {
                     <div>
                         <h3 className="text-white font-semibold mb-4">Shop</h3>
                         <ul className="space-y-2 text-sm">
-                            <li><a href="#" className="hover:text-[#D8A24A] transition-colors">All Candles</a></li>
-                            <li><a href="#" className="hover:text-[#D8A24A] transition-colors">New Arrivals</a></li>
-                            <li><a href="#" className="hover:text-[#D8A24A] transition-colors">Best Sellers</a></li>
-                            <li><a href="#" className="hover:text-[#D8A24A] transition-colors">Gift Sets</a></li>
+                            <li><Link to="/shop" className="hover:text-[#D8A24A] transition-colors">All Candles</Link></li>
+                            <li><Link to="/collections" className="hover:text-[#D8A24A] transition-colors">Collections</Link></li>
+                            <li><Link to="/shop" className="hover:text-[#D8A24A] transition-colors">Best Sellers</Link></li>
+                            <li><Link to="/contact" className="hover:text-[#D8A24A] transition-colors">Gift Sets</Link></li>
                         </ul>
                     </div>
 
                     <div>
                         <h3 className="text-white font-semibold mb-4">Company</h3>
                         <ul className="space-y-2 text-sm">
-                            <li><a href="#" className="hover:text-[#D8A24A] transition-colors">About Us</a></li>
-                            <li><a href="#" className="hover:text-[#D8A24A] transition-colors">Contact</a></li>
-                            <li><a href="#" className="hover:text-[#D8A24A] transition-colors">FAQ</a></li>
-                            <li><a href="#" className="hover:text-[#D8A24A] transition-colors">Privacy Policy</a></li>
+                            <li><Link to="/" className="hover:text-[#D8A24A] transition-colors">About Us</Link></li>
+                            <li><Link to="/contact" className="hover:text-[#D8A24A] transition-colors">Contact</Link></li>
+                            <li><Link to="/contact" className="hover:text-[#D8A24A] transition-colors">FAQ</Link></li>
+                            <li><Link to="/" className="hover:text-[#D8A24A] transition-colors">Privacy Policy</Link></li>
                         </ul>
                     </div>
 
                     <div>
                         <h3 className="text-white font-semibold mb-4">Connect</h3>
+                        <p className="text-sm text-[#EAD2C0]/80 mb-3">Sanidhya, Fieldmarshal road<br/>Mota Mava, Rajkot - 360005</p>
                         <div className="flex gap-4">
-                            <a href="#" className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D8A24A] hover:text-[#201b12] transition-all">
+                            <a href="mailto:contact@enpeescandles.com" className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D8A24A] hover:text-[#201b12] transition-all" title="Email us">
                                 <span className="material-symbols-outlined text-xl">mail</span>
                             </a>
-                            <a href="#" className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D8A24A] hover:text-[#201b12] transition-all">
+                            <a href="tel:+919173958589" className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D8A24A] hover:text-[#201b12] transition-all" title="Call us">
                                 <span className="material-symbols-outlined text-xl">call</span>
+                            </a>
+                            <a href="https://wa.me/919173958589" target="_blank" rel="noopener noreferrer" className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D8A24A] hover:text-[#201b12] transition-all" title="WhatsApp">
+                                <span className="material-symbols-outlined text-xl">chat</span>
                             </a>
                         </div>
                     </div>
