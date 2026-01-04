@@ -51,7 +51,7 @@ const LandingPage = () => {
                         <section className="flex h-screen items-center justify-center px-4 sm:px-6">
                             <div className="w-full max-w-4xl rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg p-6 sm:p-10 md:p-14 lg:p-16 text-center">
                                 <h1 className="font-['Italiana',_serif] text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-wide text-[#554B47] drop-shadow-lg">
-                                    hand poured, heart driven: the art of perfect candle
+                                    Hand Poured, Heart Driven: The Art of Perfect Candle
                                 </h1>
                             </div>
                         </section>
