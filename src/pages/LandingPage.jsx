@@ -51,7 +51,7 @@ const LandingPage = () => {
                         <section className="flex h-screen items-center justify-center px-4 sm:px-6">
                             <div className="w-full max-w-4xl rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg p-6 sm:p-10 md:p-14 lg:p-16 text-center">
                                 <h1 className="font-['Italiana',_serif] text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-wide text-[#554B47] drop-shadow-lg">
-                                    Where every flame tells a handmade story.
+                                    hand poured, heart driven: the art of perfect candle
                                 </h1>
                             </div>
                         </section>
@@ -65,6 +65,12 @@ const LandingPage = () => {
                     <LazyImage alt="Elegant lifestyle setting with candles" className="h-full w-full object-cover opacity-30" src={productPlaceholder} />
                 </div>
                 <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    {/* Welcome Message */}
+                    <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+                        <p className="font-['Italiana',_serif] text-2xl sm:text-3xl lg:text-4xl text-[#EAD2C0] leading-relaxed">
+                            Welcome to Enpees Candle, where every candle tells the story of meticulous craftsmanship and quality
+                        </p>
+                    </div>
                     <div className="mx-auto max-w-2xl lg:max-w-none">
                         <div className="grid grid-cols-2 items-start gap-3 sm:gap-6 lg:gap-8 lg:grid-cols-2">
                             <div className="space-y-3 sm:space-y-6 lg:space-y-8">

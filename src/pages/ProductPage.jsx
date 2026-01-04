@@ -205,16 +205,15 @@ const ProductPage = () => {
 
                                         <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4 lg:pt-6">
                                             <h2 className="text-lg sm:text-xl lg:text-2xl font-['Italiana',_serif] text-[#554B47] mb-2 sm:mb-3">Dimensions</h2>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                <div className="bg-white/50 rounded-lg p-3 text-center">
-                                                    <p className="text-xs text-[#554B47]/60 mb-1">Height</p>
-                                                    <p className="text-sm font-semibold text-[#554B47]">4"</p>
+                                            {displayProduct.dimensions ? (
+                                                <div className="bg-white/50 rounded-lg p-3">
+                                                    <p className="text-sm font-semibold text-[#554B47] text-center">{displayProduct.dimensions}</p>
                                                 </div>
-                                                <div className="bg-white/50 rounded-lg p-3 text-center">
-                                                    <p className="text-xs text-[#554B47]/60 mb-1">Width</p>
-                                                    <p className="text-sm font-semibold text-[#554B47]">3.5"</p>
+                                            ) : (
+                                                <div className="bg-white/50 rounded-lg p-3">
+                                                    <p className="text-sm text-[#554B47]/60 text-center">Not specified</p>
                                                 </div>
-                                            </div>
+                                            )}
                                         </div>
                                         <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                                             <div className="flex items-center rounded-lg border border-[#554B47]/20">
@@ -231,11 +230,9 @@ const ProductPage = () => {
                                         <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4 lg:pt-6 space-y-2 sm:space-y-3">
                                             <h3 className="text-base sm:text-lg lg:text-xl font-['Italiana',_serif] text-[#554B47]">Specifications</h3>
                                             <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-[#554B47]/80 list-none">
-                                                <li><strong className="font-semibold text-[#554B47]/90">Wax:</strong> 100% Natural Soy Wax Blend</li>
+                                                <li><strong className="font-semibold text-[#554B47]/90">Wax:</strong> {displayProduct.specifications?.wax || '100% Natural Soy Wax Blend'}</li>
                                                 <li><strong className="font-semibold text-[#554B47]/90">Wick:</strong> Lead-free Cotton Wick</li>
-                                                <li><strong className="font-semibold text-[#554B47]/90">Burn Time:</strong> Approx. 50-60 hours</li>
-                                                <li><strong className="font-semibold text-[#554B47]/90">Dimensions:</strong> 3.5" W x 4" H</li>
-
+                                                <li><strong className="font-semibold text-[#554B47]/90">Burn Time:</strong> {displayProduct.specifications?.burningTime || 'Approx. 50-60 hours'}</li>
                                             </ul>
                                         </div>
                                     </div>
