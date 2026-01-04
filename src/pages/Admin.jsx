@@ -173,9 +173,13 @@ const Admin = () => {
 
     const handleAddCategory = (e) => {
         e.preventDefault();
+        const token = localStorage.getItem('token');
         fetch(API_ENDPOINTS.CATEGORIES, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
             body: JSON.stringify(newCategory)
         })
             .then(res => {
@@ -196,8 +200,12 @@ const Admin = () => {
 
     const handleDeleteCategory = (id) => {
         if (window.confirm('Are you sure you want to delete this category?')) {
+            const token = localStorage.getItem('token');
             fetch(API_ENDPOINTS.CATEGORY_BY_ID(id), {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             })
                 .then(res => {
                     if (!res.ok) throw new Error('Failed to delete category');
