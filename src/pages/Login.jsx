@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
 import { API_ENDPOINTS } from '../config/api';
@@ -11,6 +11,7 @@ const Login = () => {
     });
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleChange = (e) => {
         setFormData({
@@ -39,8 +40,11 @@ const Login = () => {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 toast.success('Login successful!');
                 
-                // Redirect based on role
-                if (data.user.role === 'admin') {
+                // Redirect to the page user came from, or default based on role
+                const from = location.state?.from;
+                if (from) {
+                    navigate(from);
+                } else if (data.user.role === 'admin') {
                     navigate('/admin');
                 } else {
                     navigate('/');

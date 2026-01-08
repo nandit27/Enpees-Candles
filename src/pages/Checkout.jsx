@@ -38,6 +38,29 @@ const Checkout = () => {
     const [saveAddress, setSaveAddress] = useState(false);
     const [showAddressModal, setShowAddressModal] = useState(false);
 
+    // Restore saved checkout data if user returns from login
+    useEffect(() => {
+        const savedFormData = localStorage.getItem('checkoutFormData');
+        const savedExtras = localStorage.getItem('checkoutExtras');
+        
+        if (savedFormData) {
+            const parsedFormData = JSON.parse(savedFormData);
+            setFormData(prev => ({ ...prev, ...parsedFormData }));
+            localStorage.removeItem('checkoutFormData');
+        }
+        
+        if (savedExtras) {
+            const parsedExtras = JSON.parse(savedExtras);
+            if (parsedExtras.giftWrap !== undefined) setGiftWrap(parsedExtras.giftWrap);
+            if (parsedExtras.couponCode) setCouponCode(parsedExtras.couponCode);
+            if (parsedExtras.couponResult) setCouponResult(parsedExtras.couponResult);
+            if (parsedExtras.paymentMethod) setPaymentMethod(parsedExtras.paymentMethod);
+            if (parsedExtras.courierCompany) setCourierCompany(parsedExtras.courierCompany);
+            if (parsedExtras.termsAccepted !== undefined) setTermsAccepted(parsedExtras.termsAccepted);
+            localStorage.removeItem('checkoutExtras');
+        }
+    }, []);
+
     // Fetch user data and saved addresses on component mount
     useEffect(() => {
         const fetchUserData = async () => {
@@ -142,6 +165,25 @@ const Checkout = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Check if user is logged in before proceeding with order
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.error('Please login or signup to place your order');
+            // Save current form data to localStorage so user doesn't lose it
+            localStorage.setItem('checkoutFormData', JSON.stringify(formData));
+            localStorage.setItem('checkoutExtras', JSON.stringify({
+                giftWrap,
+                couponCode,
+                couponResult,
+                paymentMethod,
+                courierCompany,
+                termsAccepted
+            }));
+            navigate('/login', { state: { from: '/checkout' } });
+            return;
+        }
+        
         if (!validateForm()) return toast.error('Please fix form errors');
 
         const subtotal = getCartTotal();
@@ -164,7 +206,6 @@ const Checkout = () => {
         try {
             // Save address if checkbox is checked and user is logged in
             if (saveAddress) {
-                const token = localStorage.getItem('token');
                 if (token) {
                     try {
                         await fetch(API_ENDPOINTS.SAVE_ADDRESS, {

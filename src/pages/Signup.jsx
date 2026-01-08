@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Navbar from '../components/Navbar';
 import { API_ENDPOINTS } from '../config/api';
@@ -14,6 +14,7 @@ const Signup = () => {
     });
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleChange = (e) => {
         setFormData({
@@ -57,7 +58,10 @@ const Signup = () => {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
                 toast.success('Account created successfully!');
-                navigate('/');
+                
+                // Redirect to the page user came from, or default to home
+                const from = location.state?.from;
+                navigate(from || '/');
             } else {
                 toast.error(data.error || 'Registration failed');
             }
