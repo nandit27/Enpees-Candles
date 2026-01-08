@@ -216,9 +216,13 @@ const ProductPage = () => {
 
                                         <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4 lg:pt-6">
                                             <h2 className="text-lg sm:text-xl lg:text-2xl font-['Italiana',_serif] text-[#554B47] mb-2 sm:mb-3">Dimensions</h2>
-                                            {displayProduct.dimensions ? (
+                                            {displayProduct.dimensions && (displayProduct.dimensions.height || displayProduct.dimensions.width || displayProduct.dimensions.depth) ? (
                                                 <div className="bg-white/50 rounded-lg p-3">
-                                                    <p className="text-sm font-semibold text-[#554B47] text-center">{displayProduct.dimensions}</p>
+                                                    <div className="flex justify-center gap-4 text-sm font-semibold text-[#554B47]">
+                                                        {displayProduct.dimensions.height && <span>H: {displayProduct.dimensions.height}</span>}
+                                                        {displayProduct.dimensions.width && <span>W: {displayProduct.dimensions.width}</span>}
+                                                        {displayProduct.dimensions.depth && <span>D: {displayProduct.dimensions.depth}</span>}
+                                                    </div>
                                                 </div>
                                             ) : (
                                                 <div className="bg-white/50 rounded-lg p-3">

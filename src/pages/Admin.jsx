@@ -14,7 +14,7 @@ const Admin = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [inquiries, setInquiries] = useState({ general: [], trade: [], bulk: [] });
-    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: '', image: null });
+    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null });
     const [editingProduct, setEditingProduct] = useState(null);
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [showEditProduct, setShowEditProduct] = useState(false);
@@ -106,8 +106,8 @@ const Admin = () => {
         }
         formData.append('stock', newProduct.stock);
         formData.append('category', newProduct.category);
-        if (newProduct.dimensions) {
-            formData.append('dimensions', newProduct.dimensions);
+        if (newProduct.dimensions.height || newProduct.dimensions.width || newProduct.dimensions.depth) {
+            formData.append('dimensions', JSON.stringify(newProduct.dimensions));
         }
         if (newProduct.image) {
             formData.append('image', newProduct.image);
@@ -124,7 +124,7 @@ const Admin = () => {
             .then(data => {
                 setProducts([...products, data]);
                 setShowAddProduct(false);
-                setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: '', image: null });
+                setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null });
                 alert('Product added successfully!');
             })
             .catch(err => {
@@ -144,8 +144,8 @@ const Admin = () => {
         }
         formData.append('stock', editingProduct.stock);
         formData.append('category', editingProduct.category);
-        if (editingProduct.dimensions) {
-            formData.append('dimensions', editingProduct.dimensions);
+        if (editingProduct.dimensions && (editingProduct.dimensions.height || editingProduct.dimensions.width || editingProduct.dimensions.depth)) {
+            formData.append('dimensions', JSON.stringify(editingProduct.dimensions));
         }
         if (editingProduct.image && typeof editingProduct.image !== 'string') {
             formData.append('image', editingProduct.image);
@@ -353,11 +353,29 @@ const Admin = () => {
                                         value={newProduct.stock} onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
                                         className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
                                     />
-                                    <input
-                                        type="text" placeholder="Product Dimensions (e.g., 10cm x 8cm)"
-                                        value={newProduct.dimensions || ''} onChange={e => setNewProduct({ ...newProduct, dimensions: e.target.value })}
-                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
-                                    />
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-[#EAD2C0] font-medium">Dimensions (Optional)</label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <input
+                                                type="text" placeholder="Height (e.g., 10cm)"
+                                                value={newProduct.dimensions?.height || ''}
+                                                onChange={e => setNewProduct({ ...newProduct, dimensions: { ...newProduct.dimensions, height: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                            <input
+                                                type="text" placeholder="Width (e.g., 8cm)"
+                                                value={newProduct.dimensions?.width || ''}
+                                                onChange={e => setNewProduct({ ...newProduct, dimensions: { ...newProduct.dimensions, width: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                            <input
+                                                type="text" placeholder="Depth (e.g., 8cm)"
+                                                value={newProduct.dimensions?.depth || ''}
+                                                onChange={e => setNewProduct({ ...newProduct, dimensions: { ...newProduct.dimensions, depth: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                        </div>
+                                    </div>
                                     <select
                                         value={newProduct.category} onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}
                                         required
@@ -416,11 +434,29 @@ const Admin = () => {
                                         value={editingProduct.stock} onChange={e => setEditingProduct({ ...editingProduct, stock: e.target.value })}
                                         className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
                                     />
-                                    <input
-                                        type="text" placeholder="Product Dimensions (e.g., 10cm x 8cm)"
-                                        value={editingProduct.dimensions || ''} onChange={e => setEditingProduct({ ...editingProduct, dimensions: e.target.value })}
-                                        className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
-                                    />
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-[#EAD2C0] font-medium">Dimensions (Optional)</label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <input
+                                                type="text" placeholder="Height (e.g., 10cm)"
+                                                value={editingProduct.dimensions?.height || ''}
+                                                onChange={e => setEditingProduct({ ...editingProduct, dimensions: { ...editingProduct.dimensions, height: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                            <input
+                                                type="text" placeholder="Width (e.g., 8cm)"
+                                                value={editingProduct.dimensions?.width || ''}
+                                                onChange={e => setEditingProduct({ ...editingProduct, dimensions: { ...editingProduct.dimensions, width: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                            <input
+                                                type="text" placeholder="Depth (e.g., 8cm)"
+                                                value={editingProduct.dimensions?.depth || ''}
+                                                onChange={e => setEditingProduct({ ...editingProduct, dimensions: { ...editingProduct.dimensions, depth: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                        </div>
+                                    </div>
                                     <select
                                         value={editingProduct.category} onChange={e => setEditingProduct({ ...editingProduct, category: e.target.value })}
                                         required

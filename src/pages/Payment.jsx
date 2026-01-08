@@ -15,7 +15,8 @@ const Payment = () => {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  const upiLink = makeUpiLink({ amount: amount.toFixed(2) });
+  // UPI link without amount - just opens the UPI app
+  const upiLink = makeUpiLink({ amount: 0 });
 
   const handleFile = (e) => {
     const selectedFile = e.target.files?.[0] || null;

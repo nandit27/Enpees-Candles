@@ -47,8 +47,18 @@ const productSchema = new mongoose.Schema({
         default: false
     },
     dimensions: {
-        type: String,
-        default: ''
+        height: {
+            type: String,
+            default: ''
+        },
+        width: {
+            type: String,
+            default: ''
+        },
+        depth: {
+            type: String,
+            default: ''
+        }
     },
     specifications: {
         wax: {

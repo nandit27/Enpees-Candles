@@ -260,6 +260,16 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
             productData.offerPrice = parseFloat(req.body.offerPrice);
         }
 
+        // Add dimensions if provided
+        if (req.body.dimensions) {
+            try {
+                productData.dimensions = JSON.parse(req.body.dimensions);
+            } catch (e) {
+                // If parsing fails, it might be an old format string, ignore it
+                console.log('Could not parse dimensions as JSON');
+            }
+        }
+
         const newProduct = new Product(productData);
         await newProduct.save();
         
@@ -287,7 +297,17 @@ app.patch('/api/products/:id', upload.single('image'), async (req, res) => {
         if (req.body.price) updates.price = parseFloat(req.body.price);
         if (req.body.stock !== undefined) updates.stock = parseInt(req.body.stock);
         if (req.body.category) updates.category = req.body.category;
-        if (req.body.dimensions !== undefined) updates.dimensions = req.body.dimensions;
+        
+        // Handle dimensions - parse JSON if it's a string
+        if (req.body.dimensions !== undefined) {
+            try {
+                updates.dimensions = typeof req.body.dimensions === 'string' 
+                    ? JSON.parse(req.body.dimensions) 
+                    : req.body.dimensions;
+            } catch (e) {
+                console.log('Could not parse dimensions as JSON');
+            }
+        }
 
         // Handle offerPrice - can be null, empty string, or a number
         if (req.body.offerPrice !== undefined) {

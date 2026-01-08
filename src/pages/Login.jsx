@@ -112,6 +112,15 @@ const Login = () => {
                             </div>
                         </div>
 
+                        <div className="text-center">
+                            <p className="text-sm text-[#EAD2C0]/80">
+                                Forgot your password?{' '}
+                                <Link to="/contact" className="font-medium text-[#D8A24A] hover:text-[#D8A24A]/80">
+                                    Contact us
+                                </Link>
+                            </p>
+                        </div>
+
                         <div>
                             <button
                                 type="submit"
