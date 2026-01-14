@@ -37,6 +37,7 @@ export function calculateShipping(subtotal) {
   if (subtotal >= 1000) return 200;
   if (subtotal >= 701) return 150;
   if (subtotal >= 300) return 120;
+  if (subtotal >= 150) return 90;
   return 70; // Below 300
 }
 
