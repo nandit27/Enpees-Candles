@@ -66,7 +66,7 @@ const TrackOrder = () => {
                                 type="text"
                                 value={orderId}
                                 onChange={(e) => setOrderId(e.target.value)}
-                                placeholder="e.g., 14-30-28-02-26-12"
+                                placeholder="e.g., 143028022612"
                                 className="w-full px-4 py-3 rounded-lg bg-[#3B2A23]/50 border border-[#FFF7ED]/20 text-[#FFF7ED] placeholder-[#EAD2C0]/50 focus:outline-none focus:border-[#D8A24A] transition-colors"
                             />
                             {error && (
