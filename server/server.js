@@ -182,14 +182,17 @@ app.get('/api/orders/track/:orderId', async (req, res) => {
 // POST /api/orders
 app.post('/api/orders', async (req, res) => {
     try {
-        // Generate order ID: hrminddmmyyss (single number)
-        const date = new Date();
-        const hr = String(date.getHours()).padStart(2, '0');
-        const min = String(date.getMinutes()).padStart(2, '0');
-        const sec = String(date.getSeconds()).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = String(date.getFullYear()).slice(-2);
+        // Generate order ID: hrminssddmmyy (single number, IST timezone)
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+        const istTime = new Date(now.getTime() + istOffset);
+        
+        const hr = String(istTime.getUTCHours()).padStart(2, '0');
+        const min = String(istTime.getUTCMinutes()).padStart(2, '0');
+        const sec = String(istTime.getUTCSeconds()).padStart(2, '0');
+        const day = String(istTime.getUTCDate()).padStart(2, '0');
+        const month = String(istTime.getUTCMonth() + 1).padStart(2, '0');
+        const year = String(istTime.getUTCFullYear()).slice(-2);
         const orderId = `${hr}${min}${sec}${day}${month}${year}`;
 
         const orderData = {
@@ -400,14 +403,17 @@ app.post('/api/payments/confirm', uploadPayment.single('screenshot'), async (req
         // Parse order data
         const orderData = JSON.parse(req.body.orderData);
         
-        // Generate order ID: hrminddmmyyss (single number)
-        const date = new Date();
-        const hr = String(date.getHours()).padStart(2, '0');
-        const min = String(date.getMinutes()).padStart(2, '0');
-        const sec = String(date.getSeconds()).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = String(date.getFullYear()).slice(-2);
+        // Generate order ID: hrminssddmmyy (single number, IST timezone)
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+        const istTime = new Date(now.getTime() + istOffset);
+        
+        const hr = String(istTime.getUTCHours()).padStart(2, '0');
+        const min = String(istTime.getUTCMinutes()).padStart(2, '0');
+        const sec = String(istTime.getUTCSeconds()).padStart(2, '0');
+        const day = String(istTime.getUTCDate()).padStart(2, '0');
+        const month = String(istTime.getUTCMonth() + 1).padStart(2, '0');
+        const year = String(istTime.getUTCFullYear()).slice(-2);
         const orderId = `${hr}${min}${sec}${day}${month}${year}`;
 
         // Create order with payment screenshot
