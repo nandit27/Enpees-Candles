@@ -40,6 +40,7 @@ export const API_ENDPOINTS = {
     GENERAL_INQUIRY: `${API_BASE_URL}/inquiries/general`,
     TRADE_INQUIRY: `${API_BASE_URL}/inquiries/trade`,
     BULK_INQUIRY: `${API_BASE_URL}/inquiries/bulk`,
+    REPLY_INQUIRY: `${API_BASE_URL}/inquiries/reply`,
     
     // Payments
     CONFIRM_PAYMENT: `${API_BASE_URL}/payments/confirm`,

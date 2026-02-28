@@ -57,10 +57,8 @@ const Checkout = () => {
             errs.mobile = 'Enter valid 10-digit Indian mobile number starting with 6-9';
         }
         
-        // Strict email validation
-        if (!formData.email) {
-            errs.email = 'Email address is required';
-        } else {
+        // Email validation (optional, but validate format if provided)
+        if (formData.email && formData.email.trim()) {
             const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(formData.email)) {
                 errs.email = 'Enter a valid email address (e.g., name@example.com)';
@@ -231,11 +229,10 @@ const Checkout = () => {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Email Address *</label>
+                                        <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Email Address (Optional)</label>
                                         <input
                                             type="email"
                                             name="email"
-                                            required
                                             value={formData.email}
                                             onChange={handleChange}
                                             placeholder="your.email@example.com"

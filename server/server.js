@@ -306,6 +306,11 @@ app.patch('/api/products/:id', upload.single('image'), async (req, res) => {
         if (req.body.stock !== undefined) updates.stock = parseInt(req.body.stock);
         if (req.body.category) updates.category = req.body.category;
         
+        // Handle featured status
+        if (req.body.featured !== undefined) {
+            updates.featured = req.body.featured === true || req.body.featured === 'true';
+        }
+        
         // Handle dimensions - parse JSON if it's a string
         if (req.body.dimensions !== undefined) {
             try {
@@ -518,6 +523,33 @@ app.post('/api/inquiries/bulk', async (req, res) => {
     } catch (error) {
         console.error('Error submitting bulk order inquiry:', error);
         res.status(500).json({ error: 'Failed to submit inquiry' });
+    }
+});
+
+// POST /api/inquiries/reply - Send reply to inquiry
+app.post('/api/inquiries/reply', async (req, res) => {
+    try {
+        const { recipientEmail, customerName, originalMessage, replyMessage } = req.body;
+
+        if (!recipientEmail || !replyMessage) {
+            return res.status(400).json({ error: 'Recipient email and reply message are required' });
+        }
+
+        const inquiryData = {
+            customerName: customerName || 'Valued Customer',
+            originalMessage: originalMessage || ''
+        };
+
+        const result = await mailService.sendInquiryReply(recipientEmail, inquiryData, replyMessage);
+
+        if (result.success) {
+            res.json({ message: 'Reply sent successfully', result });
+        } else {
+            res.status(500).json({ error: 'Failed to send reply', details: result.error });
+        }
+    } catch (error) {
+        console.error('Error sending inquiry reply:', error);
+        res.status(500).json({ error: 'Failed to send reply' });
     }
 });
 

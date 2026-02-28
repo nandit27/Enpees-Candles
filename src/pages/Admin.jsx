@@ -24,6 +24,11 @@ const Admin = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [featuredPage, setFeaturedPage] = useState(1);
     const itemsPerPage = 12;
+    
+    // Reply modal state
+    const [showReplyModal, setShowReplyModal] = useState(false);
+    const [replyData, setReplyData] = useState({ inquiry: null, message: '' });
+    const [sendingReply, setSendingReply] = useState(false);
 
     // Check admin authentication
     useEffect(() => {
@@ -216,6 +221,41 @@ const Admin = () => {
                     console.error('Error deleting category:', err);
                     alert('Failed to delete category. Please try again.');
                 });
+        }
+    };
+
+    const handleSendReply = async () => {
+        if (!replyData.message.trim()) {
+            alert('Please enter a reply message');
+            return;
+        }
+
+        setSendingReply(true);
+        
+        try {
+            const response = await fetch(API_ENDPOINTS.REPLY_INQUIRY, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recipientEmail: replyData.inquiry.email,
+                    customerName: replyData.inquiry.name,
+                    originalMessage: replyData.inquiry.message || replyData.inquiry.remarks || 'Inquiry received',
+                    replyMessage: replyData.message
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to send reply');
+            }
+
+            alert('Reply sent successfully!');
+            setShowReplyModal(false);
+            setReplyData({ inquiry: null, message: '' });
+        } catch (error) {
+            console.error('Error sending reply:', error);
+            alert('Failed to send reply. Please try again.');
+        } finally {
+            setSendingReply(false);
         }
     };
 
@@ -902,7 +942,17 @@ const Admin = () => {
                                                     <p className="text-xs text-[#554B47]/60">{new Date(inquiry.date).toLocaleString()}</p>
                                                 </div>
                                                 <p className="text-sm text-[#554B47] mb-2">Email: {inquiry.email}</p>
-                                                <p className="text-sm text-[#554B47] bg-white/50 p-3 rounded">{inquiry.message}</p>
+                                                <p className="text-sm text-[#554B47] bg-white/50 p-3 rounded mb-3">{inquiry.message}</p>
+                                                <button
+                                                    onClick={() => {
+                                                        setReplyData({ inquiry, message: '' });
+                                                        setShowReplyModal(true);
+                                                    }}
+                                                    className="flex items-center gap-2 px-4 py-2 bg-[#D8A24A] text-[#3B2A23] rounded-lg font-semibold text-sm hover:brightness-110 transition-all"
+                                                >
+                                                    <span className="material-symbols-outlined text-base">reply</span>
+                                                    Reply
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
@@ -931,10 +981,20 @@ const Admin = () => {
                                                     <p className="col-span-2">Email: {inquiry.email}</p>
                                                 </div>
                                                 {inquiry.remarks && (
-                                                    <p className="text-sm text-[#554B47] bg-white/50 p-3 rounded mt-2">
+                                                    <p className="text-sm text-[#554B47] bg-white/50 p-3 rounded mt-2 mb-3">
                                                         <span className="font-semibold">Remarks:</span> {inquiry.remarks}
                                                     </p>
                                                 )}
+                                                <button
+                                                    onClick={() => {
+                                                        setReplyData({ inquiry, message: '' });
+                                                        setShowReplyModal(true);
+                                                    }}
+                                                    className="flex items-center gap-2 px-4 py-2 bg-[#D8A24A] text-[#3B2A23] rounded-lg font-semibold text-sm hover:brightness-110 transition-all mt-3"
+                                                >
+                                                    <span className="material-symbols-outlined text-base">reply</span>
+                                                    Reply
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
@@ -966,7 +1026,7 @@ const Admin = () => {
                                                     </p>
                                                 </div>
                                                 {inquiry.items && inquiry.items.length > 0 && (
-                                                    <div className="bg-white/50 p-3 rounded">
+                                                    <div className="bg-white/50 p-3 rounded mb-3">
                                                         <p className="text-sm font-semibold text-[#3B2A23] mb-2">Items:</p>
                                                         <div className="space-y-1">
                                                             {inquiry.items.map((item, idx) => (
@@ -978,6 +1038,16 @@ const Admin = () => {
                                                         </div>
                                                     </div>
                                                 )}
+                                                <button
+                                                    onClick={() => {
+                                                        setReplyData({ inquiry, message: '' });
+                                                        setShowReplyModal(true);
+                                                    }}
+                                                    className="flex items-center gap-2 px-4 py-2 bg-[#D8A24A] text-[#3B2A23] rounded-lg font-semibold text-sm hover:brightness-110 transition-all"
+                                                >
+                                                    <span className="material-symbols-outlined text-base">reply</span>
+                                                    Reply
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
@@ -1066,6 +1136,82 @@ const Admin = () => {
                     )}
                 </main>
             </div>
+
+            {/* Reply Modal */}
+            {showReplyModal && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[70]" onClick={() => { setShowReplyModal(false); setReplyData({ inquiry: null, message: '' }); }}>
+                    <div className="bg-[#FFF7ED] rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-2xl font-bold text-[#3B2A23] flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[#D8A24A]">reply</span>
+                                Reply to Inquiry
+                            </h3>
+                            <button
+                                onClick={() => { setShowReplyModal(false); setReplyData({ inquiry: null, message: '' }); }}
+                                className="text-[#554B47] hover:text-[#3B2A23] transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-3xl">close</span>
+                            </button>
+                        </div>
+
+                        {replyData.inquiry && (
+                            <div className="mb-6 p-4 bg-[#FFF7ED] border border-[#EAD2C0]/50 rounded-lg">
+                                <div className="mb-3">
+                                    <p className="text-sm text-[#554B47]/70 mb-1">From:</p>
+                                    <p className="text-base font-bold text-[#3B2A23]">{replyData.inquiry.name}</p>
+                                    <p className="text-sm text-[#554B47]">{replyData.inquiry.email}</p>
+                                </div>
+                                {(replyData.inquiry.message || replyData.inquiry.remarks) && (
+                                    <div>
+                                        <p className="text-sm text-[#554B47]/70 mb-1">Original Message:</p>
+                                        <p className="text-sm text-[#554B47] bg-white/50 p-3 rounded italic">
+                                            {replyData.inquiry.message || replyData.inquiry.remarks}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-semibold mb-2 text-[#3B2A23]">Your Reply *</label>
+                            <textarea
+                                value={replyData.message}
+                                onChange={(e) => setReplyData({ ...replyData, message: e.target.value })}
+                                placeholder="Type your reply here..."
+                                rows="8"
+                                className="w-full p-4 rounded-lg bg-white border border-[#EAD2C0]/50 text-[#3B2A23] placeholder-[#554B47]/50 focus:outline-none focus:border-[#D8A24A] focus:ring-2 focus:ring-[#D8A24A]/30 transition-all resize-y"
+                            />
+                        </div>
+
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => { setShowReplyModal(false); setReplyData({ inquiry: null, message: '' }); }}
+                                className="px-6 py-3 bg-[#554B47]/20 text-[#3B2A23] rounded-lg font-semibold hover:bg-[#554B47]/30 transition-all"
+                                disabled={sendingReply}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSendReply}
+                                disabled={sendingReply || !replyData.message.trim()}
+                                className="px-6 py-3 bg-[#D8A24A] text-[#3B2A23] rounded-lg font-semibold hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {sendingReply ? (
+                                    <>
+                                        <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                                        Sending...
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="material-symbols-outlined">send</span>
+                                        Send Reply
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

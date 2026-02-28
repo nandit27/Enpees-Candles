@@ -181,12 +181,16 @@ const mailService = {
         const html = emailTemplates.orderPlaced(orderData);
         const adminEmail = 'enpeescandles@gmail.com';
         
-        // Send to customer
-        const customerResult = await sendEmail(
-            orderData.customerEmail,
-            `Order Placed - ${orderData.orderId}`,
-            html
-        );
+        let customerResult = { success: true, skipped: true, message: 'No email provided' };
+        
+        // Send to customer only if email is provided
+        if (orderData.customerEmail && orderData.customerEmail.trim()) {
+            customerResult = await sendEmail(
+                orderData.customerEmail,
+                `Order Placed - ${orderData.orderId}`,
+                html
+            );
+        }
         
         // Send to admin - ONLY when order is first placed
         const adminResult = await sendEmail(
@@ -201,54 +205,104 @@ const mailService = {
     sendOrderConfirmedMail: async (orderData) => {
         const html = emailTemplates.orderConfirmed(orderData);
         
-        // Send only to customer
-        return await sendEmail(
-            orderData.customerEmail,
-            `Order Confirmed - ${orderData.orderId}`,
-            html
-        );
+        // Send only to customer if email is provided
+        if (orderData.customerEmail && orderData.customerEmail.trim()) {
+            return await sendEmail(
+                orderData.customerEmail,
+                `Order Confirmed - ${orderData.orderId}`,
+                html
+            );
+        }
+        return { success: true, skipped: true, message: 'No email provided' };
     },
 
     sendOrderShippedMail: async (orderData) => {
         const html = emailTemplates.orderShipped(orderData);
         
-        // Send only to customer
-        return await sendEmail(
-            orderData.customerEmail,
-            `Order Shipped - ${orderData.orderId}`,
-            html
-        );
+        // Send only to customer if email is provided
+        if (orderData.customerEmail && orderData.customerEmail.trim()) {
+            return await sendEmail(
+                orderData.customerEmail,
+                `Order Shipped - ${orderData.orderId}`,
+                html
+            );
+        }
+        return { success: true, skipped: true, message: 'No email provided' };
     },
 
     sendOrderCancelledMail: async (orderData) => {
         const html = emailTemplates.orderCancelled(orderData);
         
-        // Send only to customer
-        return await sendEmail(
-            orderData.customerEmail,
-            `Order Cancelled - ${orderData.orderId}`,
-            html
-        );
+        // Send only to customer if email is provided
+        if (orderData.customerEmail && orderData.customerEmail.trim()) {
+            return await sendEmail(
+                orderData.customerEmail,
+                `Order Cancelled - ${orderData.orderId}`,
+                html
+            );
+        }
+        return { success: true, skipped: true, message: 'No email provided' };
     },
 
     sendOrderDeliveredMail: async (orderData) => {
         const html = emailTemplates.orderDelivered(orderData);
         
-        // Send only to customer
-        return await sendEmail(
-            orderData.customerEmail,
-            `Order Delivered - ${orderData.orderId}`,
-            html
-        );
+        // Send only to customer if email is provided
+        if (orderData.customerEmail && orderData.customerEmail.trim()) {
+            return await sendEmail(
+                orderData.customerEmail,
+                `Order Delivered - ${orderData.orderId}`,
+                html
+            );
+        }
+        return { success: true, skipped: true, message: 'No email provided' };
     },
 
     sendPartialOrderMail: async (orderData) => {
         const html = emailTemplates.partialOrder(orderData);
         
-        // Send only to customer
+        // Send only to customer if email is provided
+        if (orderData.customerEmail && orderData.customerEmail.trim()) {
+            return await sendEmail(
+                orderData.customerEmail,
+                `Partial Order Update - ${orderData.orderId}`,
+                html
+            );
+        }
+        return { success: true, skipped: true, message: 'No email provided' };
+    },
+
+    sendInquiryReply: async (recipientEmail, inquiryData, replyMessage) => {
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #EAD2C0; border-radius: 10px; background-color: #FFF7ED;">
+                <h2 style="color: #3B2A23; text-align: center;">Reply to Your Inquiry</h2>
+                <p style="color: #554B47;">Dear ${inquiryData.customerName},</p>
+                <p style="color: #554B47;">Thank you for contacting Enpees Candles. We are pleased to respond to your inquiry.</p>
+                
+                <div style="background-color: #FFF7ED; border-left: 4px solid #D8A24A; padding: 15px; margin: 20px 0;">
+                    <h3 style="color: #3B2A23; margin: 0 0 10px 0;">Your Original Message:</h3>
+                    <p style="color: #554B47; margin: 0; font-style: italic;">${inquiryData.originalMessage || 'N/A'}</p>
+                </div>
+                
+                <div style="background-color: #D8A24A; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #3B2A23; margin: 0 0 10px 0;">Our Response:</h3>
+                    <p style="color: #3B2A23; margin: 0; white-space: pre-wrap;">${replyMessage}</p>
+                </div>
+                
+                <p style="color: #554B47;">If you have any further questions, please don't hesitate to reach out to us.</p>
+                <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #EAD2C0; text-align: center;">
+                    <p style="color: #554B47; font-size: 12px; margin: 0;">
+                        Email: enpeescandles@gmail.com
+                    </p>
+                </div>
+            </div>
+        `;
+        
         return await sendEmail(
-            orderData.customerEmail,
-            `Partial Order Update - ${orderData.orderId}`,
+            recipientEmail,
+            `Re: Your Inquiry - Enpees Candles`,
             html
         );
     }
