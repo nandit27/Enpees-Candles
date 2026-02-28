@@ -395,25 +395,6 @@ const Checkout = () => {
                                         {errors.terms && <p className="text-xs text-red-400 mt-2 ml-7">{errors.terms}</p>}
                                     </div>
 
-                                    {/* Save Address Checkbox */}
-                                    {localStorage.getItem('token') && !selectedAddressId && (
-                                        <div className="p-4 rounded-xl bg-[#D8A24A]/10 border border-[#D8A24A]/30">
-                                            <div className="flex items-start gap-3">
-                                                <input 
-                                                    id="saveAddress" 
-                                                    type="checkbox" 
-                                                    checked={saveAddress} 
-                                                    onChange={(e) => setSaveAddress(e.target.checked)}
-                                                    className="w-4 h-4 mt-1"
-                                                />
-                                                <label htmlFor="saveAddress" className="text-sm text-[#EAD2C0] flex-1">
-                                                    <span className="font-semibold">Save this address to my profile</span>
-                                                    <p className="text-xs mt-1 text-[#EAD2C0]/70">Use this address for future orders</p>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    )}
-
                                     <Button type="submit" className="w-full mt-4 bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold py-4 text-lg rounded-xl shadow-lg">
                                         <span className="material-symbols-outlined mr-2">check_circle</span>
                                         Place Order

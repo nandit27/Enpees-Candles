@@ -529,6 +529,7 @@ app.post('/api/inquiries/bulk', async (req, res) => {
 // POST /api/inquiries/reply - Send reply to inquiry
 app.post('/api/inquiries/reply', async (req, res) => {
     try {
+        const mailService = require('./services/mailService');
         const { recipientEmail, customerName, originalMessage, replyMessage } = req.body;
 
         if (!recipientEmail || !replyMessage) {
