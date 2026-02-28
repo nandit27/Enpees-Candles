@@ -33,113 +33,6 @@ const Checkout = () => {
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('online'); // 'online' or 'cod'
     const [courierCompany, setCourierCompany] = useState('');
-    const [savedAddresses, setSavedAddresses] = useState([]);
-    const [selectedAddressId, setSelectedAddressId] = useState('');
-    const [saveAddress, setSaveAddress] = useState(false);
-    const [showAddressModal, setShowAddressModal] = useState(false);
-
-    // Restore saved checkout data if user returns from login
-    useEffect(() => {
-        const savedFormData = localStorage.getItem('checkoutFormData');
-        const savedExtras = localStorage.getItem('checkoutExtras');
-        
-        if (savedFormData) {
-            const parsedFormData = JSON.parse(savedFormData);
-            setFormData(prev => ({ ...prev, ...parsedFormData }));
-            localStorage.removeItem('checkoutFormData');
-        }
-        
-        if (savedExtras) {
-            const parsedExtras = JSON.parse(savedExtras);
-            if (parsedExtras.giftWrap !== undefined) setGiftWrap(parsedExtras.giftWrap);
-            if (parsedExtras.couponCode) setCouponCode(parsedExtras.couponCode);
-            if (parsedExtras.couponResult) setCouponResult(parsedExtras.couponResult);
-            if (parsedExtras.paymentMethod) setPaymentMethod(parsedExtras.paymentMethod);
-            if (parsedExtras.courierCompany) setCourierCompany(parsedExtras.courierCompany);
-            if (parsedExtras.termsAccepted !== undefined) setTermsAccepted(parsedExtras.termsAccepted);
-            localStorage.removeItem('checkoutExtras');
-        }
-    }, []);
-
-    // Fetch user data and saved addresses on component mount
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-
-            try {
-                const response = await fetch(API_ENDPOINTS.AUTH_ME, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success && data.user) {
-                        // Pre-fill basic user info
-                        setFormData(prev => ({
-                            ...prev,
-                            name: data.user.name || '',
-                            email: data.user.email || '',
-                            mobile: data.user.mobile || ''
-                        }));
-                        
-                        // Set saved addresses
-                        if (data.user.addresses && data.user.addresses.length > 0) {
-                            setSavedAddresses(data.user.addresses);
-                            
-                            // Auto-select default address if available
-                            const defaultAddr = data.user.addresses.find(addr => addr.isDefault);
-                            if (defaultAddr) {
-                                setSelectedAddressId(defaultAddr._id);
-                                fillAddressFromSaved(defaultAddr);
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        fetchUserData();
-    }, []);
-
-    const fillAddressFromSaved = (address) => {
-        setFormData(prev => ({
-            ...prev,
-            address1: address.address1 || '',
-            address2: address.address2 || '',
-            landmark: address.landmark || '',
-            city: address.city || '',
-            state: address.state || '',
-            pincode: address.pincode || ''
-        }));
-    };
-
-    const handleAddressSelection = (e) => {
-        const addressId = e.target.value;
-        setSelectedAddressId(addressId);
-        
-        if (addressId) {
-            const address = savedAddresses.find(addr => addr._id === addressId);
-            if (address) {
-                fillAddressFromSaved(address);
-            }
-        } else {
-            // Clear address fields if "New Address" is selected
-            setFormData(prev => ({
-                ...prev,
-                address1: '',
-                address2: '',
-                landmark: '',
-                city: '',
-                state: '',
-                pincode: ''
-            }));
-        }
-    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -151,14 +44,56 @@ const Checkout = () => {
 
     const validateForm = () => {
         const errs = {};
-        if (!formData.name || formData.name.trim().length < 2) errs.name = 'Please enter full name';
-        if (!formData.mobile || !/^[6-9]\d{9}$/.test(formData.mobile)) errs.mobile = 'Enter valid 10-digit mobile';
-        if (!formData.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) errs.email = 'Enter a valid email';
-        if (!formData.address1 || formData.address1.trim().length < 5) errs.address1 = 'Enter address';
-        if (!formData.city) errs.city = 'City required';
-        if (!formData.state) errs.state = 'State required';
-        if (!formData.pincode || !/^\d{5,6}$/.test(formData.pincode)) errs.pincode = 'Enter valid pincode';
-        if (!termsAccepted) errs.terms = 'Please accept terms and conditions';
+        
+        // Name validation
+        if (!formData.name || formData.name.trim().length < 2) {
+            errs.name = 'Please enter full name (minimum 2 characters)';
+        }
+        
+        // Strict mobile validation (Indian format)
+        if (!formData.mobile) {
+            errs.mobile = 'Mobile number is required';
+        } else if (!/^[6-9]\d{9}$/.test(formData.mobile)) {
+            errs.mobile = 'Enter valid 10-digit Indian mobile number starting with 6-9';
+        }
+        
+        // Strict email validation
+        if (!formData.email) {
+            errs.email = 'Email address is required';
+        } else {
+            const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(formData.email)) {
+                errs.email = 'Enter a valid email address (e.g., name@example.com)';
+            } else if (formData.email.length > 254) {
+                errs.email = 'Email address is too long';
+            }
+        }
+        
+        // Address validation
+        if (!formData.address1 || formData.address1.trim().length < 5) {
+            errs.address1 = 'Enter complete address (minimum 5 characters)';
+        }
+        
+        if (!formData.city || formData.city.trim().length < 2) {
+            errs.city = 'City is required';
+        }
+        
+        if (!formData.state) {
+            errs.state = 'State is required';
+        }
+        
+        // Pincode validation (5-6 digits)
+        if (!formData.pincode) {
+            errs.pincode = 'Pincode is required';
+        } else if (!/^\d{5,6}$/.test(formData.pincode)) {
+            errs.pincode = 'Enter valid 5-6 digit pincode';
+        }
+        
+        // Terms validation
+        if (!termsAccepted) {
+            errs.terms = 'Please accept terms and conditions to proceed';
+        }
+        
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -166,25 +101,10 @@ const Checkout = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Check if user is logged in before proceeding with order
-        const token = localStorage.getItem('token');
-        if (!token) {
-            toast.error('Please login or signup to place your order');
-            // Save current form data to localStorage so user doesn't lose it
-            localStorage.setItem('checkoutFormData', JSON.stringify(formData));
-            localStorage.setItem('checkoutExtras', JSON.stringify({
-                giftWrap,
-                couponCode,
-                couponResult,
-                paymentMethod,
-                courierCompany,
-                termsAccepted
-            }));
-            navigate('/login', { state: { from: '/checkout' } });
+        if (!validateForm()) {
+            toast.error('Please fix the errors in the form');
             return;
         }
-        
-        if (!validateForm()) return toast.error('Please fix form errors');
 
         const subtotal = getCartTotal();
         const couponDiscount = couponResult && couponResult.valid ? couponResult.discount : 0;
@@ -204,33 +124,6 @@ const Checkout = () => {
         };
 
         try {
-            // Save address if checkbox is checked and user is logged in
-            if (saveAddress) {
-                if (token) {
-                    try {
-                        await fetch(API_ENDPOINTS.SAVE_ADDRESS, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                                address1: formData.address1,
-                                address2: formData.address2,
-                                landmark: formData.landmark,
-                                city: formData.city,
-                                state: formData.state,
-                                pincode: formData.pincode,
-                                isDefault: savedAddresses.length === 0 // First address becomes default
-                            })
-                        });
-                        toast.success('Address saved to your profile');
-                    } catch (err) {
-                        console.error('Failed to save address:', err);
-                    }
-                }
-            }
-
             // For online payments, don't create order yet - pass data to payment page
             // For COD, create order immediately
             if (paymentMethod === 'cod') {
@@ -248,7 +141,8 @@ const Checkout = () => {
                     toast.success('Order placed successfully! You will pay on delivery.', { duration: 3000 });
                     navigate('/order-confirmation', { state: { order: created } });
                 } else {
-                    toast.error('Failed to place order. Please try again.');
+                    const errorData = await response.json();
+                    toast.error(errorData.error || 'Failed to place order. Please try again.');
                 }
             } else {
                 // Online payment - pass order data without creating order
@@ -308,29 +202,6 @@ const Checkout = () => {
                                     Shipping Details
                                 </h2>
                                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-                                    {/* Saved Addresses Section */}
-                                    {savedAddresses.length > 0 && (
-                                        <div className="p-4 rounded-xl bg-[#3B2A23]/50 border border-[#FFF7ED]/10">
-                                            <label className="block text-sm font-semibold mb-3 text-[#EAD2C0]">
-                                                Select Saved Address
-                                                <span className="text-xs font-normal ml-2 text-[#EAD2C0]/70">or enter a new one below</span>
-                                            </label>
-                                            <select
-                                                value={selectedAddressId}
-                                                onChange={handleAddressSelection}
-                                                className="w-full p-4 rounded-lg bg-[#3B2A23]/80 border border-[#FFF7ED]/30 text-white focus:outline-none focus:border-[#D8A24A]"
-                                            >
-                                                <option value="">Enter New Address</option>
-                                                {savedAddresses.map((addr) => (
-                                                    <option key={addr._id} value={addr._id}>
-                                                        {addr.address1}, {addr.city}, {addr.state} - {addr.pincode}
-                                                        {addr.isDefault && ' (Default)'}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    )}
-
                                     <div>
                                         <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Full Name *</label>
                                         <input

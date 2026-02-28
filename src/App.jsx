@@ -3,10 +3,9 @@ import ContactUs from './pages/ContactUs';
 import Shop from './pages/Shop';
 import ProductPage from './pages/ProductPage';
 import Admin from './pages/Admin';
+import AdminLogin from './pages/AdminLogin';
 import OrderDetails from './pages/admin/OrderDetails';
-import UserOrders from './pages/UserOrders';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
+import TrackOrder from './pages/TrackOrder';
 import Footer from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import Checkout from './pages/Checkout';
@@ -24,18 +23,17 @@ function App() {
         <Toaster />
         <div className="flex flex-col min-h-screen">
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/product" element={<ProductPage />} />
+            <Route path="/track-order" element={<TrackOrder />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
             <Route path="/admin/orders/:orderId" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
-            <Route path="/my-orders" element={<ProtectedRoute><UserOrders /></ProtectedRoute>} />
-            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-            <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
-            <Route path="/order-confirmation" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
           </Routes>
           <Footer />
         </div>

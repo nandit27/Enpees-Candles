@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
     // Orders
     ORDERS: `${API_BASE_URL}/orders`,
     ORDER_BY_ID: (id) => `${API_BASE_URL}/orders/${id}`,
+    TRACK_ORDER: `${API_BASE_URL}/orders/track`,
     USER_ORDERS: `${API_BASE_URL}/user/orders`,
     
     // Admin Orders

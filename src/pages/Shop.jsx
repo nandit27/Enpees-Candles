@@ -9,11 +9,12 @@ import { API_ENDPOINTS } from '../config/api';
 const Shop = () => {
     const navigate = useNavigate();
     const { addToCart } = useCart();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    // Pagination and Sorting State
-    const [currentPage, setCurrentPage] = useState(1);
-    const [sortBy, setSortBy] = useState('default'); // 'default', 'price-low', 'price-high'
-    const [selectedCollection, setSelectedCollection] = useState('All');
+    // Initialize state from URL params or defaults
+    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
+    const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'default');
+    const [selectedCollection, setSelectedCollection] = useState(searchParams.get('collection') || 'All');
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const itemsPerPage = 12;
@@ -32,7 +33,6 @@ const Shop = () => {
             .catch(err => console.error('Error fetching categories:', err));
     }, []);
 
-    const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
 
     // Build collections list from fetched categories
@@ -82,6 +82,16 @@ const Shop = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentProducts = filteredAndSortedProducts.slice(startIndex, endIndex);
+
+    // Update URL params when state changes
+    useEffect(() => {
+        const params = new URLSearchParams();
+        if (currentPage !== 1) params.set('page', currentPage);
+        if (sortBy !== 'default') params.set('sort', sortBy);
+        if (selectedCollection !== 'All') params.set('collection', selectedCollection);
+        if (searchQuery) params.set('search', searchQuery);
+        setSearchParams(params, { replace: true });
+    }, [currentPage, sortBy, selectedCollection, searchQuery]);
 
     // Handlers
     const handleProductClick = (product) => {

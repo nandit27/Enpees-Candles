@@ -165,24 +165,32 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
+// GET /api/orders/track/:orderId - Public route to track order by orderId
+app.get('/api/orders/track/:orderId', async (req, res) => {
+    try {
+        const order = await Order.findOne({ orderId: req.params.orderId });
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        res.json(order);
+    } catch (error) {
+        console.error('Error fetching order:', error);
+        res.status(500).json({ error: 'Failed to fetch order' });
+    }
+});
+
 // POST /api/orders
 app.post('/api/orders', async (req, res) => {
     try {
-        // Get today's order count for sequential ID
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayOrderCount = await Order.countDocuments({
-            createdAt: { $gte: today }
-        });
-
-        // Generate order ID: DDMMYY + sequential number
+        // Generate order ID: hrminddmmyyss (single number)
         const date = new Date();
+        const hr = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        const sec = String(date.getSeconds()).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = String(date.getFullYear()).slice(-2);
-        const datePrefix = day + month + year;
-        const sequential = String(todayOrderCount + 1).padStart(3, '0');
-        const orderId = datePrefix + sequential;
+        const orderId = `${hr}${min}${sec}${day}${month}${year}`;
 
         const orderData = {
             orderId,
@@ -387,21 +395,15 @@ app.post('/api/payments/confirm', uploadPayment.single('screenshot'), async (req
         // Parse order data
         const orderData = JSON.parse(req.body.orderData);
         
-        // Get today's order count for sequential ID
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayOrderCount = await Order.countDocuments({
-            createdAt: { $gte: today }
-        });
-
-        // Generate order ID: DDMMYY + sequential number
+        // Generate order ID: hrminddmmyyss (single number)
         const date = new Date();
+        const hr = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        const sec = String(date.getSeconds()).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = String(date.getFullYear()).slice(-2);
-        const datePrefix = day + month + year;
-        const sequential = String(todayOrderCount + 1).padStart(3, '0');
-        const orderId = datePrefix + sequential;
+        const orderId = `${hr}${min}${sec}${day}${month}${year}`;
 
         // Create order with payment screenshot
         const newOrderData = {

@@ -5,24 +5,9 @@ import { useCart } from '../context/CartContext';
 const Navbar = ({ className = "" }) => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [user, setUser] = useState(null);
     const navigate = useNavigate();
     const { getCartCount } = useCart();
     const cartCount = getCartCount();
-
-    useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-        navigate('/');
-    };
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -44,9 +29,7 @@ const Navbar = ({ className = "" }) => {
                     <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/">Home</Link>
                     <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/shop">Collections</Link>
                     <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/contact">Contact Us</Link>
-                    {user && (
-                        <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/my-orders">My Orders</Link>
-                    )}
+                    <Link className="text-[#EAD2C0] hover:text-white text-sm font-medium leading-normal transition-colors" to="/track-order">Track Order</Link>
                 </nav>
             </div>
             {isSearchOpen ? (
@@ -71,6 +54,9 @@ const Navbar = ({ className = "" }) => {
                     <Link to="/shop" className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors md:hidden" title="Collections">
                         <span className="material-symbols-outlined">category</span>
                     </Link>
+                    <Link to="/track-order" className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors md:hidden" title="Track Order">
+                        <span className="material-symbols-outlined">local_shipping</span>
+                    </Link>
                     <Link to="/checkout" className="relative flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors">
                         <span className="material-symbols-outlined">shopping_bag</span>
                         {cartCount > 0 && (
@@ -79,21 +65,6 @@ const Navbar = ({ className = "" }) => {
                             </span>
                         )}
                     </Link>
-                    {user ? (
-                        <div className="flex items-center gap-2">
-                            <Link to="/my-orders" className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors md:hidden" title="My Orders">
-                                <span className="material-symbols-outlined">receipt_long</span>
-                            </Link>
-                            <span className="text-[#EAD2C0] text-sm hidden sm:block">Hi, {user.name?.split(' ')[0] || 'User'}</span>
-                            <button onClick={handleLogout} className="text-[#EAD2C0] hover:text-white text-sm font-medium transition-colors px-3 py-1 rounded-lg hover:bg-white/10">
-                                Logout
-                            </button>
-                        </div>
-                    ) : (
-                        <Link to="/login" className="text-[#EAD2C0] hover:text-white text-sm font-medium transition-colors px-3 py-1 rounded-lg hover:bg-white/10">
-                            Login
-                        </Link>
-                    )}
                 </div>
             )}
         </header>

@@ -12,8 +12,4 @@ router.patch('/admin/orders/:id/deliver', authMiddleware, adminMiddleware, order
 router.patch('/admin/orders/:id/cancel', authMiddleware, adminMiddleware, orderController.cancelOrder);
 router.patch('/admin/orders/:id/partial', authMiddleware, adminMiddleware, orderController.partialOrder);
 
-// User routes (protected)
-router.get('/user/orders', authMiddleware, orderController.getUserOrders);
-router.get('/user/orders/:id', authMiddleware, orderController.getOrderById);
-
 module.exports = router;

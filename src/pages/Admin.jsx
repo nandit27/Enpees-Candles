@@ -31,7 +31,7 @@ const Admin = () => {
         const user = localStorage.getItem('user');
         
         if (!token || !user) {
-            navigate('/login');
+            navigate('/admin/login');
             return;
         }
 
@@ -42,7 +42,7 @@ const Admin = () => {
                 return;
             }
         } catch (error) {
-            navigate('/login');
+            navigate('/admin/login');
             return;
         }
     }, [navigate]);
@@ -66,7 +66,7 @@ const Admin = () => {
                 console.error('Error fetching orders:', err);
                 if (err.message.includes('401')) {
                     localStorage.clear();
-                    navigate('/login');
+                    navigate('/admin/login');
                 }
             });
 
@@ -223,7 +223,7 @@ const Admin = () => {
         if (window.confirm('Are you sure you want to logout?')) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            navigate('/login');
+            navigate('/admin/login');
         }
     };
 
