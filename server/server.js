@@ -252,10 +252,10 @@ app.get('/api/products', async (req, res) => {
 });
 
 // POST /api/products
-app.post('/api/products', upload.single('image'), async (req, res) => {
+app.post('/api/products', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'images', maxCount: 10 }]), async (req, res) => {
     try {
         // If an image file was uploaded to Cloudinary, use its URL
-        const imageUrl = req.file ? req.file.path : req.body.image;
+        const imageUrl = (req.files && req.files.image && req.files.image[0]) ? req.files.image[0].path : req.body.image;
 
         const productData = {
             name: req.body.name,
@@ -265,6 +265,11 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
             category: req.body.category || 'general',
             image: imageUrl
         };
+
+        // Additional product images (gallery)
+        if (req.files && req.files.images && req.files.images.length > 0) {
+            productData.images = req.files.images.map(f => f.path);
+        }
 
         // Add offerPrice if provided and valid
         if (req.body.offerPrice && req.body.offerPrice !== '' && req.body.offerPrice !== 'null') {
@@ -297,7 +302,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
 });
 
 // PATCH /api/products/:id - Update product
-app.patch('/api/products/:id', upload.single('image'), async (req, res) => {
+app.patch('/api/products/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'images', maxCount: 10 }]), async (req, res) => {
     try {
         const productId = req.params.id;
         const updates = {};
@@ -335,16 +340,31 @@ app.patch('/api/products/:id', upload.single('image'), async (req, res) => {
         }
 
         // If an image file was uploaded to Cloudinary, update the image URL
-        if (req.file) {
-            updates.image = req.file.path;
+        if (req.files && req.files.image && req.files.image[0]) {
+            updates.image = req.files.image[0].path;
+        }
+
+        // Handle additional gallery images - append or replace
+        if (req.files && req.files.images && req.files.images.length > 0) {
+            const newUrls = req.files.images.map(f => f.path);
+            if (req.body.replaceImages === 'true') {
+                updates.images = newUrls;
+            } else {
+                updates.$push = { images: { $each: newUrls } };
+            }
         }
 
         updates.updatedAt = Date.now();
 
+        const updateOps = { $set: updates };
+        if (updates.$push) {
+            updateOps.$push = updates.$push;
+            delete updates.$push;
+        }
 
         const product = await Product.findByIdAndUpdate(
             productId,
-            { $set: updates },
+            updateOps,
             { new: true, runValidators: true }
         );
 

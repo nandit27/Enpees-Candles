@@ -1,221 +1,133 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { Button } from '../components/ui/button';
 import { makeUpiLink } from '../lib/checkoutHelpers';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
 
 const Payment = () => {
-  const { state } = useLocation();
-  const navigate = useNavigate();
-  const orderData = state?.orderData || null;
-  const amount = orderData?.totals?.total || 0;
-  const [file, setFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(null);
+    const { state } = useLocation();
+    const navigate = useNavigate();
+    const orderData = state?.orderData || null;
+    const amount = orderData?.totals?.total || 0;
+    const [file, setFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState(null);
 
-  // UPI link without amount - just opens the UPI app
-  const upiLink = makeUpiLink({ amount: 0 });
+    const upiLink = makeUpiLink({ amount: 0 });
 
-  const handleFile = (e) => {
-    const selectedFile = e.target.files?.[0] || null;
-    setFile(selectedFile);
-    if (selectedFile) {
-      const url = URL.createObjectURL(selectedFile);
-      setPreviewUrl(url);
-    } else {
-      setPreviewUrl(null);
+    const handleFile = (e) => {
+        const selectedFile = e.target.files?.[0] || null;
+        setFile(selectedFile);
+        if (selectedFile) {
+            const url = URL.createObjectURL(selectedFile);
+            setPreviewUrl(url);
+        } else {
+            setPreviewUrl(null);
+        }
+    };
+
+    const uploadConfirmation = async () => {
+        if (!file) return toast.error('Select a screenshot to upload');
+        setUploading(true);
+
+        try {
+            const fd = new FormData();
+            fd.append('screenshot', file);
+            fd.append('orderData', JSON.stringify(orderData));
+
+            const res = await fetch(API_ENDPOINTS.CONFIRM_PAYMENT, { method: 'POST', body: fd });
+            const data = await res.json();
+
+            if (res.ok) {
+                toast.success('Payment received. Order placed.');
+                navigate('/order-confirmation', { state: { order: data.order } });
+            } else {
+                toast.error(data.error || 'Could not confirm payment');
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error('Could not confirm payment');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    if (!orderData) {
+        return (
+            <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+                <Navbar />
+                <main className="mx-auto w-full max-w-[1400px] px-5 py-20 sm:px-10 lg:px-16">
+                    <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">No order to pay</h1>
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">Finish checkout first, then come back here.</p>
+                    <Link to="/shop" className="lp-btn lp-btn-primary mt-8">
+                        Shop candles
+                    </Link>
+                </main>
+            </div>
+        );
     }
-  };
 
-  const uploadConfirmation = async () => {
-    if (!file) return toast.error('Select a screenshot to upload');
-    setUploading(true);
-    
-    try {
-      // Send payment screenshot along with order data to create order atomically
-      const fd = new FormData();
-      fd.append('screenshot', file);
-      fd.append('orderData', JSON.stringify(orderData));
-      
-      const res = await fetch(API_ENDPOINTS.CONFIRM_PAYMENT, { method: 'POST', body: fd });
-      const data = await res.json();
-      
-      if (res.ok) {
-        toast.success('Payment confirmed! Order placed successfully!');
-        navigate('/order-confirmation', { state: { order: data.order } });
-      } else {
-        toast.error(data.error || 'Failed to confirm payment');
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to confirm payment');
-    } finally { 
-      setUploading(false); 
-    }
-  };
-
-  if (!orderData) {
     return (
-      <div className="min-h-screen bg-[#3B2A23] font-['Inter',_sans-serif] text-[#FFF7ED]">
-        <Navbar />
-        <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)]">
-          <div className="text-center space-y-6">
-            <span className="material-symbols-outlined text-6xl text-[#D8A24A]">error</span>
-            <h2 className="text-4xl font-['Italiana',_serif] font-bold">No Order Found</h2>
-            <p className="text-[#EAD2C0] text-lg">Please complete checkout first.</p>
-            <Button onClick={() => navigate('/shop')} className="bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90">
-              Go to Shop
-            </Button>
-          </div>
+        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+            <Navbar />
+            <main className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
+                <header className="max-w-xl">
+                    <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Pay the studio</h1>
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                        Scan the QR or open UPI, then upload the screenshot.
+                    </p>
+                </header>
+
+                <p className="mt-8 font-jost text-sm text-[#C7BCA8]">Amount</p>
+                <p className="font-jost text-3xl tabular-nums text-[#D3A34E]">₹{amount.toFixed(2)}</p>
+
+                <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <div className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8">
+                        <h2 className="lp-display text-2xl leading-[1.1]">Scan QR</h2>
+                        <div className="mt-6 flex justify-center rounded-[12px] bg-[#EDE6D8] p-4">
+                            <img src="/IMG_9865.PNG" alt="UPI payment QR code" className="h-auto w-full max-w-[220px]" />
+                        </div>
+                        <p className="mt-4 font-jost text-sm text-[#C7BCA8]">Open any UPI app and scan.</p>
+                    </div>
+
+                    <div className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8">
+                        <h2 className="lp-display text-2xl leading-[1.1]">Open UPI</h2>
+                        <p className="lp-lede mt-3 text-[#C7BCA8]">Opens Google Pay, PhonePe, Paytm, or BHIM on your phone.</p>
+                        <a href={upiLink} className="lp-btn lp-btn-primary mt-6 w-full sm:w-auto">
+                            Open UPI
+                        </a>
+                    </div>
+                </div>
+
+                <div className="mt-6 rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8">
+                    <h2 className="lp-display text-2xl leading-[1.1]">Upload screenshot</h2>
+                    <p className="lp-lede mt-3 max-w-[65ch] text-[#C7BCA8]">
+                        After you pay, add a photo of the successful transaction.
+                    </p>
+                    <label className="mt-6 block cursor-pointer">
+                        <span className="sr-only">Payment screenshot</span>
+                        <div className="rounded-[12px] border border-dashed border-[#D3A34E]/40 px-4 py-8 text-center">
+                            {previewUrl ? (
+                                <img src={previewUrl} alt="Selected payment screenshot" className="mx-auto max-h-48 rounded-[12px]" />
+                            ) : (
+                                <p className="font-jost text-sm text-[#C7BCA8]">Tap to choose a PNG or JPG</p>
+                            )}
+                        </div>
+                        <input type="file" accept="image/*" onChange={handleFile} className="sr-only" />
+                    </label>
+                    <button
+                        type="button"
+                        onClick={uploadConfirmation}
+                        disabled={uploading || !file}
+                        className="lp-btn lp-btn-primary mt-6 w-full disabled:opacity-50 sm:w-auto"
+                    >
+                        {uploading ? 'Uploading' : 'Confirm payment'}
+                    </button>
+                </div>
+            </main>
         </div>
-      </div>
     );
-  }
-
-  return (
-    <div className="min-h-screen bg-[#3B2A23] font-['Inter',_sans-serif] text-[#FFF7ED] relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 z-0 opacity-30">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#D8A24A]/10 to-transparent"></div>
-      </div>
-
-      <div className="relative z-10">
-        <Navbar />
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-5xl">
-          <div className="text-center mb-8 sm:mb-12">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-['Italiana',_serif] text-[#FFF7ED] mb-3 sm:mb-4">Complete Payment</h1>
-            <p className="text-[#EAD2C0] text-base sm:text-lg">Choose your preferred payment method below</p>
-          </div>
-
-          <div className="bg-[#FFF7ED]/10 backdrop-blur-xl p-6 sm:p-8 lg:p-10 rounded-2xl border border-[#FFF7ED]/20 shadow-2xl space-y-8">
-            {/* Order Summary */}
-            <div className="p-6 rounded-xl bg-[#3B2A23]/50 border border-[#FFF7ED]/10">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-[#EAD2C0] mb-1">Amount to Pay</p>
-                  <p className="text-3xl font-bold text-[#D8A24A]">₹{amount.toFixed(2)}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Options */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* QR Code Payment */}
-              <div className="p-6 bg-[#3B2A23]/50 rounded-xl border border-[#FFF7ED]/10 hover:border-[#D8A24A]/50 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="material-symbols-outlined text-[#D8A24A] text-3xl">qr_code_2</span>
-                  <h3 className="text-xl font-bold font-['Italiana',_serif]">Scan QR to Pay</h3>
-                </div>
-                <div className="w-full flex items-center justify-center p-6 bg-white rounded-xl">
-                  <img 
-                    src="/IMG_9865.PNG" 
-                    alt="Payment QR Code" 
-                    className="w-full max-w-[250px] h-auto rounded-lg"
-                  />
-                </div>
-                <p className="text-sm text-[#EAD2C0] text-center mt-4">Open any UPI app and scan to pay</p>
-              </div>
-
-              {/* UPI Link Payment */}
-              <div className="p-6 bg-[#3B2A23]/50 rounded-xl border border-[#FFF7ED]/10 hover:border-[#D8A24A]/50 transition-all">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="material-symbols-outlined text-[#D8A24A] text-3xl">payments</span>
-                  <h3 className="text-xl font-bold font-['Italiana',_serif]">Pay via UPI App</h3>
-                </div>
-                <p className="text-sm text-[#EAD2C0] mb-6">Click the button below to open your preferred UPI app and complete the payment instantly.</p>
-                <a 
-                  href={upiLink} 
-                  className="block w-full px-6 py-4 rounded-xl bg-[#D8A24A] text-[#3B2A23] font-bold text-center hover:bg-[#D8A24A]/90 transition-all shadow-lg"
-                >
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined">open_in_new</span>
-                    Open UPI App
-                  </span>
-                </a>
-                <div className="mt-6 space-y-2">
-                  <p className="text-xs text-[#EAD2C0] font-semibold">Supported Apps:</p>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-[#FFF7ED]/10 rounded-full text-xs">Google Pay</span>
-                    <span className="px-3 py-1 bg-[#FFF7ED]/10 rounded-full text-xs">PhonePe</span>
-                    <span className="px-3 py-1 bg-[#FFF7ED]/10 rounded-full text-xs">Paytm</span>
-                    <span className="px-3 py-1 bg-[#FFF7ED]/10 rounded-full text-xs">BHIM</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Upload Payment Confirmation */}
-            <div className="p-6 sm:p-8 bg-[#3B2A23]/50 rounded-xl border border-[#FFF7ED]/10">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="material-symbols-outlined text-[#D8A24A] text-3xl">upload_file</span>
-                <h3 className="text-xl font-bold font-['Italiana',_serif]">Upload Payment Screenshot</h3>
-              </div>
-              <p className="text-sm text-[#EAD2C0] mb-4">After completing the payment, upload a screenshot of your transaction for verification.</p>
-              
-              <label className="block w-full cursor-pointer">
-                <div className="border-2 border-dashed border-[#FFF7ED]/30 rounded-xl p-8 text-center hover:border-[#D8A24A]/50 transition-all">
-                  {previewUrl ? (
-                    <div className="space-y-4">
-                      <img src={previewUrl} alt="Preview" className="max-h-48 mx-auto rounded-lg" />
-                      <p className="text-sm text-[#D8A24A]">✓ Screenshot selected</p>
-                    </div>
-                  ) : (
-                    <div>
-                      <span className="material-symbols-outlined text-5xl text-[#D8A24A] mb-3 block">add_photo_alternate</span>
-                      <p className="text-[#EAD2C0] mb-2">Click to select screenshot</p>
-                      <p className="text-xs text-[#EAD2C0]/70">PNG, JPG up to 10MB</p>
-                    </div>
-                  )}
-                </div>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleFile} 
-                  className="hidden"
-                />
-              </label>
-
-              <Button 
-                onClick={uploadConfirmation} 
-                disabled={uploading || !file}
-                className="w-full mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-4 text-lg rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {uploading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                    Uploading...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined">check_circle</span>
-                    Confirm Payment
-                  </span>
-                )}
-              </Button>
-            </div>
-
-            {/* Help Section */}
-            <div className="p-6 rounded-xl bg-[#D8A24A]/10 border border-[#D8A24A]/30">
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-[#D8A24A]">info</span>
-                <div className="text-sm text-[#EAD2C0]">
-                  <p className="font-semibold mb-2">Payment Instructions:</p>
-                  <ol className="list-decimal list-inside space-y-1 text-xs">
-                    <li>Complete payment using QR code or UPI link</li>
-                    <li>Take a screenshot of the successful transaction</li>
-                    <li>Upload the screenshot above and confirm</li>
-                    <li>We will verify and process your order within 24 hours</li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 export default Payment;

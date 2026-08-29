@@ -1,49 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import heroBg from '../assets/hero-bg.png';
-import productPlaceholder from '../assets/product-placeholder.png';
+import studioWall from '../assets/textures/studio-wall.jpg';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
 
 const CONTACT_INFO = {
-    address: 'Sanidhya, Fieldmarshal road, Mota Mava, Rajkot - 360005',
-    phone: '+91 91739 58589',
-    email: 'contact@enpeescandles.com'
+    company: 'ENPEE HANDCRAFTS',
+    address: 'Office No. 412, Aqua Corel, Nr. Kataria Chokdi, 2nd Ring Road, Mota Mava, Rajkot - 360005, Gujarat',
+    phone: '+91 91739 58589 / +91 94088 66266',
+    whatsapp: '919173958589',
+    email: 'enpeecandles@gmail.com',
+    gstin: '24ERGPB1394P1ZH',
 };
+
+const TABS = [
+    { id: 'general', label: 'General' },
+    { id: 'trade', label: 'Trade' },
+    { id: 'bulk', label: 'Bulk' },
+];
+
+const toastOk = {
+    duration: 4000,
+    position: 'top-center',
+    style: { background: '#D3A34E', color: '#2A1D15', fontWeight: '600' },
+};
+
+const Field = ({ label, hint, children }) => (
+    <label className="flex flex-col gap-2">
+        <span className="font-jost text-sm text-[#EDE6D8]">{label}</span>
+        {children}
+        {hint ? <span className="font-jost text-xs text-[#C7BCA8]">{hint}</span> : null}
+    </label>
+);
 
 const ContactUs = () => {
     const [activeTab, setActiveTab] = useState('general');
     const [products, setProducts] = useState([]);
-
-    // Fetch products for dropdown
-    useEffect(() => {
-        fetch(API_ENDPOINTS.PRODUCTS)
-            .then(res => res.json())
-            .then(data => setProducts(data))
-            .catch(err => console.error('Error fetching products:', err));
-    }, []);
-
-    // General Contact Form State
     const [generalForm, setGeneralForm] = useState({ name: '', email: '', message: '' });
-
-    // Trade Inquiry Form State
     const [tradeForm, setTradeForm] = useState({
         name: '',
         contactNo: '',
         companyName: '',
         email: '',
-        remarks: ''
+        remarks: '',
     });
-
-    // Bulk Order Form State
     const [bulkForm, setBulkForm] = useState({
         name: '',
         companyName: '',
         phoneNo: '',
         email: '',
         categoryCode: 'option1',
-        items: [{ productName: '', quantity: '' }]
+        items: [{ productName: '', quantity: '' }],
     });
+
+    useEffect(() => {
+        fetch(API_ENDPOINTS.PRODUCTS)
+            .then((res) => res.json())
+            .then((data) => setProducts(Array.isArray(data) ? data : []))
+            .catch((err) => console.error('Error fetching products:', err));
+    }, []);
 
     const handleGeneralSubmit = async (e) => {
         e.preventDefault();
@@ -51,26 +66,17 @@ const ContactUs = () => {
             const response = await fetch(API_ENDPOINTS.GENERAL_INQUIRY, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(generalForm)
+                body: JSON.stringify(generalForm),
             });
-
             if (response.ok) {
-                toast.success('Message sent successfully! We\'ll get back to you soon.', {
-                    duration: 4000,
-                    position: 'top-center',
-                    style: {
-                        background: '#D8A24A',
-                        color: '#3B2A23',
-                        fontWeight: 'bold',
-                    },
-                });
+                toast.success('Message sent. We will reply shortly.', toastOk);
                 setGeneralForm({ name: '', email: '', message: '' });
             } else {
-                toast.error('Failed to send message. Please try again.');
+                toast.error('Could not send the message. Try again.');
             }
         } catch (error) {
             console.error('Error submitting general inquiry:', error);
-            toast.error('Error sending message. Please try again.');
+            toast.error('Could not send the message. Try again.');
         }
     };
 
@@ -80,64 +86,32 @@ const ContactUs = () => {
             const response = await fetch(API_ENDPOINTS.TRADE_INQUIRY, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(tradeForm)
+                body: JSON.stringify(tradeForm),
             });
-
             if (response.ok) {
-                toast.success('Trade inquiry submitted! We\'ll contact you on WhatsApp within 24 hours.', {
-                    duration: 4000,
-                    position: 'top-center',
-                    style: {
-                        background: '#D8A24A',
-                        color: '#3B2A23',
-                        fontWeight: 'bold',
-                    },
-                });
+                toast.success('Trade inquiry sent. We will WhatsApp you within 24 hours.', toastOk);
                 setTradeForm({ name: '', contactNo: '', companyName: '', email: '', remarks: '' });
             } else {
-                toast.error('Failed to submit inquiry. Please try again.');
+                toast.error('Could not send the inquiry. Try again.');
             }
         } catch (error) {
             console.error('Error submitting trade inquiry:', error);
-            toast.error('Error submitting inquiry. Please try again.');
+            toast.error('Could not send the inquiry. Try again.');
         }
     };
 
     const handleBulkSubmit = async (e) => {
         e.preventDefault();
+        const totalQuantity = bulkForm.items.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 0), 0);
 
-        // Calculate total quantity across all items
-        const totalQuantity = bulkForm.items.reduce((sum, item) => {
-            const qty = parseInt(item.quantity) || 0;
-            return sum + qty;
-        }, 0);
-
-        // Client-side validation for total quantity
         if (totalQuantity <= 100) {
-            toast.error('Total quantity must be more than 100 pieces for bulk orders.', {
-                duration: 4000,
-                position: 'top-center',
-                style: {
-                    background: '#ef4444',
-                    color: 'white',
-                    fontWeight: 'bold',
-                },
-            });
+            toast.error('Bulk orders need more than 100 pieces in total.');
             return;
         }
 
-        // Validate that all items have both name and quantity
-        const hasEmptyFields = bulkForm.items.some(item => !item.productName.trim() || !item.quantity);
+        const hasEmptyFields = bulkForm.items.some((item) => !item.productName.trim() || !item.quantity);
         if (hasEmptyFields) {
-            toast.error('Please fill in all product names and quantities.', {
-                duration: 4000,
-                position: 'top-center',
-                style: {
-                    background: '#ef4444',
-                    color: 'white',
-                    fontWeight: 'bold',
-                },
-            });
+            toast.error('Fill in every product and quantity.');
             return;
         }
 
@@ -145,36 +119,32 @@ const ContactUs = () => {
             const response = await fetch(API_ENDPOINTS.BULK_INQUIRY, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...bulkForm, totalQuantity })
+                body: JSON.stringify({ ...bulkForm, totalQuantity }),
             });
-
             const data = await response.json();
-
             if (response.ok) {
-                toast.success('Bulk order inquiry submitted successfully! We\'ll contact you soon.', {
-                    duration: 4000,
-                    position: 'top-center',
-                    style: {
-                        background: '#D8A24A',
-                        color: '#3B2A23',
-                        fontWeight: 'bold',
-                    },
+                toast.success('Bulk inquiry sent. We will contact you soon.', toastOk);
+                setBulkForm({
+                    name: '',
+                    companyName: '',
+                    phoneNo: '',
+                    email: '',
+                    categoryCode: 'option1',
+                    items: [{ productName: '', quantity: '' }],
                 });
-                setBulkForm({ name: '', companyName: '', phoneNo: '', email: '', categoryCode: 'option1', items: [{ productName: '', quantity: '' }] });
             } else {
-                toast.error(data.error || 'Failed to submit inquiry. Please try again.');
+                toast.error(data.error || 'Could not send the inquiry. Try again.');
             }
         } catch (error) {
             console.error('Error submitting bulk order inquiry:', error);
-            toast.error('Error submitting inquiry. Please try again.');
+            toast.error('Could not send the inquiry. Try again.');
         }
     };
 
-    // Helper functions for managing items in bulk order form
     const addBulkItem = () => {
         setBulkForm({
             ...bulkForm,
-            items: [...bulkForm.items, { productName: '', quantity: '' }]
+            items: [...bulkForm.items, { productName: '', quantity: '' }],
         });
     };
 
@@ -182,355 +152,295 @@ const ContactUs = () => {
         const newItems = bulkForm.items.filter((_, i) => i !== index);
         setBulkForm({
             ...bulkForm,
-            items: newItems.length > 0 ? newItems : [{ productName: '', quantity: '' }]
+            items: newItems.length > 0 ? newItems : [{ productName: '', quantity: '' }],
         });
     };
 
     const updateBulkItem = (index, field, value) => {
         const newItems = [...bulkForm.items];
         newItems[index][field] = value;
-        setBulkForm({
-            ...bulkForm,
-            items: newItems
-        });
+        setBulkForm({ ...bulkForm, items: newItems });
     };
 
+    const totalPieces = bulkForm.items.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 0), 0);
+
     return (
-        <div className="relative flex min-h-screen w-full flex-col bg-[#f8f7f6] dark:bg-[#201b12] overflow-x-hidden font-['Inter',_sans-serif]">
-            {/* Full-bleed Background Image */}
-            <div className="absolute inset-0 z-0">
-                <div
-                    className="h-full w-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${heroBg})` }}
-                ></div>
-                <div className="absolute inset-0 bg-black/30"></div>
+        <div className="lp relative min-h-[100dvh] w-full overflow-x-hidden bg-[#2A1D15] text-[#EDE6D8]">
+            <div className="pointer-events-none absolute inset-0">
+                <img src={studioWall} alt="" className="h-full w-full object-cover opacity-25" />
+                <div className="absolute inset-0 bg-[#2A1D15]/75" />
             </div>
 
-            <div className="relative z-10 flex h-full grow flex-col">
+            <div className="relative z-10">
                 <Navbar />
-                {/* Main Content */}
-                <main className="flex flex-1 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-                    {/* Central Glassmorphic Card */}
-                    <div className="w-full max-w-6xl rounded-xl bg-[#FFF7ED]/70 backdrop-blur-lg shadow-2xl ring-1 ring-white/20 overflow-hidden">
-                        <div className="grid grid-cols-1 lg:grid-cols-2">
-                            {/* Left side: Forms with Tabs */}
-                            <div className="p-8 md:p-12">
-                                <h1 className="font-['Italiana',_serif] text-4xl sm:text-5xl font-black leading-tight tracking-wide text-[#554B47] mb-2">
-                                    Get in Touch
-                                </h1>
-                                <p className="text-[#554B47]/80 mb-6">
-                                    Choose the type of inquiry below and we'll get back to you shortly.
-                                </p>
+                <main className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
+                    <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-16">
+                        <div className="lg:col-span-7">
+                            <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Write to us</h1>
+                            <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                                Tell us what you need. We reply on WhatsApp and email.
+                            </p>
 
-                                {/* Tabs */}
-                                <div className="flex gap-2 mb-6 border-b border-[#EAD2C0]/30">
+                            <div className="lp-seg mt-8 max-w-md" role="tablist" aria-label="Inquiry type">
+                                {TABS.map((tab) => (
                                     <button
-                                        onClick={() => setActiveTab('general')}
-                                        className={`px-4 py-2 text-sm font-semibold transition-all ${activeTab === 'general'
-                                            ? 'text-[#9F7A54] border-b-2 border-[#9F7A54]'
-                                            : 'text-[#554B47]/60 hover:text-[#554B47]'
-                                            }`}
+                                        key={tab.id}
+                                        type="button"
+                                        role="tab"
+                                        aria-selected={activeTab === tab.id}
+                                        data-on={activeTab === tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
                                     >
-                                        General Contact
+                                        {tab.label}
                                     </button>
-                                    <button
-                                        onClick={() => setActiveTab('trade')}
-                                        className={`px-4 py-2 text-sm font-semibold transition-all ${activeTab === 'trade'
-                                            ? 'text-[#9F7A54] border-b-2 border-[#9F7A54]'
-                                            : 'text-[#554B47]/60 hover:text-[#554B47]'
-                                            }`}
-                                    >
-                                        Trade Inquiries
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('bulk')}
-                                        className={`px-4 py-2 text-sm font-semibold transition-all ${activeTab === 'bulk'
-                                            ? 'text-[#9F7A54] border-b-2 border-[#9F7A54]'
-                                            : 'text-[#554B47]/60 hover:text-[#554B47]'
-                                            }`}
-                                    >
-                                        Bulk Orders
-                                    </button>
-                                </div>
-
-                                {/* General Contact Form */}
-                                {activeTab === 'general' && (
-                                    <form className="space-y-6" onSubmit={handleGeneralSubmit}>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Full Name *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                name="name"
-                                                placeholder="Enter your full name"
-                                                type="text"
-                                                required
-                                                value={generalForm.name}
-                                                onChange={(e) => setGeneralForm({ ...generalForm, name: e.target.value })}
-                                            />
-                                        </label>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Email Address *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                name="email"
-                                                placeholder="Enter your email address"
-                                                type="email"
-                                                required
-                                                value={generalForm.email}
-                                                onChange={(e) => setGeneralForm({ ...generalForm, email: e.target.value })}
-                                            />
-                                        </label>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Message *</p>
-                                            <textarea
-                                                className="flex w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 placeholder:text-[#554B47]/50 p-4 text-base font-normal leading-normal min-h-[140px]"
-                                                name="message"
-                                                placeholder="Your message..."
-                                                rows="5"
-                                                required
-                                                value={generalForm.message}
-                                                onChange={(e) => setGeneralForm({ ...generalForm, message: e.target.value })}
-                                            ></textarea>
-                                        </label>
-                                        <div>
-                                            <button
-                                                className="w-full flex items-center justify-center rounded-lg h-14 px-6 bg-[#9F7A54] text-white font-bold leading-normal tracking-wide shadow-lg hover:bg-[#8A6A4A] transition-all duration-200"
-                                                type="submit"
-                                            >
-                                                Send Message
-                                            </button>
-                                        </div>
-                                    </form>
-                                )}
-
-                                {/* Trade Inquiries Form */}
-                                {activeTab === 'trade' && (
-                                    <form className="space-y-6" onSubmit={handleTradeSubmit}>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Name *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                placeholder="Enter your name"
-                                                type="text"
-                                                required
-                                                value={tradeForm.name}
-                                                onChange={(e) => setTradeForm({ ...tradeForm, name: e.target.value })}
-                                            />
-                                        </label>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Contact No *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                placeholder="Enter your contact number"
-                                                type="tel"
-                                                required
-                                                value={tradeForm.contactNo}
-                                                onChange={(e) => setTradeForm({ ...tradeForm, contactNo: e.target.value })}
-                                            />
-                                        </label>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Company Name *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                placeholder="Enter your company name"
-                                                type="text"
-                                                required
-                                                value={tradeForm.companyName}
-                                                onChange={(e) => setTradeForm({ ...tradeForm, companyName: e.target.value })}
-                                            />
-                                        </label>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Email *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                placeholder="Enter your email address"
-                                                type="email"
-                                                required
-                                                value={tradeForm.email}
-                                                onChange={(e) => setTradeForm({ ...tradeForm, email: e.target.value })}
-                                            />
-                                        </label>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Remarks</p>
-                                            <textarea
-                                                className="flex w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 placeholder:text-[#554B47]/50 p-4 text-base font-normal leading-normal min-h-[120px]"
-                                                placeholder="What is the purpose of your inquiry?"
-                                                rows="4"
-                                                value={tradeForm.remarks}
-                                                onChange={(e) => setTradeForm({ ...tradeForm, remarks: e.target.value })}
-                                            ></textarea>
-                                            <p className="text-xs text-[#554B47]/60 mt-2 italic">
-                                                * We will contact you in 24hrs on WhatsApp
-                                            </p>
-                                        </label>
-                                        <div>
-                                            <button
-                                                className="w-full flex items-center justify-center rounded-lg h-14 px-6 bg-[#9F7A54] text-white font-bold leading-normal tracking-wide shadow-lg hover:bg-[#8A6A4A] transition-all duration-200"
-                                                type="submit"
-                                            >
-                                                Send Inquiry
-                                            </button>
-                                        </div>
-                                    </form>
-                                )}
-
-                                {/* Bulk Order Form */}
-                                {activeTab === 'bulk' && (
-                                    <form className="space-y-6" onSubmit={handleBulkSubmit}>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Name *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                placeholder="Enter your name"
-                                                type="text"
-                                                required
-                                                value={bulkForm.name}
-                                                onChange={(e) => setBulkForm({ ...bulkForm, name: e.target.value })}
-                                            />
-                                        </label>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Company Name *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                placeholder="Enter your company name"
-                                                type="text"
-                                                required
-                                                value={bulkForm.companyName}
-                                                onChange={(e) => setBulkForm({ ...bulkForm, companyName: e.target.value })}
-                                            />
-                                        </label>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Phone No *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                placeholder="Enter your phone number"
-                                                type="tel"
-                                                required
-                                                value={bulkForm.phoneNo}
-                                                onChange={(e) => setBulkForm({ ...bulkForm, phoneNo: e.target.value })}
-                                            />
-                                        </label>
-                                        <label className="flex flex-col">
-                                            <p className="text-[#554B47] text-sm font-medium leading-normal pb-2">Email *</p>
-                                            <input
-                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                placeholder="Enter your email address"
-                                                type="email"
-                                                required
-                                                value={bulkForm.email}
-                                                onChange={(e) => setBulkForm({ ...bulkForm, email: e.target.value })}
-                                            />
-                                        </label>
-
-                                        <div className="flex flex-col">
-                                            <div className="flex justify-between items-center pb-2">
-                                                <p className="text-[#554B47] text-sm font-medium leading-normal">Items & Quantities *</p>
-                                                <button
-                                                    type="button"
-                                                    onClick={addBulkItem}
-                                                    className="text-[#9F7A54] hover:text-[#8A6A4A] text-sm font-semibold flex items-center gap-1"
-                                                >
-                                                    <span className="material-symbols-outlined text-lg">add_circle</span>
-                                                    Add Item
-                                                </button>
-                                            </div>
-                                            <div className="space-y-3">
-                                                {bulkForm.items.map((item, index) => (
-                                                    <div key={index} className="flex gap-2 items-start">
-                                                        <div className="flex-1">
-                                                            <select
-                                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                                required
-                                                                value={item.productName}
-                                                                onChange={(e) => updateBulkItem(index, 'productName', e.target.value)}
-                                                            >
-                                                                <option value="">Select a product</option>
-                                                                {products.map((product) => (
-                                                                    <option key={product._id} value={product.name}>
-                                                                        {product.name} - ₹{product.price}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                        </div>
-                                                        <div className="w-32">
-                                                            <input
-                                                                className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#554B47] focus:outline-none focus:ring-2 focus:ring-[#9F7A54]/50 border border-[#EAD2C0]/50 bg-[#FFF7ED]/50 h-14 placeholder:text-[#554B47]/50 px-4 text-base font-normal leading-normal"
-                                                                placeholder="Qty"
-                                                                type="number"
-                                                                min="1"
-                                                                required
-                                                                value={item.quantity}
-                                                                onChange={(e) => updateBulkItem(index, 'quantity', e.target.value)}
-                                                            />
-                                                        </div>
-                                                        {bulkForm.items.length > 1 && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => removeBulkItem(index)}
-                                                                className="h-14 w-14 flex items-center justify-center text-red-500 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
-                                                            >
-                                                                <span className="material-symbols-outlined">delete</span>
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            <div className="flex items-center justify-between mt-3 p-4 bg-[#9F7A54]/10 rounded-lg border border-[#9F7A54]/30">
-                                                <p className="text-[#554B47] text-sm font-semibold">Total Quantity:</p>
-                                                <p className="text-[#9F7A54] text-lg font-bold">
-                                                    {bulkForm.items.reduce((sum, item) => sum + (parseInt(item.quantity) || 0), 0)} pieces
-                                                </p>
-                                            </div>
-                                            <p className="text-xs text-[#554B47]/60 mt-2 italic">
-                                                * Total quantity must be more than 100 pieces
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <button
-                                                className="w-full flex items-center justify-center rounded-lg h-14 px-6 bg-[#9F7A54] text-white font-bold leading-normal tracking-wide shadow-lg hover:bg-[#8A6A4A] transition-all duration-200"
-                                                type="submit"
-                                            >
-                                                Send Inquiry
-                                            </button>
-                                        </div>
-                                    </form>
-                                )}
+                                ))}
                             </div>
 
-                            {/* Right side: Image and Contact Info */}
-                            <div className="relative min-h-[300px] lg:min-h-full">
-                                <div
-                                    className="absolute inset-0 bg-cover bg-center"
-                                    style={{ backgroundImage: `url(${productPlaceholder})` }}
-                                ></div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent lg:bg-gradient-to-r lg:from-black/60 lg:via-black/20 lg:to-transparent"></div>
-                                <div className="relative flex flex-col justify-end h-full p-8 text-white">
-                                    <div className="space-y-5">
-                                        <div className="flex items-start gap-4">
-                                            <span className="material-symbols-outlined mt-1 text-[#C9A875]">mail</span>
-                                            <div>
-                                                <p className="font-semibold">Email</p>
-                                                <p className="text-white/80 text-sm">{CONTACT_INFO.email}</p>
-                                            </div>
+                            {activeTab === 'general' && (
+                                <form className="mt-8 max-w-xl space-y-5" onSubmit={handleGeneralSubmit}>
+                                    <Field label="Full name">
+                                        <input
+                                            className="lp-field"
+                                            name="name"
+                                            type="text"
+                                            required
+                                            autoComplete="name"
+                                            value={generalForm.name}
+                                            onChange={(e) => setGeneralForm({ ...generalForm, name: e.target.value })}
+                                        />
+                                    </Field>
+                                    <Field label="Email">
+                                        <input
+                                            className="lp-field"
+                                            name="email"
+                                            type="email"
+                                            required
+                                            autoComplete="email"
+                                            value={generalForm.email}
+                                            onChange={(e) => setGeneralForm({ ...generalForm, email: e.target.value })}
+                                        />
+                                    </Field>
+                                    <Field label="Message">
+                                        <textarea
+                                            className="lp-field"
+                                            name="message"
+                                            required
+                                            value={generalForm.message}
+                                            onChange={(e) => setGeneralForm({ ...generalForm, message: e.target.value })}
+                                        />
+                                    </Field>
+                                    <button type="submit" className="lp-btn lp-btn-primary">
+                                        Send
+                                    </button>
+                                </form>
+                            )}
+
+                            {activeTab === 'trade' && (
+                                <form className="mt-8 max-w-xl space-y-5" onSubmit={handleTradeSubmit}>
+                                    <Field label="Name">
+                                        <input
+                                            className="lp-field"
+                                            type="text"
+                                            required
+                                            autoComplete="name"
+                                            value={tradeForm.name}
+                                            onChange={(e) => setTradeForm({ ...tradeForm, name: e.target.value })}
+                                        />
+                                    </Field>
+                                    <Field label="Contact number">
+                                        <input
+                                            className="lp-field"
+                                            type="tel"
+                                            required
+                                            autoComplete="tel"
+                                            value={tradeForm.contactNo}
+                                            onChange={(e) => setTradeForm({ ...tradeForm, contactNo: e.target.value })}
+                                        />
+                                    </Field>
+                                    <Field label="Company name">
+                                        <input
+                                            className="lp-field"
+                                            type="text"
+                                            required
+                                            autoComplete="organization"
+                                            value={tradeForm.companyName}
+                                            onChange={(e) => setTradeForm({ ...tradeForm, companyName: e.target.value })}
+                                        />
+                                    </Field>
+                                    <Field label="Email">
+                                        <input
+                                            className="lp-field"
+                                            type="email"
+                                            required
+                                            autoComplete="email"
+                                            value={tradeForm.email}
+                                            onChange={(e) => setTradeForm({ ...tradeForm, email: e.target.value })}
+                                        />
+                                    </Field>
+                                    <Field label="Remarks" hint="We will contact you on WhatsApp within 24 hours.">
+                                        <textarea
+                                            className="lp-field"
+                                            value={tradeForm.remarks}
+                                            onChange={(e) => setTradeForm({ ...tradeForm, remarks: e.target.value })}
+                                        />
+                                    </Field>
+                                    <button type="submit" className="lp-btn lp-btn-primary">
+                                        Send
+                                    </button>
+                                </form>
+                            )}
+
+                            {activeTab === 'bulk' && (
+                                <form className="mt-8 max-w-xl space-y-5" onSubmit={handleBulkSubmit}>
+                                    <Field label="Name">
+                                        <input
+                                            className="lp-field"
+                                            type="text"
+                                            required
+                                            autoComplete="name"
+                                            value={bulkForm.name}
+                                            onChange={(e) => setBulkForm({ ...bulkForm, name: e.target.value })}
+                                        />
+                                    </Field>
+                                    <Field label="Company name">
+                                        <input
+                                            className="lp-field"
+                                            type="text"
+                                            required
+                                            autoComplete="organization"
+                                            value={bulkForm.companyName}
+                                            onChange={(e) => setBulkForm({ ...bulkForm, companyName: e.target.value })}
+                                        />
+                                    </Field>
+                                    <Field label="Phone">
+                                        <input
+                                            className="lp-field"
+                                            type="tel"
+                                            required
+                                            autoComplete="tel"
+                                            value={bulkForm.phoneNo}
+                                            onChange={(e) => setBulkForm({ ...bulkForm, phoneNo: e.target.value })}
+                                        />
+                                    </Field>
+                                    <Field label="Email">
+                                        <input
+                                            className="lp-field"
+                                            type="email"
+                                            required
+                                            autoComplete="email"
+                                            value={bulkForm.email}
+                                            onChange={(e) => setBulkForm({ ...bulkForm, email: e.target.value })}
+                                        />
+                                    </Field>
+
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="font-jost text-sm text-[#EDE6D8]">Items and quantities</p>
+                                            <button
+                                                type="button"
+                                                onClick={addBulkItem}
+                                                className="font-jost text-sm text-[#D3A34E] hover:text-[#EDE6D8]"
+                                            >
+                                                Add item
+                                            </button>
                                         </div>
-                                        <div className="flex items-start gap-4">
-                                            <span className="material-symbols-outlined mt-1 text-[#C9A875]">call</span>
-                                            <div>
-                                                <p className="font-semibold">Phone</p>
-                                                <a href={`tel:${CONTACT_INFO.phone}`} className="text-white/80 text-sm hover:text-[#C9A875] transition-colors">{CONTACT_INFO.phone}</a>
+                                        {bulkForm.items.map((item, index) => (
+                                            <div key={index} className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_7rem_auto]">
+                                                <label className="flex flex-col gap-2">
+                                                    <span className="font-jost text-sm text-[#EDE6D8]">Product</span>
+                                                    <select
+                                                        className="lp-field"
+                                                        required
+                                                        value={item.productName}
+                                                        onChange={(e) => updateBulkItem(index, 'productName', e.target.value)}
+                                                    >
+                                                        <option value="">Select a product</option>
+                                                        {products.map((product) => (
+                                                            <option key={product._id} value={product.name}>
+                                                                {product.name} - ₹{product.price}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </label>
+                                                <label className="flex flex-col gap-2">
+                                                    <span className="font-jost text-sm text-[#EDE6D8]">Qty</span>
+                                                    <input
+                                                        className="lp-field"
+                                                        type="number"
+                                                        min="1"
+                                                        required
+                                                        value={item.quantity}
+                                                        onChange={(e) => updateBulkItem(index, 'quantity', e.target.value)}
+                                                        aria-label="Quantity"
+                                                    />
+                                                </label>
+                                                {bulkForm.items.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeBulkItem(index)}
+                                                        aria-label="Remove item"
+                                                        className="flex h-12 w-12 items-center justify-center rounded-[12px] text-[#C7BCA8] hover:text-[#EDE6D8]"
+                                                    >
+                                                        <span className="material-symbols-outlined" aria-hidden="true">
+                                                            delete
+                                                        </span>
+                                                    </button>
+                                                )}
                                             </div>
+                                        ))}
+                                        <div className="flex items-center justify-between rounded-[12px] bg-[#3B2A1E] px-4 py-3">
+                                            <p className="font-jost text-sm text-[#C7BCA8]">Total pieces</p>
+                                            <p className="font-jost text-lg tabular-nums text-[#EDE6D8]">{totalPieces}</p>
                                         </div>
-                                        <div className="flex items-start gap-4">
-                                            <span className="material-symbols-outlined mt-1 text-[#C9A875]">location_on</span>
-                                            <div>
-                                                <p className="font-semibold">Address</p>
-                                                <p className="text-white/80 text-sm">{CONTACT_INFO.address}</p>
-                                            </div>
-                                        </div>
+                                        <p className="font-jost text-xs text-[#C7BCA8]">
+                                            Total must be more than 100 pieces.
+                                        </p>
+                                    </div>
+                                    <button type="submit" className="lp-btn lp-btn-primary">
+                                        Send
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+
+                        <aside className="lg:col-span-5">
+                            <div className="overflow-hidden rounded-[20px] bg-[#3B2A1E]">
+                                <div className="relative aspect-[4/3]">
+                                    <img src={studioWall} alt="Enpees studio wall" className="h-full w-full object-cover" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#2A1D15] to-transparent" />
+                                </div>
+                                <div className="space-y-6 p-6 sm:p-8">
+                                    <div>
+                                        <p className="lp-display text-2xl leading-[1.1]">{CONTACT_INFO.company}</p>
+                                        <p className="mt-2 font-jost text-sm text-[#C7BCA8]">
+                                            GSTIN {CONTACT_INFO.gstin}. MSME registered.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="font-jost text-sm text-[#C7BCA8]">Email</p>
+                                        <a
+                                            href={`mailto:${CONTACT_INFO.email}`}
+                                            className="mt-1 block font-jost text-[#EDE6D8] hover:text-[#D3A34E]"
+                                        >
+                                            {CONTACT_INFO.email}
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <p className="font-jost text-sm text-[#C7BCA8]">Phone</p>
+                                        <a
+                                            href="tel:+919173958589"
+                                            className="mt-1 block font-jost text-[#EDE6D8] hover:text-[#D3A34E]"
+                                        >
+                                            {CONTACT_INFO.phone}
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <p className="font-jost text-sm text-[#C7BCA8]">Studio</p>
+                                        <p className="mt-1 max-w-[40ch] font-jost text-sm text-[#EDE6D8]">{CONTACT_INFO.address}</p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </aside>
                     </div>
                 </main>
             </div>

@@ -1,73 +1,256 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const Footer = () => {
+/* ─────────────────────────────────────────────────────────────────────
+   Footer. Editorial flat layout.
+   No glass circles, no hand-rolled social SVGs, no emojis, no tick
+   marks, no gradient text, no shimmer animation, no accordion. Hairline
+   rules only. Icons come from Material Symbols (the project's existing
+   icon font), so we never draw our own glyphs.
+   ───────────────────────────────────────────────────────────────────── */
+
+const COLUMNS = [
+    {
+        title: 'Shop',
+        links: [
+            { to: '/shop', label: 'All candles' },
+            { to: '/shop', label: 'Glass jar' },
+            { to: '/shop', label: 'Sculpted shapes' },
+            { to: '/shop', label: 'Seasonal' },
+            { to: '/shop', label: 'Gift sets' },
+        ],
+    },
+    {
+        title: 'Studio',
+        links: [
+            { to: '/contact', label: 'About Enpees' },
+            { to: '/contact', label: 'The process' },
+            { to: '/contact', label: 'Wholesale' },
+            { to: '/contact', label: 'Custom orders' },
+            { to: '/contact', label: 'Press' },
+        ],
+    },
+    {
+        title: 'Help',
+        links: [
+            { to: '/track-order', label: 'Track an order' },
+            { to: '/contact', label: 'Contact us' },
+            { to: '/contact', label: 'Shipping' },
+            { to: '/contact', label: 'Returns' },
+            { to: '/contact', label: 'Care guide' },
+        ],
+    },
+];
+
+const SOCIALS = [
+    { href: 'https://www.instagram.com/enpees.candles', label: 'Instagram', icon: 'photo_camera' },
+    { href: 'https://wa.me/919173958589', label: 'WhatsApp', icon: 'chat' },
+    { href: 'mailto:enpeecandles@gmail.com', label: 'Email', icon: 'mail' },
+];
+
+export default function Footer() {
+    const [email, setEmail] = useState('');
+    const [subscribed, setSubscribed] = useState(false);
+    const [focused, setFocused] = useState(false);
+
+    const handleSubscribe = (e) => {
+        e.preventDefault();
+        if (email.trim()) {
+            setSubscribed(true);
+            setEmail('');
+            setTimeout(() => setSubscribed(false), 4000);
+        }
+    };
+
     return (
-        <footer className="bg-[#201b12] text-[#EAD2C0] py-12 border-t border-[#D8A24A]/20">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                    <div className="col-span-1 md:col-span-1">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="size-8 text-[#D8A24A]">
-                                <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M13.8261 17.4264C16.7203 18.1174 20.2244 18.5217 24 18.5217C27.7756 18.5217 31.2797 18.1174 34.1739 17.4264C36.9144 16.7722 39.9967 15.2331 41.3563 14.1648L24.8486 40.6391C24.4571 41.267 23.5429 41.267 23.1514 40.6391L6.64374 14.1648C8.00331 15.2331 11.0856 16.7722 13.8261 17.4264Z" fill="currentColor"></path><path clipRule="evenodd" d="M39.998 12.236C39.9944 12.2537 39.9875 12.2845 39.9748 12.3294C39.9436 12.4399 39.8949 12.5741 39.8346 12.7175C39.8168 12.7597 39.7989 12.8007 39.7813 12.8398C38.5103 13.7113 35.9788 14.9393 33.7095 15.4811C30.9875 16.131 27.6413 16.5217 24 16.5217C20.3587 16.5217 17.0125 16.131 14.2905 15.4811C12.0012 14.9346 9.44505 13.6897 8.18538 12.8168C8.17384 12.7925 8.16216 12.767 8.15052 12.7408C8.09919 12.6249 8.05721 12.5114 8.02977 12.411C8.00356 12.3152 8.00039 12.2667 8.00004 12.2612C8.00004 12.261 8 12.2607 8.00004 12.2612C8.00004 12.2359 8.0104 11.9233 8.68485 11.3686C9.34546 10.8254 10.4222 10.2469 11.9291 9.72276C14.9242 8.68098 19.1919 8 24 8C28.8081 8 33.0758 8.68098 36.0709 9.72276C37.5778 10.2469 38.6545 10.8254 39.3151 11.3686C39.9006 11.8501 39.9857 12.1489 39.998 12.236ZM4.95178 15.2312L21.4543 41.6973C22.6288 43.5809 25.3712 43.5809 26.5457 41.6973L43.0534 15.223C43.0709 15.1948 43.0878 15.1662 43.104 15.1371L41.3563 14.1648C43.104 15.1371 43.1038 15.1374 43.104 15.1371L43.1051 15.135L43.1065 15.1325L43.1101 15.1261L43.1199 15.1082C43.1276 15.094 43.1377 15.0754 43.1497 15.0527C43.1738 15.0075 43.2062 14.9455 43.244 14.8701C43.319 14.7208 43.4196 14.511 43.5217 14.2683C43.6901 13.8679 44 13.0689 44 12.2609C44 10.5573 43.003 9.22254 41.8558 8.2791C40.6947 7.32427 39.1354 6.55361 37.385 5.94477C33.8654 4.72057 29.133 4 24 4C18.867 4 14.1346 4.72057 10.615 5.94478C8.86463 6.55361 7.30529 7.32428 6.14419 8.27911C4.99695 9.22255 3.99999 10.5573 3.99999 12.2609C3.99999 13.1275 4.29264 13.9078 4.49321 14.3607C4.60375 14.6102 4.71348 14.8196 4.79687 14.9689C4.83898 15.0444 4.87547 15.1065 4.9035 15.1529C4.91754 15.1762 4.92954 15.1957 4.93916 15.2111L4.94662 15.223L4.95178 15.2312ZM35.9868 18.996L24 38.22L12.0131 18.996C12.4661 19.1391 12.9179 19.2658 13.3617 19.3718C16.4281 20.1039 20.0901 20.5217 24 20.5217C27.9099 20.5217 31.5719 20.1039 34.6383 19.3718C35.082 19.2658 35.5339 19.1391 35.9868 18.996Z" fill="currentColor" fillRule="evenodd"></path></svg>
-                            </div>
-                            <h2 className="text-xl font-bold tracking-tight text-white">Enpees Candles</h2>
-                        </div>
-                        <p className="text-sm text-[#EAD2C0]/80 mb-4">
-                            Illuminating your world with handcrafted luxury scents.
+        <footer className="relative overflow-hidden bg-[#0D0B0A]">
+            {/* Top hairline */}
+            <div className="lp-hairline" aria-hidden="true" />
+
+            <div className="mx-auto max-w-[1400px] px-7 sm:px-12 lg:px-20">
+                {/* ── Top: Manifesto + Newsletter ──────────────────── */}
+                <div className="grid grid-cols-1 gap-14 py-20 lg:grid-cols-12 lg:gap-12 lg:py-28">
+                    <div className="lg:col-span-7">
+                        <p className="lp-eyebrow text-[10px]">A letter, occasionally</p>
+                        <h2 className="lp-display mt-5 text-4xl leading-[1.05] tracking-[-0.02em] sm:text-5xl lg:text-[3.6rem]">
+                            Small batches, the studio's<br />
+                            <span className="lp-wonk italic text-[#D3A34E]">fragrant diary.</span>
+                        </h2>
+                        <p className="lp-lede mt-6 max-w-[36rem] !text-[15px]">
+                            One short note a month: new shapes, what we are pouring, the
+                            occasional studio secret. No noise, no sales fluff.
                         </p>
                     </div>
 
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">Shop</h3>
-                        <ul className="space-y-2 text-sm">
-                            <li><Link to="/shop" className="hover:text-[#D8A24A] transition-colors">All Candles</Link></li>
-                            <li><Link to="/collections" className="hover:text-[#D8A24A] transition-colors">Collections</Link></li>
-                            <li><Link to="/shop" className="hover:text-[#D8A24A] transition-colors">Best Sellers</Link></li>
-                            <li><Link to="/contact" className="hover:text-[#D8A24A] transition-colors">Gift Sets</Link></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">Company</h3>
-                        <ul className="space-y-2 text-sm">
-                            <li><Link to="/" className="hover:text-[#D8A24A] transition-colors">About Us</Link></li>
-                            <li><Link to="/contact" className="hover:text-[#D8A24A] transition-colors">Contact</Link></li>
-                            <li><Link to="/contact" className="hover:text-[#D8A24A] transition-colors">FAQ</Link></li>
-                            <li><Link to="/" className="hover:text-[#D8A24A] transition-colors">Privacy Policy</Link></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h3 className="text-white font-semibold mb-4">Connect</h3>
-                        <p className="text-sm text-[#EAD2C0]/80 mb-3">Sanidhya, Fieldmarshal road<br/>Mota Mava, Rajkot - 360005</p>
-                        <div className="flex gap-4">
-                            <a href="mailto:contact@enpeescandles.com" className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D8A24A] hover:text-[#201b12] transition-all" title="Email us">
-                                <span className="material-symbols-outlined text-xl">mail</span>
-                            </a>
-                            <a href="tel:+919173958589" className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D8A24A] hover:text-[#201b12] transition-all" title="Call us">
-                                <span className="material-symbols-outlined text-xl">call</span>
-                            </a>
-                            <a href="https://wa.me/919173958589" target="_blank" rel="noopener noreferrer" className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D8A24A] hover:text-[#201b12] transition-all" title="WhatsApp">
-                                <span className="material-symbols-outlined text-xl">chat</span>
-                            </a>
-                        </div>
+                    <div className="lg:col-span-5 lg:pt-3">
+                        <form
+                            onSubmit={handleSubscribe}
+                            className={`lp-input-glow flex items-center gap-2 rounded-full p-2 ${focused ? 'is-focused' : ''}`}
+                        >
+                            <span className="material-symbols-outlined ml-3 text-[20px] text-[#C7BCA8]/60" aria-hidden="true">mail</span>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                onFocus={() => setFocused(true)}
+                                onBlur={() => setFocused(false)}
+                                placeholder={subscribed ? 'You are on the list.' : 'your@email.com'}
+                                required
+                                disabled={subscribed}
+                                aria-label="Email address"
+                                className="flex-1 bg-transparent px-2 py-2 font-jost text-[15px] text-[#EDE6D8] placeholder-[#C7BCA8]/40 outline-none"
+                            />
+                            <button
+                                type="submit"
+                                disabled={subscribed}
+                                className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#D3A34E] px-5 py-3 font-jost text-[11px] uppercase tracking-[0.18em] text-[#2A1D15] transition-all hover:bg-[#E4B84A] hover:shadow-[0_10px_30px_-10px_rgba(211,163,78,0.55)] active:translate-y-[1px] disabled:opacity-60"
+                            >
+                                {subscribed ? (
+                                    <>
+                                        <span className="material-symbols-outlined text-[15px]">check</span>
+                                        Done
+                                    </>
+                                ) : (
+                                    <>
+                                        Subscribe
+                                        <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                        <p className="mt-4 font-jost text-[11px] uppercase tracking-[0.2em] text-[#C7BCA8]/45">
+                            One email a month. Unsubscribe in a click.
+                        </p>
                     </div>
                 </div>
 
-                <div className="border-t border-[#D8A24A]/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-sm text-[#EAD2C0]/60">
-                        © {new Date().getFullYear()} Enpees Candles. All rights reserved.
+                {/* ── Middle: Brand mark + columns ─────────────────── */}
+                <div className="lp-hairline" aria-hidden="true" />
+
+                <div className="grid grid-cols-1 gap-12 py-16 sm:grid-cols-2 lg:grid-cols-12 lg:gap-10 lg:py-20">
+                    {/* Brand block */}
+                    <div className="lg:col-span-4">
+                        <div className="flex items-center gap-3">
+                            <BrandMark className="h-9 w-9 text-[#D3A34E]" />
+                            <span className="leading-none">
+                                <span className="lp-display block text-lg tracking-wide text-[#EDE6D8] sm:text-xl">Enpees</span>
+                                <span className="font-jost text-[9px] uppercase tracking-[0.3em] text-[#C7BCA8]/70">Hand-poured candles</span>
+                            </span>
+                        </div>
+                        <p className="lp-lede mt-6 max-w-[26rem] !text-[14px]">
+                            A two-room studio in Rajkot, pouring soy wax into the shapes we wish
+                            someone had made for us. Small batches, hand-finished, posted with care.
+                        </p>
+
+                        {/* Socials: flat, hairline-bordered row, not circles */}
+                        <div className="mt-8 flex flex-wrap items-center gap-2">
+                            {SOCIALS.map((s) => (
+                                <a
+                                    key={s.label}
+                                    href={s.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label={s.label}
+                                    className="group flex items-center gap-2 rounded-full border border-[#D3A34E]/25 px-4 py-2 font-jost text-[11px] uppercase tracking-[0.18em] text-[#C7BCA8] transition-all hover:border-[#D3A34E]/60 hover:text-[#EDE6D8]"
+                                >
+                                    <span className="material-symbols-outlined text-[16px] text-[#D3A34E] transition-transform group-hover:-translate-y-0.5" aria-hidden="true">{s.icon}</span>
+                                    {s.label}
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Spacer on lg */}
+                    <div className="hidden lg:col-span-1 lg:block" />
+
+                    {/* Link columns */}
+                    {COLUMNS.map((col) => (
+                        <div key={col.title} className="lg:col-span-2">
+                            <h4 className="font-jost text-[10px] uppercase tracking-[0.26em] text-[#D3A34E]">
+                                {col.title}
+                            </h4>
+                            <ul className="mt-5 space-y-3">
+                                {col.links.map((l) => (
+                                    <li key={l.label}>
+                                        <Link
+                                            to={l.to}
+                                            className="lp-foot-link font-jost text-[14px]"
+                                        >
+                                            {l.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
+
+                    {/* Address column */}
+                    <div className="lg:col-span-1">
+                        <h4 className="font-jost text-[10px] uppercase tracking-[0.26em] text-[#D3A34E]">
+                            Visit
+                        </h4>
+                        <address className="mt-5 not-italic font-jost text-[14px] leading-[1.7] text-[#C7BCA8]/65">
+                            Office 412, Aqua Corel<br />
+                            Kataria Chokdi, Rajkot<br />
+                            360 005, India
+                        </address>
+                        <a
+                            href="tel:+919173958589"
+                            className="lp-foot-link mt-4 inline-block font-jost text-[14px] text-[#C7BCA8]/65"
+                        >
+                            +91 91739 58589
+                        </a>
+                    </div>
+                </div>
+
+                {/* ── Bottom strip ──────────────────────────────────── */}
+                <div className="lp-hairline" aria-hidden="true" />
+
+                <div className="flex flex-col items-start gap-6 py-8 sm:flex-row sm:items-center sm:justify-between sm:py-10">
+                    <p className="font-jost text-[12px] text-[#C7BCA8]/45">
+                        &copy; {new Date().getFullYear()} Enpee Handcrafts. Made by hand in Rajkot.
                     </p>
-                    <div className="flex gap-6 text-sm text-[#EAD2C0]/60">
-                        <a href="#" className="hover:text-[#D8A24A]">Terms</a>
-                        <a href="#" className="hover:text-[#D8A24A]">Privacy</a>
-                        <a href="#" className="hover:text-[#D8A24A]">Cookies</a>
+
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-jost text-[11px] uppercase tracking-[0.2em] text-[#C7BCA8]/45">
+                        <span className="flex items-center gap-2">
+                            <span className="h-1 w-1 rounded-full bg-[#D3A34E]/70" aria-hidden="true" />
+                            MSME Registered
+                        </span>
+                        <span className="font-mono text-[10px] tracking-[0.18em]">GSTIN 24ERGPB1394P1ZH</span>
+                        <a href="#" className="lp-foot-link !text-[11px] !uppercase !tracking-[0.2em]">Privacy</a>
+                        <a href="#" className="lp-foot-link !text-[11px] !uppercase !tracking-[0.2em]">Terms</a>
+                        <a href="#" className="lp-foot-link !text-[11px] !uppercase !tracking-[0.2em]">Refunds</a>
                     </div>
                 </div>
             </div>
         </footer>
     );
-};
+}
 
-export default Footer;
+/* Brand mark: a single flame-as-wick glyph drawn with two strokes.
+   Real composition (not a stock flame emoji). Solid amber dot at the
+   wick's base mirrors the same motif used in the page's hero. */
+function BrandMark({ className = '' }) {
+    return (
+        <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
+            {/* Outer flame outline */}
+            <path
+                d="M20 5.5c4.6 4.4 7.2 8 7.2 11.4a7.2 7.2 0 1 1-14.4 0C12.8 13.5 15.4 9.9 20 5.5Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+            />
+            {/* Inner core */}
+            <path
+                d="M20 12.4c2.4 2.3 3.6 4.2 3.6 5.9a3.6 3.6 0 1 1-7.2 0c0-1.7 1.2-3.6 3.6-5.9Z"
+                fill="currentColor"
+                opacity="0.55"
+            />
+            {/* Wick */}
+            <line x1="20" y1="25.6" x2="20" y2="33.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            {/* Base dot */}
+            <circle cx="20" cy="35" r="1.6" fill="currentColor" />
+        </svg>
+    );
+}

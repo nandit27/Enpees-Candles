@@ -14,7 +14,7 @@ const Admin = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [inquiries, setInquiries] = useState({ general: [], trade: [], bulk: [] });
-    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null });
+    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null, images: [] });
     const [editingProduct, setEditingProduct] = useState(null);
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [showEditProduct, setShowEditProduct] = useState(false);
@@ -117,6 +117,9 @@ const Admin = () => {
         if (newProduct.image) {
             formData.append('image', newProduct.image);
         }
+        if (newProduct.images && newProduct.images.length > 0) {
+            Array.from(newProduct.images).forEach(file => formData.append('images', file));
+        }
 
         fetch(API_ENDPOINTS.PRODUCTS, {
             method: 'POST',
@@ -129,7 +132,7 @@ const Admin = () => {
             .then(data => {
                 setProducts([...products, data]);
                 setShowAddProduct(false);
-                setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null });
+                setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null, images: [] });
                 alert('Product added successfully!');
             })
             .catch(err => {
@@ -154,6 +157,9 @@ const Admin = () => {
         }
         if (editingProduct.image && typeof editingProduct.image !== 'string') {
             formData.append('image', editingProduct.image);
+        }
+        if (editingProduct.newImages && editingProduct.newImages.length > 0) {
+            Array.from(editingProduct.newImages).forEach(file => formData.append('images', file));
         }
 
         fetch(API_ENDPOINTS.PRODUCT_BY_ID(editingProduct._id), {
@@ -431,6 +437,14 @@ const Admin = () => {
                                         onChange={e => setNewProduct({ ...newProduct, image: e.target.files[0] })}
                                         className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white"
                                     />
+                                    <div className="space-y-1">
+                                        <input
+                                            type="file" accept="image/*" multiple
+                                            onChange={e => setNewProduct({ ...newProduct, images: e.target.files })}
+                                            className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white"
+                                        />
+                                        <p className="text-xs text-[#EAD2C0]/60 px-2">Additional gallery images (optional, up to 10)</p>
+                                    </div>
                                     <div className="flex justify-end gap-4 mt-6">
                                         <button type="button" onClick={() => setShowAddProduct(false)} className="px-4 py-2 text-[#EAD2C0] hover:text-white">Cancel</button>
                                         <button type="submit" className="px-4 py-2 bg-[#D8A24A] text-[#3B2A23] font-bold rounded">Add Product</button>
@@ -518,6 +532,19 @@ const Admin = () => {
                                             <p className="text-xs text-[#EAD2C0] mt-1">Current: {editingProduct.image.split('/').pop()}</p>
                                         )}
                                     </div>
+                                    <div>
+                                        <label className="text-sm text-[#EAD2C0] mb-1 block">Add Gallery Images (optional)</label>
+                                        <input
+                                            type="file" accept="image/*" multiple
+                                            onChange={e => setEditingProduct({ ...editingProduct, newImages: e.target.files })}
+                                            className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white"
+                                        />
+                                        <p className="text-xs text-[#EAD2C0]/60 mt-1">
+                                            {editingProduct.images && editingProduct.images.length > 0
+                                                ? `${editingProduct.images.length} gallery image(s) uploaded. New images are added to them.`
+                                                : 'No gallery images yet. New images will be added to the product gallery.'}
+                                        </p>
+                                    </div>
                                     <div className="flex justify-end gap-4 mt-6">
                                         <button type="button" onClick={() => { setShowEditProduct(false); setEditingProduct(null); }} className="px-4 py-2 text-[#EAD2C0] hover:text-white">Cancel</button>
                                         <button type="submit" className="px-4 py-2 bg-[#D8A24A] text-[#3B2A23] font-bold rounded">Update Product</button>
@@ -565,7 +592,7 @@ const Admin = () => {
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                                 {products.slice(0, 4).map((product, index) => (
                                     <div key={index} className="flex flex-col gap-2 sm:gap-3 lg:gap-4 rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
-                                        <div className="w-full aspect-square rounded-lg shadow-sm overflow-hidden">
+                                        <div className="relative w-full aspect-square rounded-lg shadow-sm overflow-hidden">
                                             <LazyImage
                                                 src={product.image}
                                                 alt={product.name}
@@ -649,7 +676,7 @@ const Admin = () => {
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                                     {products.map((product, index) => (
                                         <div key={index} className="flex flex-col gap-2 sm:gap-3 lg:gap-4 rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-                                            <div className="w-full aspect-square rounded-lg shadow-sm overflow-hidden">
+                                            <div className="relative w-full aspect-square rounded-lg shadow-sm overflow-hidden">
                                                 <LazyImage
                                                     src={product.image}
                                                     alt={product.name}
@@ -806,7 +833,7 @@ const Admin = () => {
 
                                                 return (
                                                     <div key={product._id} className={`bg-[#FFF7ED]/5 border ${isFeatured ? 'border-[#D8A24A] ring-2 ring-[#D8A24A]/50' : 'border-[#FFF7ED]/10'} rounded-lg p-3 transition-all hover:border-[#D8A24A]/50 flex flex-col`}>
-                                                        <div className="aspect-square w-full overflow-hidden rounded-lg mb-2">
+                                                        <div className="relative aspect-square w-full overflow-hidden rounded-lg mb-2">
                                                             <LazyImage
                                                                 src={product.image}
                                                                 alt={product.name}

@@ -1,347 +1,581 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import LazyImage from '../components/LazyImage';
+import CatalogCard from '../components/CatalogCard';
 import { useCart } from '../context/CartContext';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
+import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
+
+const WHATSAPP_NUMBER = '919173958589';
+
+const COLOR_SWATCHES = [
+    { name: 'Natural Beige', hex: '#C9B896', short: 'Beige' },
+    { name: 'Ivory White', hex: '#EDE6D8', short: 'Ivory' },
+    { name: 'Soft Pink', hex: '#D9A3A8', short: 'Pink' },
+    { name: 'Charcoal Grey', hex: '#3D3834', short: 'Charcoal' },
+];
+
+const DEFAULT_FRAGRANCES = [
+    'Woody Flora',
+    'Peach Miami',
+    'Jasmine',
+    'Mogra',
+    'Berry Blast',
+    'Kesar Chandan',
+    'British Rose',
+    'Vanilla',
+    'English Lavender',
+];
+
+const colorShort = (name) => {
+    if (name === 'Others') return 'Custom';
+    const found = COLOR_SWATCHES.find((c) => c.name.toLowerCase() === name.toLowerCase());
+    return found?.short || name;
+};
+
+const colorHex = (name) => {
+    if (!name) return '#C9B896';
+    if (name.startsWith('#')) return name;
+    const found = COLOR_SWATCHES.find((c) => c.name.toLowerCase() === name.toLowerCase());
+    return found?.hex || '#C9B896';
+};
+
+const resolveColors = (product) => {
+    const fromApi = (product?.colors || []).map((c) => (typeof c === 'string' ? c : c?.name)).filter(Boolean);
+    if (fromApi.length === 0) return [...COLOR_SWATCHES.map((c) => c.name), 'Others'];
+    return fromApi.includes('Others') ? fromApi : [...fromApi, 'Others'];
+};
+
+const resolveFragrances = (product) => {
+    const fromApi = (product?.fragrances || []).filter(Boolean);
+    return fromApi.length > 0 ? fromApi : DEFAULT_FRAGRANCES;
+};
 
 const ProductPage = () => {
     const location = useLocation();
-    const navigate = useNavigate();
     const { product: initialProduct } = location.state || {};
-    const [product, setProduct] = useState(initialProduct);
+    const [product, setProduct] = useState(initialProduct || null);
     const [quantity, setQuantity] = useState(1);
     const [selectedColor, setSelectedColor] = useState('Natural Beige');
     const [selectedFragrance, setSelectedFragrance] = useState('Woody Flora');
     const [showZoomModal, setShowZoomModal] = useState(false);
     const [customColor, setCustomColor] = useState('');
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [relatedProducts, setRelatedProducts] = useState([]);
+    const [fetching, setFetching] = useState(Boolean(initialProduct?._id));
     const { addToCart } = useCart();
 
-    const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey', 'Others'];
-    const availableFragrances = ['Woody Flora', 'Peach Miami', 'Jasmine', 'Mogra', 'Berry Blast', 'Kesar Chandan', 'British Rose', 'Vanilla', 'English Lavender'];
-
-    // Fetch latest product data if product ID is available
     useEffect(() => {
-        if (initialProduct && initialProduct._id) {
-            fetch(API_ENDPOINTS.PRODUCT_BY_ID(initialProduct._id))
-                .then(res => res.json())
-                .then(data => setProduct(data))
-                .catch(err => console.error('Error fetching product:', err));
+        if (initialProduct) {
+            setProduct(initialProduct);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+        if (!initialProduct?._id) {
+            setFetching(false);
+            return;
+        }
+        setFetching(true);
+        fetch(API_ENDPOINTS.PRODUCT_BY_ID(initialProduct._id))
+            .then((res) => res.json())
+            .then((data) => {
+                setProduct(data);
+                setFetching(false);
+            })
+            .catch((err) => {
+                console.error('Error fetching product:', err);
+                setFetching(false);
+            });
     }, [initialProduct]);
 
-    // Fetch related products
     useEffect(() => {
         fetch(API_ENDPOINTS.PRODUCTS)
-            .then(res => res.json())
-            .then(data => {
-                // Filter products: same category but different product, or just random if no product
+            .then((res) => res.json())
+            .then((data) => {
+                if (!Array.isArray(data)) return;
                 let filtered = data;
-                if (product && product._id) {
-                    filtered = data.filter(p => p._id !== product._id);
-                    // Prefer same category
-                    const sameCategory = filtered.filter(p => p.category === product.category);
-                    if (sameCategory.length >= 4) {
-                        filtered = sameCategory;
-                    }
+                if (product?._id) {
+                    filtered = data.filter((p) => p._id !== product._id);
+                    const sameCategory = filtered.filter((p) => p.category === product.category);
+                    if (sameCategory.length >= 4) filtered = sameCategory;
                 }
-                // Get random 4 products
-                const shuffled = filtered.sort(() => 0.5 - Math.random());
+                const shuffled = [...filtered].sort(() => 0.5 - Math.random());
                 setRelatedProducts(shuffled.slice(0, 4));
             })
-            .catch(err => console.error('Error fetching related products:', err));
-    }, [product]);
+            .catch((err) => console.error('Error fetching related products:', err));
+    }, [product?._id, product?.category]);
 
-    // Default data if no product is passed (for testing/direct access)
-    const displayProduct = product || {
-        name: "Midnight Oud & Amber",
-        price: 48,
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDEOfWOOey5rqQmyCAqamzZ73LChNVerTn6yo_mld0ewxamJLmvd8DSi-nKsQ9VdLu0h62HrYTTAGjmc27tyXlEF6LDA63twxPVGx5ogTgCTyW0o6Qc7ChMp31DVCf4bpeN7LTi1cAadSYKE4MJpBJBQ_jmr5cBscOgvkw3Z1gVcB4-oBnQOQ6J3iyTu7JU0HEyS6QicUgTnytOepGSGpAQgncZmkgqrMeR1C88xV6ELZbQnBaMEr3M_Y84UluZv21qyx1wVPMKCtPb",
-        collection: "Signature Collection",
-        description: "An intoxicating blend of rare oud wood and golden amber. This candle evokes the warmth of a crackling fire on a cool midnight, wrapped in a blanket of rich, resinous aromas."
+    const displayProduct = product;
+    const availableColors = useMemo(() => resolveColors(displayProduct), [displayProduct]);
+    const availableFragrances = useMemo(() => resolveFragrances(displayProduct), [displayProduct]);
+
+    const colorKey = (displayProduct?.colors || []).join('|');
+    const fragranceKey = (displayProduct?.fragrances || []).join('|');
+
+    useEffect(() => {
+        setSelectedColor(availableColors[0] || 'Natural Beige');
+        setSelectedFragrance(availableFragrances[0] || 'Woody Flora');
+        setCustomColor('');
+        setQuantity(1);
+        // Palette identity is colorKey / fragranceKey, not the product object.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [displayProduct?._id, colorKey, fragranceKey]);
+
+    const galleryImages = useMemo(() => {
+        if (!displayProduct) return [];
+        const imgs = [displayProduct.image, ...(displayProduct.images || [])];
+        return [...new Set(imgs.filter(Boolean))];
+    }, [displayProduct]);
+
+    useEffect(() => {
+        setSelectedImageIndex(0);
+    }, [displayProduct?._id]);
+
+    const selectedImage =
+        galleryImages[Math.min(selectedImageIndex, Math.max(galleryImages.length - 1, 0))] ||
+        displayProduct?.image ||
+        flowerCandle;
+
+    const goImage = (dir) => {
+        if (galleryImages.length < 2) return;
+        setSelectedImageIndex((prev) => (prev + dir + galleryImages.length) % galleryImages.length);
+    };
+
+    useEffect(() => {
+        if (!showZoomModal) return undefined;
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') setShowZoomModal(false);
+            if (event.key === 'ArrowRight') goImage(1);
+            if (event.key === 'ArrowLeft') goImage(-1);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [showZoomModal, galleryImages.length]);
+
+    const openWhatsApp = (message) => {
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    };
+
+    const colorLabel = selectedColor === 'Others' ? customColor || 'Custom' : selectedColor;
+
+    const handleBulkInquiry = () => {
+        if (!displayProduct) return;
+        openWhatsApp(
+            `Hello Enpees Candles! I would like a bulk inquiry for:\n\nProduct: ${displayProduct.name}\nPrice: ${typeof displayProduct.price === 'string' ? displayProduct.price : `₹${displayProduct.price}`}\nSelected Color: ${colorLabel}\nSelected Fragrance: ${selectedFragrance}\nQuantity: ${quantity}+ units\n\nPlease share bulk pricing details.`
+        );
+    };
+
+    const handleCustomizeProduct = () => {
+        if (!displayProduct) return;
+        openWhatsApp(
+            `Hello Enpees Candles! I would like to customize this product:\n\nProduct: ${displayProduct.name}\nPreferred Color: ${selectedColor === 'Others' ? customColor || 'Will discuss' : selectedColor}\nPreferred Fragrance: ${selectedFragrance}\n\nPlease share customization options and pricing.`
+        );
     };
 
     const handleAddToCart = () => {
-        const colorToUse = selectedColor === 'Others' ? customColor : selectedColor;
+        if (!displayProduct) return;
         if (selectedColor === 'Others' && !customColor.trim()) {
-            toast.error('Please specify a custom color');
+            toast.error('Name the custom wax colour first');
             return;
         }
-        for (let i = 0; i < quantity; i++) {
+        const colorToUse = selectedColor === 'Others' ? customColor : selectedColor;
+        for (let i = 0; i < quantity; i += 1) {
             addToCart(displayProduct, colorToUse, selectedFragrance);
         }
-        toast.success(`Added ${quantity} ${displayProduct.name} to cart!`);
+        toast.success(`Added ${quantity} ${displayProduct.name} to cart`);
     };
 
-    return (
-        <div className="relative min-h-screen w-full bg-[#3B2A23] font-['Inter',_sans-serif] text-[#554B47]">
-            <Toaster position="top-center" />
-            {/* Background Image */}
-            <div className="absolute inset-0 z-0">
-                <img
-                    className="h-full w-full object-cover opacity-80"
-                    alt="A warm, cinematic shot of a luxury candle burning in a dark, moody setting."
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrolg_tSgwWpWDmbj62biwA6sU3qvHVhuaCo2ycTOxn3L0AWjeiWZ-GbPs3BCInN3qwnJLvyTYHT2Qels1F-1LFrblOEUDm_fk4bgSLd_oppkWcc9jLr_MjXB58cpx0znqfgQ7G9uWmtRCeZeiMs6Pt-q0rVnSkp3i3mAMWstsdi7xptESL15lR6v4fBQo1-PObYbX1vFSceNy5v-wGnXp-S9EwmRkps5QS679Oy9qCrTVlJWvGJ3JwwF97HZLA0u3CjtA1I4DXvQp"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A23]/80 via-transparent to-[#3B2A23]/20"></div>
-            </div>
+    const handleRelatedAdd = (item) => {
+        addToCart(item);
+        toast.success(`${item.name} added to cart`, {
+            duration: 2000,
+            position: 'bottom-right',
+            style: { background: '#D3A34E', color: '#2A1D15', fontWeight: '600' },
+        });
+    };
 
-            <div className="relative z-10 flex h-auto min-h-screen w-full flex-col">
-                {/* Header */}
+    const hasDimensions =
+        displayProduct?.dimensions &&
+        (displayProduct.dimensions.height || displayProduct.dimensions.width || displayProduct.dimensions.depth);
+
+    const specTiles = [
+        displayProduct?.specifications?.wax && { label: 'Wax', value: displayProduct.specifications.wax },
+        displayProduct?.specifications?.fragrance && {
+            label: 'Base scent',
+            value: displayProduct.specifications.fragrance,
+        },
+        displayProduct?.specifications?.burningTime && {
+            label: 'Burn',
+            value: displayProduct.specifications.burningTime,
+        },
+    ].filter(Boolean);
+
+    if (!displayProduct && !fetching) {
+        return (
+            <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
                 <Navbar />
-
-                <main className="flex-1">
-                    <div className="container mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-12">
-                        <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 sm:gap-6 lg:gap-12">
-                            {/* Product Images - Compact on Mobile */}
-                            <div className="lg:col-span-6 space-y-3">
-                                <div 
-                                    className="relative aspect-square sm:aspect-[4/5] w-full overflow-hidden rounded-lg sm:rounded-xl cursor-pointer group"
-                                    onClick={() => setShowZoomModal(true)}
-                                >
-                                    <LazyImage
-                                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                        alt={displayProduct.name}
-                                        src={displayProduct.image}
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                        <span className="material-symbols-outlined text-white text-5xl opacity-0 group-hover:opacity-100 transition-opacity">zoom_in</span>
-                                    </div>
-                                    <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                                        Click to view full size
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            {/* Product Details - Compact on Mobile */}
-                            <div className="lg:col-span-4 lg:pt-6">
-                                <div className="bg-[#FFF7ED]/80 backdrop-blur-[16px] rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 lg:p-8 shadow-xl sm:shadow-2xl shadow-black/20 sm:shadow-black/30 border border-white/20">
-                                    <div className="flex flex-col space-y-3 sm:space-y-4 lg:space-y-6">
-                                        <div>
-                                            <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-['Italiana',_serif] text-[#554B47] leading-tight font-bold">{displayProduct.name}</h1>
-                                            {displayProduct.offerPrice ? (
-                                                <div className="mt-2">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className="bg-red-600 text-white text-xs px-2 py-1 rounded font-bold">Limited time deal</span>
-                                                    </div>
-                                                    <div className="flex items-baseline gap-2">
-                                                        <span className="text-red-600 text-sm font-bold">-{Math.round((1 - displayProduct.offerPrice / displayProduct.price) * 100)}%</span>
-                                                        <span className="text-2xl sm:text-3xl lg:text-4xl text-[#554B47] font-bold">₹{displayProduct.offerPrice}</span>
-                                                    </div>
-                                                    <p className="text-sm text-[#554B47]/60 mt-1">
-                                                        M.R.P: <span className="line-through">₹{displayProduct.price}</span>
-                                                    </p>
-                                                </div>
-                                            ) : (
-                                                <p className="mt-1 sm:mt-2 text-lg sm:text-xl lg:text-2xl text-[#554B47]/90 font-semibold">
-                                                    {typeof displayProduct.price === 'string' ? displayProduct.price : `₹${displayProduct.price}`}
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-2 sm:gap-3">
-                                            <div className="flex items-center gap-0.5">
-                                                <span className="material-symbols-outlined text-[#d9a24a] text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span className="material-symbols-outlined text-[#d9a24a] text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span className="material-symbols-outlined text-[#d9a24a] text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span className="material-symbols-outlined text-[#d9a24a] text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span className="material-symbols-outlined text-[#d9a24a]/50 text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star_half</span>
-                                            </div>
-                                            <a className="text-xs sm:text-sm text-[#554B47]/70 hover:text-[#554B47] underline" href="#">128 reviews</a>
-                                        </div>
-                                        <p className="text-sm sm:text-base leading-relaxed text-[#554B47]/90">
-                                            {displayProduct.description || "An intoxicating blend of rare oud wood and golden amber. This candle evokes the warmth of a crackling fire on a cool midnight, wrapped in a blanket of rich, resinous aromas."}
-                                        </p>
-                                        
-                                        {/* Bulk Order Info */}
-                                        <div className="bg-[#d9a24a]/10 border border-[#d9a24a]/30 rounded-lg p-3 sm:p-4">
-                                            <p className="text-xs sm:text-sm text-[#554B47] flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-[#d9a24a]">info</span>
-                                                <span>For orders of 100+ units, please contact us for <strong>bulk pricing</strong></span>
-                                            </p>
-                                        </div>
-
-                                        {/* Color Selection */}
-                                        <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4">
-                                            <h3 className="text-base sm:text-lg font-semibold text-[#554B47] mb-2">Select Color</h3>
-                                            <div className="flex flex-wrap gap-2">
-                                                {availableColors.map((color) => (
-                                                    <button
-                                                        key={color}
-                                                        onClick={() => setSelectedColor(color)}
-                                                        className={`px-3 py-2 rounded-lg border text-xs sm:text-sm transition-all ${
-                                                            selectedColor === color
-                                                                ? 'bg-[#d9a24a] text-white border-[#d9a24a]'
-                                                                : 'bg-white/50 text-[#554B47] border-[#554B47]/20 hover:border-[#d9a24a]/50'
-                                                        }`}
-                                                    >
-                                                        {color}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                            {selectedColor === 'Others' && (
-                                                <div className="mt-3">
-                                                    <textarea
-                                                        value={customColor}
-                                                        onChange={(e) => setCustomColor(e.target.value)}
-                                                        placeholder="Please specify your desired color"
-                                                        className="w-full p-3 rounded-lg border border-[#554B47]/20 bg-white/50 text-[#554B47] placeholder-[#554B47]/50 focus:outline-none focus:border-[#d9a24a] focus:ring-2 focus:ring-[#d9a24a]/50 text-sm"
-                                                        rows="2"
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Fragrance Selection */}
-                                        <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4">
-                                            <h3 className="text-base sm:text-lg font-semibold text-[#554B47] mb-2">Select Fragrance</h3>
-                                            <div className="flex flex-wrap gap-2">
-                                                {availableFragrances.map((fragrance) => (
-                                                    <button
-                                                        key={fragrance}
-                                                        onClick={() => setSelectedFragrance(fragrance)}
-                                                        className={`px-3 py-2 rounded-lg border text-xs sm:text-sm transition-all ${
-                                                            selectedFragrance === fragrance
-                                                                ? 'bg-[#d9a24a] text-white border-[#d9a24a]'
-                                                                : 'bg-white/50 text-[#554B47] border-[#554B47]/20 hover:border-[#d9a24a]/50'
-                                                        }`}
-                                                    >
-                                                        {fragrance}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4 lg:pt-6">
-                                            <h2 className="text-lg sm:text-xl lg:text-2xl font-['Italiana',_serif] text-[#554B47] mb-2 sm:mb-3">Dimensions</h2>
-                                            {displayProduct.dimensions && (displayProduct.dimensions.height || displayProduct.dimensions.width || displayProduct.dimensions.depth) ? (
-                                                <div className="bg-white/50 rounded-lg p-3">
-                                                    <div className="flex justify-center gap-4 text-sm font-semibold text-[#554B47]">
-                                                        {displayProduct.dimensions.height && <span>H: {displayProduct.dimensions.height}</span>}
-                                                        {displayProduct.dimensions.width && <span>W: {displayProduct.dimensions.width}</span>}
-                                                        {displayProduct.dimensions.depth && <span>D: {displayProduct.dimensions.depth}</span>}
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="bg-white/50 rounded-lg p-3">
-                                                    <p className="text-sm text-[#554B47]/60 text-center">Not specified</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                                            <div className="flex items-center rounded-lg border border-[#554B47]/20">
-                                                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-2 sm:px-3 py-1.5 sm:py-2 text-[#554B47]/60 hover:text-[#554B47] text-sm sm:text-base">-</button>
-                                                <input className="w-8 sm:w-10 text-center bg-transparent border-0 text-[#554B47] focus:ring-0 text-sm sm:text-base" type="text" value={quantity} readOnly />
-                                                <button onClick={() => setQuantity(quantity + 1)} className="px-2 sm:px-3 py-1.5 sm:py-2 text-[#554B47]/60 hover:text-[#554B47] text-sm sm:text-base">+</button>
-                                            </div>
-                                            <button 
-                                                onClick={handleAddToCart}
-                                                className="flex-1 bg-[#d9a24a] text-white font-bold py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 lg:px-6 rounded-lg shadow-lg shadow-[#d9a24a]/30 hover:brightness-110 transition-all text-sm sm:text-base">
-                                                Add to Cart
-                                            </button>
-                                        </div>
-                                        <div className="border-t border-[#554B47]/20 pt-3 sm:pt-4 lg:pt-6 space-y-2 sm:space-y-3">
-                                            <h3 className="text-base sm:text-lg lg:text-xl font-['Italiana',_serif] text-[#554B47]">Specifications</h3>
-                                            <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-[#554B47]/80 list-none">
-                                                <li><strong className="font-semibold text-[#554B47]/90">Wax:</strong> {displayProduct.specifications?.wax || '100% Natural Soy Wax Blend'}</li>
-                                                <li><strong className="font-semibold text-[#554B47]/90">Wick:</strong> Lead-free Cotton Wick</li>
-                                                <li><strong className="font-semibold text-[#554B47]/90">Burn Time:</strong> {displayProduct.specifications?.burningTime || 'Approx. 50-60 hours'}</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Customer Reviews */}
-                    <div className="mt-16 lg:mt-24 px-4 sm:px-10 md:px-20 lg:px-40">
-                        <div className="bg-[#FFF7ED]/70 backdrop-blur-[16px] rounded-xl p-6 md:p-8 shadow-2xl shadow-black/30 border border-white/20">
-                            <h2 className="text-3xl lg:text-4xl font-['Italiana',_serif] text-[#554B47] mb-8 text-center">Customer Reviews</h2>
-                            <div className="space-y-8 max-w-4xl mx-auto">
-                                <div className="border-b border-[#554B47]/20 pb-6">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <p className="font-bold text-[#554B47]">Eleanor Vance</p>
-                                        <div className="flex items-center gap-0.5">
-                                            <span className="material-symbols-outlined text-[#d9a24a] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                            <span className="material-symbols-outlined text-[#d9a24a] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                            <span className="material-symbols-outlined text-[#d9a24a] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                            <span className="material-symbols-outlined text-[#d9a24a] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                            <span className="material-symbols-outlined text-[#d9a24a] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                        </div>
-                                    </div>
-                                    <p className="text-[#554B47]/80 leading-relaxed">"Absolutely divine. The scent fills the entire room without being overpowering. It's the perfect balance of warmth and luxury. The glass vessel is also stunningly beautiful."</p>
-                                </div>
-                                <div className="border-b border-[#554B47]/20 pb-6">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <p className="font-bold text-[#554B47]">Marcus Thorne</p>
-                                        <div className="flex items-center gap-0.5">
-                                            <span className="material-symbols-outlined text-[#d9a24a] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                            <span className="material-symbols-outlined text-[#d9a24a] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                            <span className="material-symbols-outlined text-[#d9a24a] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                            <span className="material-symbols-outlined text-[#d9a24a] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                            <span className="material-symbols-outlined text-[#d9a24a]/50 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                        </div>
-                                    </div>
-                                    <p className="text-[#554B47]/80 leading-relaxed">"A truly high-quality candle. It burns cleanly and the scent is very complex and sophisticated. I only wish it had a slightly stronger throw for a larger space."</p>
-                                </div>
-                                <div className="text-center mt-8">
-                                    <a className="text-[#d9a24a] font-semibold hover:underline" href="#">View All Reviews</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* You Might Also Love */}
-                    <div className="mt-16 lg:mt-24 px-4 sm:px-10 md:px-20 lg:px-40 pb-24">
-                        <h2 className="text-3xl lg:text-4xl font-['Italiana',_serif] text-white mb-8 text-center">You Might Also Love</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {relatedProducts.map((item, index) => (
-                                <div
-                                    key={item._id || index}
-                                    className="group cursor-pointer"
-                                    onClick={() => {
-                                        navigate('/product', { state: { product: item } });
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    }}
-                                >
-                                    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl">
-                                        <LazyImage
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                            alt={item.name}
-                                            src={item.image}
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                        <div className="absolute bottom-4 left-4 text-white">
-                                            <h3 className="font-['Italiana',_serif] text-xl">{item.name}</h3>
-                                            <p className="text-sm mt-1">₹{item.offerPrice || item.price}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                <main className="mx-auto w-full max-w-[1400px] px-5 py-20 sm:px-10 lg:px-16">
+                    <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Pick a candle first</h1>
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                        Open any piece from the shop to see colours, scent, and photos.
+                    </p>
+                    <Link to="/shop" className="lp-btn lp-btn-primary mt-8">
+                        Back to shop
+                    </Link>
                 </main>
             </div>
+        );
+    }
 
-            {/* Zoom Modal */}
+    return (
+        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+            <Navbar />
+
+            <main className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-8 sm:px-10 lg:px-16">
+                {fetching && !displayProduct ? (
+                    <div className="grid gap-10 lg:grid-cols-12">
+                        <div className="aspect-[4/5] animate-pulse rounded-[20px] bg-[#3B2A1E] lg:col-span-7" />
+                        <div className="space-y-4 lg:col-span-5">
+                            <div className="h-10 w-2/3 animate-pulse rounded bg-[#3B2A1E]" />
+                            <div className="h-24 animate-pulse rounded bg-[#3B2A1E]" />
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-14">
+                        <div className="lg:sticky lg:top-24 lg:col-span-7 lg:self-start">
+                            <div className="flex flex-col gap-3 lg:flex-row">
+                                {galleryImages.length > 1 && (
+                                    <div className="order-2 flex gap-2 overflow-x-auto lg:order-1 lg:max-h-[70vh] lg:flex-col lg:overflow-y-auto">
+                                        {galleryImages.map((img, index) => (
+                                            <button
+                                                key={`${img}-${index}`}
+                                                type="button"
+                                                className="lp-thumb shrink-0"
+                                                data-on={index === selectedImageIndex}
+                                                onClick={() => setSelectedImageIndex(index)}
+                                                aria-label={`${displayProduct.name} photo ${index + 1}`}
+                                                aria-pressed={index === selectedImageIndex}
+                                            >
+                                                <LazyImage src={img} alt="" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                                <div className="order-1 relative min-w-0 flex-1 lg:order-2">
+                                    <div className="relative aspect-[4/5] overflow-hidden rounded-[20px] bg-[#3B2A1E]">
+                                        <button
+                                            type="button"
+                                            className="absolute inset-0"
+                                            onClick={() => setShowZoomModal(true)}
+                                            aria-label={`View larger photo of ${displayProduct.name}`}
+                                        >
+                                            <LazyImage
+                                                src={selectedImage}
+                                                alt={displayProduct.name}
+                                                className="transition-transform duration-700 ease-out hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:scale-100"
+                                            />
+                                        </button>
+                                        {galleryImages.length > 1 && (
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => goImage(-1)}
+                                                    aria-label="Previous photo"
+                                                    className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#2A1D15]/80 text-[#EDE6D8] transition-transform hover:-translate-y-[calc(50%+2px)] active:scale-[0.98]"
+                                                >
+                                                    <span className="material-symbols-outlined" aria-hidden="true">
+                                                        chevron_left
+                                                    </span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => goImage(1)}
+                                                    aria-label="Next photo"
+                                                    className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#2A1D15]/80 text-[#EDE6D8] transition-transform hover:-translate-y-[calc(50%+2px)] active:scale-[0.98]"
+                                                >
+                                                    <span className="material-symbols-outlined" aria-hidden="true">
+                                                        chevron_right
+                                                    </span>
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-5">
+                            <h1 className="lp-display text-3xl leading-[1.1] md:text-4xl lg:text-[2.75rem]">
+                                {displayProduct.name}
+                            </h1>
+                            <div className="mt-4 flex items-baseline gap-3 font-jost">
+                                {displayProduct.offerPrice ? (
+                                    <>
+                                        <span className="text-2xl tabular-nums text-[#EDE6D8]">₹{displayProduct.offerPrice}</span>
+                                        <span className="text-base text-[#C7BCA8]/50 line-through">₹{displayProduct.price}</span>
+                                    </>
+                                ) : (
+                                    <span className="text-2xl tabular-nums text-[#EDE6D8]">
+                                        {typeof displayProduct.price === 'string'
+                                            ? displayProduct.price
+                                            : `₹${displayProduct.price}`}
+                                    </span>
+                                )}
+                            </div>
+                            {displayProduct.description && (
+                                <p className="lp-lede mt-5 max-w-[65ch] text-[#C7BCA8]">{displayProduct.description}</p>
+                            )}
+
+                            <div className="mt-8">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <p className="font-jost text-sm text-[#EDE6D8]">Wax colour</p>
+                                    <p className="inline-flex items-center rounded-full bg-[#D3A34E] px-3 py-1 font-jost text-sm font-semibold text-[#2A1D15]">
+                                        {selectedColor === 'Others' ? customColor || 'Custom' : selectedColor}
+                                    </p>
+                                </div>
+                                <div className="mt-4 flex flex-wrap gap-4" role="radiogroup" aria-label="Wax colour">
+                                    {availableColors.map((color) => {
+                                        const on = selectedColor === color;
+                                        return (
+                                            <button
+                                                key={color}
+                                                type="button"
+                                                role="radio"
+                                                aria-checked={on}
+                                                aria-label={color}
+                                                data-on={on}
+                                                className="lp-swatch-wrap flex flex-col items-center gap-2"
+                                                onClick={() => setSelectedColor(color)}
+                                            >
+                                                <span
+                                                    className="lp-swatch relative flex items-center justify-center"
+                                                    data-on={on}
+                                                    style={
+                                                        color === 'Others'
+                                                            ? {
+                                                                  background:
+                                                                      'conic-gradient(#C9B896, #EDE6D8, #D9A3A8, #3D3834, #C9B896)',
+                                                              }
+                                                            : { background: colorHex(color) }
+                                                    }
+                                                >
+                                                    {on && (
+                                                        <span
+                                                            className="material-symbols-outlined text-[16px] text-[#D3A34E] drop-shadow-[0_1px_2px_rgba(42,29,21,0.9)]"
+                                                            aria-hidden="true"
+                                                            style={{ fontVariationSettings: "'FILL' 1" }}
+                                                        >
+                                                            check
+                                                        </span>
+                                                    )}
+                                                </span>
+                                                <span className="lp-swatch-name">{colorShort(color)}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                {selectedColor === 'Others' && (
+                                    <label className="mt-4 flex flex-col gap-2">
+                                        <span className="font-jost text-sm text-[#EDE6D8]">Custom wax colour</span>
+                                        <input
+                                            className="lp-field"
+                                            name="customColor"
+                                            value={customColor}
+                                            onChange={(e) => setCustomColor(e.target.value)}
+                                            aria-describedby="custom-color-hint"
+                                        />
+                                        <span id="custom-color-hint" className="font-jost text-xs text-[#C7BCA8]">
+                                            Name the shade you want. We confirm it on WhatsApp.
+                                        </span>
+                                    </label>
+                                )}
+                            </div>
+
+                            <div className="mt-8">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <p className="font-jost text-sm text-[#EDE6D8]">Fragrance</p>
+                                    <p className="inline-flex items-center rounded-full bg-[#D3A34E] px-3 py-1 font-jost text-sm font-semibold text-[#2A1D15]">
+                                        {selectedFragrance}
+                                    </p>
+                                </div>
+                                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Fragrance">
+                                    {availableFragrances.map((fragrance) => {
+                                        const on = selectedFragrance === fragrance;
+                                        return (
+                                            <button
+                                                key={fragrance}
+                                                type="button"
+                                                role="radio"
+                                                aria-checked={on}
+                                                data-on={on}
+                                                onClick={() => setSelectedFragrance(fragrance)}
+                                                className="lp-scent"
+                                            >
+                                                {on && (
+                                                    <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                                                        check
+                                                    </span>
+                                                )}
+                                                {fragrance}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {hasDimensions && (
+                                <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                    {displayProduct.dimensions.height && (
+                                        <div className="rounded-[12px] bg-[#3B2A1E] px-3 py-4">
+                                            <p className="font-jost text-xs text-[#C7BCA8]">Height</p>
+                                            <p className="mt-1 font-jost text-lg tabular-nums">{displayProduct.dimensions.height}</p>
+                                        </div>
+                                    )}
+                                    {displayProduct.dimensions.width && (
+                                        <div className="rounded-[12px] bg-[#3B2A1E] px-3 py-4">
+                                            <p className="font-jost text-xs text-[#C7BCA8]">Width</p>
+                                            <p className="mt-1 font-jost text-lg tabular-nums">{displayProduct.dimensions.width}</p>
+                                        </div>
+                                    )}
+                                    {displayProduct.dimensions.depth && (
+                                        <div className="rounded-[12px] bg-[#3B2A1E] px-3 py-4">
+                                            <p className="font-jost text-xs text-[#C7BCA8]">Depth</p>
+                                            <p className="mt-1 font-jost text-lg tabular-nums">{displayProduct.dimensions.depth}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {specTiles.length > 0 && (
+                                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    {specTiles.map((spec) => (
+                                        <div key={spec.label} className="rounded-[12px] bg-[#3B2A1E] px-4 py-4">
+                                            <p className="font-jost text-xs text-[#C7BCA8]">{spec.label}</p>
+                                            <p className="mt-1 font-jost text-sm text-[#EDE6D8]">{spec.value}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <p className="mt-8 font-jost text-sm text-[#C7BCA8]">
+                                Orders over 100 units get studio pricing.
+                            </p>
+
+                            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+                                <div className="flex w-fit items-center rounded-full border border-[#D3A34E]/35">
+                                    <button
+                                        type="button"
+                                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                        aria-label="Decrease quantity"
+                                        className="flex h-12 w-12 items-center justify-center text-[#EDE6D8] transition-transform active:scale-[0.98]"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
+                                            remove
+                                        </span>
+                                    </button>
+                                    <span className="w-8 text-center font-jost tabular-nums" aria-live="polite">
+                                        {quantity}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setQuantity(quantity + 1)}
+                                        aria-label="Increase quantity"
+                                        className="flex h-12 w-12 items-center justify-center text-[#EDE6D8] transition-transform active:scale-[0.98]"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
+                                            add
+                                        </span>
+                                    </button>
+                                </div>
+                                <button type="button" onClick={handleAddToCart} className="lp-btn lp-btn-primary w-full sm:flex-1">
+                                    Add to cart
+                                </button>
+                            </div>
+
+                            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <button type="button" onClick={handleBulkInquiry} className="lp-btn lp-btn-ghost w-full">
+                                    Bulk inquiry
+                                </button>
+                                <button type="button" onClick={handleCustomizeProduct} className="lp-btn lp-btn-ghost w-full">
+                                    Custom order
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {relatedProducts.length > 0 && (
+                    <section className="mt-24">
+                        <h2 className="lp-display text-3xl leading-[1.1] md:text-4xl">More from the studio</h2>
+                        <div className="mt-8 grid grid-cols-2 items-stretch gap-4 sm:grid-cols-4 sm:gap-6">
+                            {relatedProducts.map((item) => (
+                                <CatalogCard
+                                    key={item._id || item.name}
+                                    product={item}
+                                    onAdd={handleRelatedAdd}
+                                />
+                            ))}
+                        </div>
+                    </section>
+                )}
+            </main>
+
             {showZoomModal && (
-                <div 
-                    className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+                <div
+                    className="fixed inset-0 z-[70] flex items-center justify-center bg-[#1F150E]/92 p-4"
                     onClick={() => setShowZoomModal(false)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Escape') setShowZoomModal(false);
+                    }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={`${displayProduct.name} photos`}
                 >
-                    <button 
-                        className="absolute top-4 right-4 text-white hover:text-[#D8A24A] transition-colors"
+                    <button
+                        type="button"
+                        className="absolute right-4 top-4 flex h-12 w-12 items-center justify-center rounded-full text-[#EDE6D8] hover:text-[#D3A34E]"
                         onClick={() => setShowZoomModal(false)}
+                        aria-label="Close photos"
                     >
-                        <span className="material-symbols-outlined text-4xl">close</span>
+                        <span className="material-symbols-outlined text-[28px]" aria-hidden="true">
+                            close
+                        </span>
                     </button>
-                    <img 
-                        src={displayProduct.image} 
+                    {galleryImages.length > 1 && (
+                        <>
+                            <button
+                                type="button"
+                                className="absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#2A1D15] text-[#EDE6D8]"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    goImage(-1);
+                                }}
+                                aria-label="Previous photo"
+                            >
+                                <span className="material-symbols-outlined" aria-hidden="true">
+                                    chevron_left
+                                </span>
+                            </button>
+                            <button
+                                type="button"
+                                className="absolute right-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#2A1D15] text-[#EDE6D8]"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    goImage(1);
+                                }}
+                                aria-label="Next photo"
+                            >
+                                <span className="material-symbols-outlined" aria-hidden="true">
+                                    chevron_right
+                                </span>
+                            </button>
+                        </>
+                    )}
+                    <img
+                        src={selectedImage}
                         alt={displayProduct.name}
-                        className="max-w-full max-h-full object-contain"
+                        className="max-h-full max-w-full object-contain"
                         onClick={(e) => e.stopPropagation()}
                     />
                 </div>

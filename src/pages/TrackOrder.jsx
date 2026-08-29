@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { Button } from '../components/ui/button';
 import OrderTimeline from '../components/OrderTimeline';
-import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
+
+const statusLabel = (status) => {
+    if (status === 'DELIVERED') return 'Delivered';
+    if (status === 'SHIPPED') return 'Shipped';
+    if (status === 'CONFIRMED') return 'Confirmed';
+    if (status === 'CANCELLED') return 'Cancelled';
+    return status || 'Pending';
+};
 
 const TrackOrder = () => {
     const [orderId, setOrderId] = useState('');
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     const handleTrackOrder = async (e) => {
         e.preventDefault();
         if (!orderId.trim()) {
-            setError('Please enter an order ID');
+            setError('Enter an order ID');
             return;
         }
 
@@ -34,7 +38,7 @@ const TrackOrder = () => {
             }
         } catch (err) {
             console.error('Error tracking order:', err);
-            setError('Failed to track order. Please try again.');
+            setError('Could not track this order. Try again.');
             setOrder(null);
         } finally {
             setLoading(false);
@@ -42,191 +46,178 @@ const TrackOrder = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#3B2A23] font-['Inter',_sans-serif] text-[#FFF7ED]">
+        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
             <Navbar />
-            
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-5xl">
-                <div className="text-center mb-8 sm:mb-12">
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-['Italiana',_serif] text-[#FFF7ED] mb-3 sm:mb-4">
-                        Track Your Order
-                    </h1>
-                    <p className="text-[#EAD2C0] text-base sm:text-lg">
-                        Enter your order ID to track your order status
+
+            <main className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
+                <header className="max-w-xl">
+                    <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Track order</h1>
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                        Enter the order ID from your confirmation. We will show where it is.
                     </p>
-                </div>
+                </header>
 
-                {/* Order ID Input Form */}
-                <div className="bg-[#FFF7ED]/10 backdrop-blur-xl p-6 sm:p-8 lg:p-10 rounded-2xl border border-[#FFF7ED]/20 shadow-2xl mb-8">
-                    <form onSubmit={handleTrackOrder} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-[#EAD2C0] mb-2">
-                                Order ID
-                            </label>
-                            <input
-                                type="text"
-                                value={orderId}
-                                onChange={(e) => setOrderId(e.target.value)}
-                                placeholder="e.g., 143028022612"
-                                className="w-full px-4 py-3 rounded-lg bg-[#3B2A23]/50 border border-[#FFF7ED]/20 text-[#FFF7ED] placeholder-[#EAD2C0]/50 focus:outline-none focus:border-[#D8A24A] transition-colors"
-                            />
-                            {error && (
-                                <p className="mt-2 text-sm text-red-400">{error}</p>
-                            )}
-                        </div>
-                        <Button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold py-3"
-                        >
-                            {loading ? 'Tracking...' : 'Track Order'}
-                        </Button>
-                    </form>
-                </div>
+                <form onSubmit={handleTrackOrder} className="mt-10 max-w-xl space-y-5">
+                    <label className="flex flex-col gap-2">
+                        <span className="font-jost text-sm text-[#EDE6D8]">Order ID</span>
+                        <input
+                            className="lp-field"
+                            type="text"
+                            value={orderId}
+                            onChange={(e) => setOrderId(e.target.value)}
+                            autoComplete="off"
+                            aria-invalid={Boolean(error)}
+                            aria-describedby={error ? 'track-error' : undefined}
+                        />
+                    </label>
+                    {error && (
+                        <p id="track-error" className="font-jost text-sm text-[#E8B4B4]">
+                            {error}
+                        </p>
+                    )}
+                    <button type="submit" disabled={loading} className="lp-btn lp-btn-primary">
+                        {loading ? 'Looking up' : 'Track'}
+                    </button>
+                </form>
 
-                {/* Order Details */}
                 {order && (
-                    <div className="space-y-6">
-                        {/* Order Info */}
-                        <div className="bg-[#FFF7ED]/10 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-[#FFF7ED]/20">
-                            <div className="flex items-center justify-between mb-6">
+                    <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-12">
+                        <section className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8 lg:col-span-7">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div>
-                                    <h2 className="text-2xl font-bold font-['Italiana',_serif] mb-2">
-                                        Order Details
-                                    </h2>
-                                    <p className="text-[#EAD2C0] text-sm">
-                                        Order ID: <span className="text-[#D8A24A] font-semibold">{order.orderId}</span>
+                                    <h2 className="lp-display text-2xl leading-[1.1] sm:text-3xl">Order {order.orderId}</h2>
+                                    <p className="mt-2 font-jost text-sm text-[#C7BCA8]">
+                                        {order.paymentMethod === 'cod' ? 'Pay on delivery' : 'Paid online'}
                                     </p>
                                 </div>
-                                <div className={`px-4 py-2 rounded-lg font-semibold ${
-                                    order.status === 'DELIVERED' ? 'bg-green-500/20 text-green-400' :
-                                    order.status === 'SHIPPED' ? 'bg-blue-500/20 text-blue-400' :
-                                    order.status === 'CONFIRMED' ? 'bg-yellow-500/20 text-yellow-400' :
-                                    order.status === 'CANCELLED' ? 'bg-red-500/20 text-red-400' :
-                                    'bg-gray-500/20 text-gray-400'
-                                }`}>
-                                    {order.status}
-                                </div>
+                                <p className="inline-flex w-fit items-center rounded-full bg-[#D3A34E] px-3 py-1 font-jost text-sm font-semibold text-[#2A1D15]">
+                                    {statusLabel(order.status)}
+                                </p>
                             </div>
 
-                            {/* Customer Info */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2">
                                 <div>
-                                    <h3 className="text-lg font-semibold mb-3 text-[#D8A24A]">Customer Details</h3>
-                                    <div className="space-y-2 text-sm">
-                                        <p><span className="text-[#EAD2C0]">Name:</span> {order.customer.name}</p>
-                                        <p><span className="text-[#EAD2C0]">Email:</span> {order.customer.email}</p>
-                                        <p><span className="text-[#EAD2C0]">Mobile:</span> {order.customer.mobile}</p>
-                                    </div>
+                                    <p className="font-jost text-sm text-[#C7BCA8]">Customer</p>
+                                    <p className="mt-2 font-jost text-[#EDE6D8]">{order.customer.name}</p>
+                                    {order.customer.email && (
+                                        <p className="mt-1 break-all font-jost text-sm text-[#C7BCA8]">{order.customer.email}</p>
+                                    )}
+                                    <p className="mt-1 font-jost text-sm text-[#C7BCA8]">{order.customer.mobile}</p>
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold mb-3 text-[#D8A24A]">Delivery Address</h3>
-                                    <div className="space-y-1 text-sm">
-                                        <p>{order.customer.address1}</p>
-                                        {order.customer.address2 && <p>{order.customer.address2}</p>}
-                                        {order.customer.landmark && <p>{order.customer.landmark}</p>}
-                                        <p>{order.customer.city}, {order.customer.state} - {order.customer.pincode}</p>
-                                    </div>
+                                    <p className="font-jost text-sm text-[#C7BCA8]">Delivery</p>
+                                    <p className="mt-2 font-jost text-sm text-[#EDE6D8]">{order.customer.address1}</p>
+                                    {order.customer.address2 && (
+                                        <p className="font-jost text-sm text-[#EDE6D8]">{order.customer.address2}</p>
+                                    )}
+                                    {order.customer.landmark && (
+                                        <p className="font-jost text-sm text-[#C7BCA8]">{order.customer.landmark}</p>
+                                    )}
+                                    <p className="font-jost text-sm text-[#EDE6D8]">
+                                        {order.customer.city}, {order.customer.state} {order.customer.pincode}
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Order Items */}
-                            <div className="mb-6">
-                                <h3 className="text-lg font-semibold mb-3 text-[#D8A24A]">Order Items</h3>
-                                <div className="space-y-3">
-                                    {order.items.map((item, index) => (
-                                        <div key={index} className="flex items-center justify-between p-3 bg-[#3B2A23]/50 rounded-lg">
-                                            <div className="flex items-center gap-4">
-                                                {item.image && (
-                                                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
-                                                )}
-                                                <div>
-                                                    <p className="font-semibold">{item.name}</p>
-                                                    <p className="text-sm text-[#EAD2C0]">
-                                                        Qty: {item.quantity} × ₹{item.offerPrice || item.price}
-                                                    </p>
-                                                    {item.color && <p className="text-xs text-[#EAD2C0]">Color: {item.color}</p>}
-                                                    {item.fragrance && <p className="text-xs text-[#EAD2C0]">Fragrance: {item.fragrance}</p>}
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="font-semibold">₹{(item.quantity * (item.offerPrice || item.price)).toFixed(2)}</p>
-                                            </div>
+                            <div className="mt-8 space-y-3">
+                                {order.items.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center gap-3 rounded-[12px] bg-[#2A1D15]/50 p-3 sm:gap-4"
+                                    >
+                                        {item.image && (
+                                            <img
+                                                src={item.image}
+                                                alt={item.name}
+                                                className="h-16 w-16 shrink-0 rounded-[12px] object-cover sm:h-20 sm:w-20"
+                                            />
+                                        )}
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-jost text-sm text-[#EDE6D8] sm:text-base">{item.name}</p>
+                                            <p className="mt-1 font-jost text-xs text-[#C7BCA8] sm:text-sm">
+                                                Qty {item.quantity} · ₹{item.offerPrice || item.price}
+                                            </p>
+                                            {(item.color || item.fragrance) && (
+                                                <p className="mt-0.5 font-jost text-xs text-[#C7BCA8]">
+                                                    {[item.color, item.fragrance].filter(Boolean).join(', ')}
+                                                </p>
+                                            )}
                                         </div>
-                                    ))}
+                                        <p className="shrink-0 font-jost tabular-nums text-[#EDE6D8]">
+                                            ₹{(item.quantity * (item.offerPrice || item.price)).toFixed(2)}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-6 space-y-2 border-t border-[#D3A34E]/20 pt-4 font-jost text-sm">
+                                <div className="flex justify-between text-[#C7BCA8]">
+                                    <span>Subtotal</span>
+                                    <span>₹{order.totals.subtotal.toFixed(2)}</span>
+                                </div>
+                                {order.totals.giftWrap > 0 && (
+                                    <div className="flex justify-between text-[#C7BCA8]">
+                                        <span>Gift wrap</span>
+                                        <span>₹{order.totals.giftWrap.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {order.totals.shipping > 0 && (
+                                    <div className="flex justify-between text-[#C7BCA8]">
+                                        <span>Shipping</span>
+                                        <span>₹{order.totals.shipping.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {order.totals.discount > 0 && (
+                                    <div className="flex justify-between text-[#C7BCA8]">
+                                        <span>Discount</span>
+                                        <span>-₹{order.totals.discount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {order.totals.codCharge > 0 && (
+                                    <div className="flex justify-between text-[#C7BCA8]">
+                                        <span>COD</span>
+                                        <span>₹{order.totals.codCharge.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {order.totals.gst > 0 && (
+                                    <div className="flex justify-between text-[#C7BCA8]">
+                                        <span>GST</span>
+                                        <span>₹{order.totals.gst.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between pt-2 text-base text-[#EDE6D8]">
+                                    <span>Total</span>
+                                    <span className="tabular-nums text-[#D3A34E]">₹{order.totals.total.toFixed(2)}</span>
                                 </div>
                             </div>
 
-                            {/* Order Totals */}
-                            <div className="border-t border-[#FFF7ED]/20 pt-4">
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex justify-between">
-                                        <span className="text-[#EAD2C0]">Subtotal:</span>
-                                        <span>₹{order.totals.subtotal.toFixed(2)}</span>
-                                    </div>
-                                    {order.totals.giftWrap > 0 && (
-                                        <div className="flex justify-between">
-                                            <span className="text-[#EAD2C0]">Gift Wrap:</span>
-                                            <span>₹{order.totals.giftWrap.toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    {order.totals.shipping > 0 && (
-                                        <div className="flex justify-between">
-                                            <span className="text-[#EAD2C0]">Shipping:</span>
-                                            <span>₹{order.totals.shipping.toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    {order.totals.discount > 0 && (
-                                        <div className="flex justify-between text-green-400">
-                                            <span>Discount:</span>
-                                            <span>-₹{order.totals.discount.toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    {order.totals.codCharge > 0 && (
-                                        <div className="flex justify-between">
-                                            <span className="text-[#EAD2C0]">COD Charge:</span>
-                                            <span>₹{order.totals.codCharge.toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    {order.totals.gst > 0 && (
-                                        <div className="flex justify-between">
-                                            <span className="text-[#EAD2C0]">GST (18%):</span>
-                                            <span>₹{order.totals.gst.toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    <div className="flex justify-between text-xl font-bold pt-2 border-t border-[#FFF7ED]/20">
-                                        <span className="text-[#D8A24A]">Total:</span>
-                                        <span className="text-[#D8A24A]">₹{order.totals.total.toFixed(2)}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Tracking Info */}
                             {order.trackingId && (
-                                <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                                    <p className="text-sm mb-1 text-[#EAD2C0]">Tracking ID:</p>
-                                    <p className="font-semibold text-blue-400">{order.trackingId}</p>
+                                <div className="mt-6 rounded-[12px] bg-[#2A1D15]/50 p-4">
+                                    <p className="font-jost text-sm text-[#C7BCA8]">Courier tracking</p>
+                                    <p className="mt-1 break-all font-jost text-[#EDE6D8]">{order.trackingId}</p>
                                     {order.trackingLink && (
                                         <a
                                             href={order.trackingLink}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-sm text-blue-400 hover:text-blue-300 underline mt-2 inline-block"
+                                            className="mt-2 inline-block font-jost text-sm text-[#D3A34E] hover:text-[#EDE6D8]"
                                         >
-                                            Track on Courier Website
+                                            Open courier site
                                         </a>
                                     )}
                                 </div>
                             )}
-                        </div>
+                        </section>
 
-                        {/* Order Timeline */}
-                        <div className="bg-[#FFF7ED]/10 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-[#FFF7ED]/20">
-                            <h2 className="text-2xl font-bold font-['Italiana',_serif] mb-6">Order Timeline</h2>
-                            <OrderTimeline order={order} />
-                        </div>
+                        <section className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8 lg:col-span-5">
+                            <h2 className="lp-display text-2xl leading-[1.1] sm:text-3xl">Timeline</h2>
+                            <div className="mt-6">
+                                <OrderTimeline order={order} />
+                            </div>
+                        </section>
                     </div>
                 )}
-            </div>
+            </main>
         </div>
     );
 };

@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
+import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import toast from 'react-hot-toast';
-import { applyCoupon, calculateTotals, makeUpiLink } from '../lib/checkoutHelpers';
+import { applyCoupon, calculateTotals } from '../lib/checkoutHelpers';
 import { API_ENDPOINTS } from '../config/api';
 
 const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey', 'Others'];
@@ -158,50 +157,42 @@ const Checkout = () => {
 
     if (cartItems.length === 0) {
         return (
-            <div className="min-h-screen bg-[#3B2A23] font-['Inter',_sans-serif] text-[#FFF7ED]">
+            <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
                 <Navbar />
-                <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)]">
-                    <div className="text-center space-y-6">
-                        <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-[#FFF7ED]/10 backdrop-blur-md border border-[#FFF7ED]/20 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-6xl text-[#D8A24A]">shopping_cart</span>
-                        </div>
-                        <h2 className="text-4xl font-['Italiana',_serif] font-bold mb-4">Your Cart is Empty</h2>
-                        <p className="text-[#EAD2C0] text-lg mb-8">Looks like you haven't added anything to your cart yet.</p>
-                        <Button onClick={() => navigate('/shop')} className="bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold px-8 py-6 text-lg">
-                            Explore Our Collection
-                        </Button>
-                    </div>
-                </div>
+                <main className="mx-auto w-full max-w-[1400px] px-5 py-20 sm:px-10 lg:px-16">
+                    <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Your bag is empty</h1>
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                        Add a candle from the shop, then come back to check out.
+                    </p>
+                    <Link to="/shop" className="lp-btn lp-btn-primary mt-8">
+                        Shop candles
+                    </Link>
+                </main>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#3B2A23] font-['Inter',_sans-serif] text-[#FFF7ED] relative overflow-hidden">
-            {/* Background */}
-            <div className="absolute inset-0 z-0 opacity-30">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#D8A24A]/10 to-transparent"></div>
-            </div>
+        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+            <Navbar />
+            <div className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
+                    <header className="max-w-xl">
+                        <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Checkout</h1>
+                        <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                            Confirm the bag, then tell us where to send it.
+                        </p>
+                    </header>
 
-            <div className="relative z-10">
-                <Navbar />
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-7xl">
-                    <div className="text-center mb-8 sm:mb-12">
-                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-['Italiana',_serif] text-[#FFF7ED] mb-3 sm:mb-4">Complete Your Order</h1>
-                        <p className="text-[#EAD2C0] text-base sm:text-lg">Just a few more steps to get your handcrafted candles delivered</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                    <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-2">
                         {/* Checkout Form */}
                         <div className="order-2 lg:order-1">
-                            <div className="bg-[#FFF7ED]/10 backdrop-blur-xl p-4 sm:p-6 lg:p-8 rounded-2xl border border-[#FFF7ED]/20 shadow-2xl">
-                                <h2 className="text-xl sm:text-2xl font-bold font-['Italiana',_serif] mb-4 sm:mb-6 flex items-center">
-                                    <span className="material-symbols-outlined mr-2 sm:mr-3 text-[#D8A24A]">local_shipping</span>
-                                    Shipping Details
+                            <div className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8">
+                                <h2 className="lp-display text-2xl leading-[1.1] sm:text-3xl">
+                                    Shipping
                                 </h2>
-                                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                            <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Full Name *</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Full Name *</label>
                                         <input
                                             type="text"
                                             name="name"
@@ -209,13 +200,13 @@ const Checkout = () => {
                                             value={formData.name}
                                             onChange={handleChange}
                                             placeholder="Enter your full name"
-                                            className={`w-full p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.name ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white placeholder-[#EAD2C0]/50 focus:outline-none focus:border-[#D8A24A] focus:ring-2 focus:ring-[#D8A24A]/50 transition-all`}
+                                            className={`lp-field ${errors.name ? '!border-[#E8B4B4]' : ''}`}
                                         />
-                                        {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
+                                        {errors.name && <p className="text-xs text-[#E8B4B4] mt-1">{errors.name}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Mobile Number *</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Mobile Number *</label>
                                         <input
                                             type="tel"
                                             name="mobile"
@@ -223,26 +214,26 @@ const Checkout = () => {
                                             value={formData.mobile}
                                             onChange={handleChange}
                                             placeholder="Enter 10-digit mobile"
-                                            className={`w-full p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.mobile ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white placeholder-[#EAD2C0]/50 focus:outline-none focus:border-[#D8A24A] focus:ring-2 focus:ring-[#D8A24A]/50 transition-all`}
+                                            className={`lp-field ${errors.mobile ? '!border-[#E8B4B4]' : ''}`}
                                         />
-                                        {errors.mobile && <p className="text-xs text-red-400 mt-1">{errors.mobile}</p>}
+                                        {errors.mobile && <p className="text-xs text-[#E8B4B4] mt-1">{errors.mobile}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Email Address (Optional)</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Email Address (Optional)</label>
                                         <input
                                             type="email"
                                             name="email"
                                             value={formData.email}
                                             onChange={handleChange}
                                             placeholder="your.email@example.com"
-                                            className={`w-full p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.email ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white placeholder-[#EAD2C0]/50 focus:outline-none`}
+                                            className={`lp-field ${errors.email ? '!border-[#E8B4B4]' : ''}`}
                                         />
-                                        {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email}</p>}
+                                        {errors.email && <p className="text-xs text-[#E8B4B4] mt-1">{errors.email}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Address Line 1 *</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Address Line 1 *</label>
                                         <input
                                             type="text"
                                             name="address1"
@@ -250,30 +241,30 @@ const Checkout = () => {
                                             value={formData.address1}
                                             onChange={handleChange}
                                             placeholder="House number and street name"
-                                            className={`w-full p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.address1 ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white placeholder-[#EAD2C0]/50 focus:outline-none`}
+                                            className={`lp-field ${errors.address1 ? '!border-[#E8B4B4]' : ''}`}
                                         />
-                                        {errors.address1 && <p className="text-xs text-red-400 mt-1">{errors.address1}</p>}
+                                        {errors.address1 && <p className="text-xs text-[#E8B4B4] mt-1">{errors.address1}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Address Line 2 (optional)</label>
-                                        <input type="text" name="address2" value={formData.address2} onChange={handleChange} placeholder="Apartment, suite, etc." className="w-full p-4 rounded-lg bg-[#3B2A23]/80 border border-[#FFF7ED]/30 text-white" />
+                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Address Line 2 (optional)</label>
+                                        <input type="text" name="address2" value={formData.address2} onChange={handleChange} className="lp-field" />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Landmark (optional)</label>
-                                        <input type="text" name="landmark" value={formData.landmark} onChange={handleChange} placeholder="Near..." className="w-full p-4 rounded-lg bg-[#3B2A23]/80 border border-[#FFF7ED]/30 text-white" />
+                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Landmark (optional)</label>
+                                        <input type="text" name="landmark" value={formData.landmark} onChange={handleChange} className="lp-field" />
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <div className="sm:col-span-1">
-                                            <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">City *</label>
-                                            <input type="text" name="city" value={formData.city} onChange={handleChange} className={`w-full p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.city ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white`} />
-                                            {errors.city && <p className="text-xs text-red-400 mt-1">{errors.city}</p>}
+                                            <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">City *</label>
+                                            <input type="text" name="city" value={formData.city} onChange={handleChange} className={`lp-field ${errors.city ? '!border-[#E8B4B4]' : ''}`} />
+                                            {errors.city && <p className="mt-1 font-jost text-xs text-[#E8B4B4]">{errors.city}</p>}
                                         </div>
                                         <div className="sm:col-span-1">
-                                            <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">State *</label>
-                                            <select name="state" value={formData.state} onChange={handleChange} className={`w-full p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.state ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white`}>
+                                            <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">State *</label>
+                                            <select name="state" value={formData.state} onChange={handleChange} className={`lp-field ${errors.state ? '!border-[#E8B4B4]' : ''}`}>
                                                 <option value="">Select state</option>
                                                 <option>Andhra Pradesh</option>
                                                 <option>Arunachal Pradesh</option>
@@ -312,12 +303,12 @@ const Checkout = () => {
                                                 <option>Lakshadweep</option>
                                                 <option>Puducherry</option>
                                             </select>
-                                            {errors.state && <p className="text-xs text-red-400 mt-1">{errors.state}</p>}
+                                            {errors.state && <p className="text-xs text-[#E8B4B4] mt-1">{errors.state}</p>}
                                         </div>
                                         <div className="sm:col-span-1">
-                                            <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">Pincode *</label>
-                                            <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} className={`w-full p-4 rounded-lg bg-[#3B2A23]/80 border ${errors.pincode ? 'border-red-400' : 'border-[#FFF7ED]/30'} text-white`} />
-                                            {errors.pincode && <p className="text-xs text-red-400 mt-1">{errors.pincode}</p>}
+                                            <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Pincode *</label>
+                                            <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} className={`lp-field ${errors.pincode ? '!border-[#E8B4B4]' : ''}`} />
+                                            {errors.pincode && <p className="mt-1 font-jost text-xs text-[#E8B4B4]">{errors.pincode}</p>}
                                         </div>
                                     </div>
 
@@ -358,7 +349,7 @@ const Checkout = () => {
 
                                     {/* Courier Company Selection */}
                                     <div>
-                                        <label className="block text-sm font-semibold mb-2 text-[#EAD2C0]">
+                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">
                                             Courier Preference (Optional)
                                             <span className="text-xs font-normal ml-2 text-[#EAD2C0]/70">For special courier, please specify</span>
                                         </label>
@@ -367,7 +358,7 @@ const Checkout = () => {
                                             value={courierCompany}
                                             onChange={(e) => setCourierCompany(e.target.value)}
                                             placeholder="e.g., Blue Dart, DTDC, or leave blank for standard"
-                                            className="w-full p-4 rounded-lg bg-[#3B2A23]/80 border border-[#FFF7ED]/30 text-white placeholder-[#EAD2C0]/50 focus:outline-none focus:border-[#D8A24A]"
+                                            className="lp-field"
                                         />
                                     </div>
 
@@ -383,34 +374,32 @@ const Checkout = () => {
                                             />
                                             <label htmlFor="terms" className="text-sm text-[#EAD2C0] flex-1">
                                                 I accept the{' '}
-                                                <button 
+                                                <button
                                                     type="button"
                                                     onClick={() => setShowTermsModal(true)}
-                                                    className="text-[#D8A24A] underline hover:text-[#D8A24A]/80"
+                                                    className="text-[#D3A34E] underline hover:text-[#EDE6D8]"
                                                 >
                                                     Terms and Conditions
                                                 </button>
                                             </label>
                                         </div>
-                                        {errors.terms && <p className="text-xs text-red-400 mt-2 ml-7">{errors.terms}</p>}
+                                        {errors.terms && <p className="text-xs text-[#E8B4B4] mt-2 ml-7">{errors.terms}</p>}
                                     </div>
 
-                                    <Button type="submit" className="w-full mt-4 bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold py-4 text-lg rounded-xl shadow-lg">
-                                        <span className="material-symbols-outlined mr-2">check_circle</span>
-                                        Place Order
-                                    </Button>
+                                    <button type="submit" className="lp-btn lp-btn-primary mt-4 w-full">
+                                        Place order
+                                    </button>
                                 </form>
                             </div>
                         </div>
 
                         {/* Order Summary */}
                         <div className="order-1 lg:order-2">
-                            <div className="bg-[#FFF7ED]/10 backdrop-blur-xl p-4 sm:p-6 lg:p-8 rounded-2xl border border-[#FFF7ED]/20 shadow-2xl lg:sticky lg:top-24">
-                                <h2 className="text-xl sm:text-2xl font-bold font-['Italiana',_serif] mb-4 sm:mb-6 flex items-center">
-                                    <span className="material-symbols-outlined mr-2 sm:mr-3 text-[#D8A24A]">receipt_long</span>
-                                    Order Summary
+                            <div className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8 lg:sticky lg:top-24">
+                                <h2 className="lp-display text-2xl leading-[1.1] sm:text-3xl">
+                                    Your bag
                                 </h2>
-                                <div className="space-y-3 sm:space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                                <div className="mt-6 space-y-3 sm:space-y-4 max-h-[min(50vh,400px)] overflow-y-auto pr-1">
                                     {cartItems.map((item, index) => {
                                         // Handle both numbers (new) and strings (old legacy data)
                                         // Use offer price if available
@@ -437,7 +426,7 @@ const Checkout = () => {
                                         <div className="flex items-center gap-2 mt-1">
                                             {item.offerPrice ? (
                                                 <>
-                                                    <span className="text-sm font-bold text-red-400">₹{item.offerPrice}</span>
+                                                    <span className="text-sm font-bold text-[#D3A34E]">₹{item.offerPrice}</span>
                                                     <span className="text-xs text-[#EAD2C0]/60 line-through">₹{regularPrice.toFixed(2)}</span>
                                                 </>
                                             ) : (
@@ -469,7 +458,7 @@ const Checkout = () => {
                                                                             );
                                                                         }
                                                                     }}
-                                                                    className="flex-1 text-xs px-2 py-1 rounded bg-[#3B2A23] border border-[#FFF7ED]/20 text-white"
+                                                                    className="lp-field !min-h-10 flex-1 py-2 text-sm"
                                                                 >
                                                                     {availableColors.map(color => (
                                                                         <option key={color} value={color}>{color}</option>
@@ -489,7 +478,7 @@ const Checkout = () => {
                                                                             e.target.value,
                                                                             item.fragrance
                                                                         )}
-                                                                        className="flex-1 text-xs px-2 py-1 rounded bg-[#3B2A23] border border-[#FFF7ED]/20 text-white"
+                                                                        className="lp-field !min-h-10 flex-1 py-2 text-sm"
                                                                         placeholder="Enter custom color"
                                                                     />
                                                                 </div>
@@ -505,7 +494,7 @@ const Checkout = () => {
                                                                         item.color,
                                                                         e.target.value
                                                                     )}
-                                                                    className="flex-1 text-xs px-2 py-1 rounded bg-[#3B2A23] border border-[#FFF7ED]/20 text-white"
+                                                                    className="lp-field !min-h-10 flex-1 py-2 text-sm"
                                                                 >
                                                                     {availableFragrances.map(fragrance => (
                                                                         <option key={fragrance} value={fragrance}>{fragrance}</option>
@@ -528,7 +517,7 @@ const Checkout = () => {
                                                                 },
                                                             });
                                                         }}
-                                                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-500/20 hover:bg-red-500/40 text-red-400 hover:text-red-300 transition-all flex-shrink-0"
+                                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#C7BCA8] hover:text-[#EDE6D8]"
                                                         aria-label="Remove item"
                                                     >
                                                         <span className="material-symbols-outlined text-lg">close</span>
@@ -556,14 +545,14 @@ const Checkout = () => {
                                                                     });
                                                                 }
                                                             }}
-                                                            className="w-7 h-7 flex items-center justify-center rounded-full bg-[#D8A24A]/20 hover:bg-[#D8A24A]/40 text-[#D8A24A] transition-all"
+                                                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D3A34E]/20 text-[#D3A34E] transition-transform active:scale-[0.98]"
                                                         >
                                                             <span className="material-symbols-outlined text-base">remove</span>
                                                         </button>
                                                         <span className="text-base font-bold text-[#FFF7ED] min-w-[24px] text-center">{item.quantity}</span>
                                                         <button
                                                             onClick={() => updateQuantity(itemId, item.quantity + 1, item.color, item.fragrance)}
-                                                            className="w-7 h-7 flex items-center justify-center rounded-full bg-[#D8A24A]/20 hover:bg-[#D8A24A]/40 text-[#D8A24A] transition-all"
+                                                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D3A34E]/20 text-[#D3A34E] transition-transform active:scale-[0.98]"
                                                         >
                                                             <span className="material-symbols-outlined text-base">add</span>
                                                         </button>
@@ -585,17 +574,17 @@ const Checkout = () => {
                                     </div>
 
                                     <div className="mt-3">
-                                        <label className="block text-sm text-[#EAD2C0] font-semibold mb-2">Have a coupon?</label>
-                                        <div className="flex gap-2">
-                                            <input value={couponCode} onChange={(e)=>setCouponCode(e.target.value)} placeholder="Enter Coupon Code" className="flex-1 p-3 rounded-lg bg-[#3B2A23]/80 border border-[#FFF7ED]/30 text-white" />
-                                            <button onClick={() => {
+                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Coupon</label>
+                                        <div className="flex flex-col gap-2 sm:flex-row">
+                                            <input value={couponCode} onChange={(e)=>setCouponCode(e.target.value)} className="lp-field flex-1" aria-label="Coupon code" />
+                                            <button type="button" onClick={() => {
                                                 const res = applyCoupon(couponCode, getCartTotal());
                                                 setCouponResult(res);
                                                 if (res.valid) toast.success(res.message); else toast.error(res.message);
-                                            }} className="px-4 py-3 bg-[#D8A24A] text-[#3B2A23] rounded-lg font-semibold">Apply</button>
+                                            }} className="lp-btn lp-btn-ghost shrink-0">Apply</button>
                                         </div>
                                         {couponResult && (
-                                            <p className={`text-sm mt-2 ${couponResult.valid ? 'text-green-300' : 'text-red-400'}`}>{couponResult.message}{couponResult.valid ? ` - Saved ₹${couponResult.discount.toFixed(2)}` : ''}</p>
+                                            <p className={`mt-2 font-jost text-sm ${couponResult.valid ? 'text-[#D3A34E]' : 'text-[#E8B4B4]'}`}>{couponResult.message}{couponResult.valid ? ` Saved ₹${couponResult.discount.toFixed(2)}` : ''}</p>
                                         )}
                                     </div>
 
@@ -632,14 +621,13 @@ const Checkout = () => {
                         </div>
                     </div>
                 </div>
-            </div>
 
             {/* Terms and Conditions Modal */}
             {showTermsModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-                    <div className="bg-[#3B2A23] border-2 border-[#D8A24A]/50 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                <div className="fixed inset-0 z-[70] flex items-end justify-center p-0 sm:items-center sm:p-4 bg-[#1F150E]/90">
+                    <div className="bg-[#2A1D15] w-full max-h-[90dvh] overflow-hidden rounded-t-[20px] sm:max-w-2xl sm:rounded-[20px]">
                         <div className="bg-[#D8A24A]/20 border-b border-[#D8A24A]/30 p-6 flex items-center justify-between">
-                            <h3 className="text-2xl font-bold font-['Italiana',_serif] text-[#FFF7ED]">Terms and Conditions</h3>
+                            <h3 className="lp-display text-2xl leading-[1.1] text-[#EDE6D8]">Terms</h3>
                             <button 
                                 onClick={() => setShowTermsModal(false)}
                                 className="w-10 h-10 rounded-full bg-[#FFF7ED]/10 hover:bg-[#FFF7ED]/20 flex items-center justify-center transition-all"
@@ -685,23 +673,25 @@ const Checkout = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="border-t border-[#FFF7ED]/10 p-6 flex gap-3 justify-end">
-                            <Button 
+                        <div className="border-t border-[#D3A34E]/20 p-4 sm:p-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                            <button
+                                type="button"
                                 onClick={() => setShowTermsModal(false)}
-                                className="bg-[#FFF7ED]/10 text-[#FFF7ED] hover:bg-[#FFF7ED]/20 border border-[#FFF7ED]/30"
+                                className="lp-btn lp-btn-ghost w-full sm:w-auto"
                             >
                                 Close
-                            </Button>
-                            <Button 
+                            </button>
+                            <button
+                                type="button"
                                 onClick={() => {
                                     setTermsAccepted(true);
                                     setShowTermsModal(false);
                                     toast.success('Terms accepted');
                                 }}
-                                className="bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90"
+                                className="lp-btn lp-btn-primary w-full sm:w-auto"
                             >
-                                Accept Terms
-                            </Button>
+                                Accept
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -1,227 +1,616 @@
-import React, { useEffect, useState } from 'react';
-import { Button } from '../components/ui/button';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
-import toast from 'react-hot-toast';
-import LazyImage from '../components/LazyImage';
 import { API_ENDPOINTS } from '../config/api';
-import heroBg from '../assets/hero-bg.png';
-import productPlaceholder from '../assets/product-placeholder.png';
+
 import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
 import snowmanCandle from '../assets/Snowman_Candle ___199.webp';
 import teddyCandle from '../assets/Teddy_Heart_Candle__60.webp';
+import roseCandle from '../assets/Big_rose_candle_99.webp';
+import chaiCandle from '../assets/Tea_biscuit_candle_99.webp';
 import vanillaCandle from '../assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp';
-import roseCandle from '../assets/Rose_Flower_Basket_Candle___249.webp';
-import sandalwoodCandle from '../assets/Chai_Biscuit_Glass_Candle___90.webp';
+import bouquetCandle from '../assets/Luxury_Mini_Bouquet_Candle__150 .webp';
+import lotusCandle from '../assets/Lotus_Candle __99.webp';
+import studioWall from '../assets/textures/studio-wall.jpg';
+import woodTable from '../assets/textures/wood-table.jpg';
+import processMelt from '../assets/textures/process-melt.jpg';
+import processShape from '../assets/textures/process-shape.jpg';
+import processCure from '../assets/textures/process-cure.jpg';
+import processGift from '../assets/textures/process-gift.jpg';
 
-const LandingPage = () => {
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+const SHELL = 'mx-auto w-full max-w-[1400px] px-5 sm:px-10 lg:px-16';
+
+const SHAPES = [
+    { name: 'Floral', note: 'Glass jars and blooms', img: flowerCandle, alt: 'Flower-shaped soy candle in a glass jar' },
+    { name: 'Seasonal', note: 'Limited winter pours', img: snowmanCandle, alt: 'Snowman-shaped novelty candle' },
+    { name: 'Spiced', note: 'Chai, vanilla, wood', img: chaiCandle, alt: 'Chai biscuit scented candle in a glass tumbler' },
+    { name: 'Sculpted', note: 'Teddies, roses, hearts', img: bouquetCandle, alt: 'Miniature bouquet candle arrangement' },
+];
+
+const POUR_CHAPTERS = [
+    {
+        verb: 'Melt',
+        copy: 'Soy wax heated slow in small batches. No shortcuts, no rush.',
+        img: processMelt,
+        alt: 'Molten soy wax in a double boiler at the Enpees studio',
+    },
+    {
+        verb: 'Shape',
+        copy: 'Poured into hand-cut moulds. Roses, teddies, hearts, diyas.',
+        img: processShape,
+        alt: 'Molten wax poured into a silicone mould',
+    },
+    {
+        verb: 'Cure',
+        copy: 'Each candle rests 48 hours before the wick is trimmed.',
+        img: processCure,
+        alt: 'Freshly poured candles resting on a wooden curing rack',
+    },
+    {
+        verb: 'Gift',
+        copy: 'Wrapped in recyclable paper, ribbon-tied, posted from Rajkot.',
+        img: processGift,
+        alt: 'A candle wrapped in kraft paper and tied with gold ribbon',
+    },
+];
+
+/* ── Hooks ── */
+
+function usePrefersReducedMotion() {
+    const [reduce, setReduce] = useState(() =>
+        typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+    useEffect(() => {
+        const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const onChange = () => setReduce(mq.matches);
+        mq.addEventListener('change', onChange);
+        return () => mq.removeEventListener('change', onChange);
+    }, []);
+    return reduce;
+}
+
+function useReveal() {
+    const root = useRef(null);
+    useEffect(() => {
+        const nodes = root.current?.querySelectorAll('[data-reveal]');
+        if (!nodes?.length) return;
+        const io = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((e) => {
+                    if (!e.isIntersecting) return;
+                    e.target.setAttribute('data-reveal', 'in');
+                    io.unobserve(e.target);
+                });
+            },
+            { rootMargin: '0px 0px -8% 0px', threshold: 0.12 }
+        );
+        nodes.forEach((n) => io.observe(n));
+        return () => io.disconnect();
+    }, []);
+    return root;
+}
+
+function useMagnetic(strength = 0.22) {
+    const ref = useRef(null);
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const onMove = (e) => {
+            const r = el.getBoundingClientRect();
+            const x = e.clientX - (r.left + r.width / 2);
+            const y = e.clientY - (r.top + r.height / 2);
+            el.style.transform = `translate3d(${(x * strength).toFixed(1)}px, ${(y * strength).toFixed(1)}px, 0)`;
+        };
+        const onLeave = () => { el.style.transform = 'translate3d(0,0,0)'; };
+        el.addEventListener('mousemove', onMove);
+        el.addEventListener('mouseleave', onLeave);
+        return () => {
+            el.removeEventListener('mousemove', onMove);
+            el.removeEventListener('mouseleave', onLeave);
+        };
+    }, [strength]);
+    return ref;
+}
+
+/* ── Shape accordion ── */
+
+function ShapeAccordion() {
+    const [active, setActive] = useState(0);
+    const reduce = usePrefersReducedMotion();
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActive((i) => (i + 1) % SHAPES.length);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActive((i) => (i - 1 + SHAPES.length) % SHAPES.length);
+        }
+    };
+
+    return (
+        <div
+            className="lp-acc"
+            role="list"
+            aria-label="Candle shapes"
+            onKeyDown={handleKeyDown}
+        >
+            {SHAPES.map((s, i) => {
+                const isActive = reduce ? true : i === active;
+                return (
+                    <Link
+                        key={s.name}
+                        to="/shop"
+                        role="listitem"
+                        data-active={isActive ? 'true' : 'false'}
+                        aria-current={isActive ? 'true' : undefined}
+                        onMouseEnter={() => !reduce && setActive(i)}
+                        onFocus={() => !reduce && setActive(i)}
+                        className="lp-acc-panel group"
+                    >
+                        <img src={s.img} alt={s.alt} loading="lazy" decoding="async" />
+                        <span className="lp-scrim" aria-hidden="true" />
+                        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+                            <h3 className="lp-display text-2xl leading-[1.1] sm:text-3xl lg:text-4xl">{s.name}</h3>
+                            <p className={`mt-2 font-jost text-[13px] text-[#C7BCA8] transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-100 md:opacity-0'}`}>
+                                {s.note}
+                            </p>
+                        </div>
+                    </Link>
+                );
+            })}
+        </div>
+    );
+}
+
+/* ── Best-seller slides ── */
+
+function ProductSlide({ product, onAdd, className = 'w-[72vw] shrink-0 sm:w-[42vw] lg:w-[28vw]' }) {
+    const [added, setAdded] = useState(false);
+    const price = product.offerPrice || product.price;
+
+    const handleAdd = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onAdd(product);
+        setAdded(true);
+        window.setTimeout(() => setAdded(false), 1400);
+    };
+
+    return (
+        <article className={`group flex flex-col ${className}`}>
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[20px] bg-[#3B2A1E]">
+                <Link to="/product" state={{ product }} className="absolute inset-0 block">
+                    <img
+                        src={product.image}
+                        alt={product.name || 'Enpees candle'}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+                    />
+                </Link>
+                <button
+                    type="button"
+                    onClick={handleAdd}
+                    aria-label={added ? `${product.name} added to cart` : `Add ${product.name} to cart`}
+                    className="absolute bottom-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#D3A34E] text-[#2A1D15] shadow-[0_10px_24px_-8px_rgba(211,163,78,0.7)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                >
+                    <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
+                        {added ? 'check' : 'add'}
+                    </span>
+                </button>
+            </div>
+            <div className="mt-4 flex min-h-[3.25rem] items-start justify-between gap-3">
+                <h3 className="lp-display line-clamp-2 text-[1.05rem] leading-snug">
+                    <Link to="/product" state={{ product }} className="transition-colors hover:text-[#D3A34E]">
+                        {product.name}
+                    </Link>
+                </h3>
+                <p className="shrink-0 pt-0.5 font-jost text-base tabular-nums text-[#EDE6D8]">
+                    ₹{price}
+                    {product.offerPrice && (
+                        <span className="ml-2 text-[13px] text-[#C7BCA8]/50 line-through">₹{product.price}</span>
+                    )}
+                </p>
+            </div>
+        </article>
+    );
+}
+
+function ProductPan({ products, onAdd }) {
+    const wrap = useRef(null);
+    const track = useRef(null);
+    const reduce = usePrefersReducedMotion();
+
+    useGSAP(() => {
+        if (reduce || !wrap.current || !track.current || products.length === 0) return;
+        const getDistance = () => Math.max(0, track.current.scrollWidth - window.innerWidth);
+        gsap.to(track.current, {
+            x: () => -getDistance(),
+            ease: 'none',
+            scrollTrigger: {
+                trigger: wrap.current,
+                start: 'top top',
+                end: () => `+=${Math.max(getDistance(), window.innerHeight * 0.5)}`,
+                pin: true,
+                scrub: 1,
+                invalidateOnRefresh: true,
+                anticipatePin: 1,
+            },
+        });
+        const onImg = () => ScrollTrigger.refresh();
+        track.current.querySelectorAll('img').forEach((img) => {
+            if (!img.complete) img.addEventListener('load', onImg, { once: true });
+        });
+    }, { dependencies: [products, reduce], revertOnUpdate: true, scope: wrap });
+
+    if (reduce) {
+        return (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {products.map((p) => (
+                    <ProductSlide key={p._id} product={p} onAdd={onAdd} className="w-full" />
+                ))}
+            </div>
+        );
+    }
+
+    return (
+        <div ref={wrap} className="relative z-10 isolate overflow-hidden bg-[#2A1D15]">
+            <div
+                ref={track}
+                className="flex h-[100dvh] items-center gap-6 px-5 pt-28 sm:gap-8 sm:px-10 lg:gap-10 lg:px-16"
+            >
+                <div className="w-[72vw] shrink-0 sm:w-[36vw] lg:w-[24vw]">
+                    <h2 className="lp-display text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                        The shapes people come back for.
+                    </h2>
+                    <p className="lp-lede mt-5 max-w-[28ch]">
+                        A handful of pieces we pour again and again.
+                    </p>
+                </div>
+                {products.map((p) => (
+                    <ProductSlide key={p._id} product={p} onAdd={onAdd} />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function PourChapters({ reduce }) {
+    const wrap = useRef(null);
+    const [live, setLive] = useState(reduce ? POUR_CHAPTERS.length - 1 : -1);
+
+    useGSAP(() => {
+        if (!wrap.current) return;
+        const cards = gsap.utils.toArray('.pour-card', wrap.current);
+        if (reduce) {
+            cards.forEach((card) => card.setAttribute('data-live', 'true'));
+            return;
+        }
+        cards.forEach((card, i) => {
+            ScrollTrigger.create({
+                trigger: card,
+                start: 'top 78%',
+                onEnter: () => {
+                    card.setAttribute('data-live', 'true');
+                    setLive((n) => Math.max(n, i));
+                },
+                onEnterBack: () => setLive(i),
+            });
+        });
+    }, { scope: wrap, dependencies: [reduce] });
+
+    return (
+        <div ref={wrap}>
+            <ol className={`${SHELL} mb-8 flex items-center gap-2 overflow-x-auto pb-2 sm:mb-10`} aria-label="How a candle is made">
+                {POUR_CHAPTERS.map((ch, i) => (
+                    <li key={ch.verb} className="flex shrink-0 items-center gap-2">
+                        <span
+                            className={`font-jost text-sm transition-colors ${
+                                i <= live ? 'text-[#D3A34E]' : 'text-[#C7BCA8]/45'
+                            }`}
+                        >
+                            {ch.verb}
+                        </span>
+                        {i < POUR_CHAPTERS.length - 1 && (
+                            <span
+                                className={`h-px w-8 sm:w-12 ${i < live ? 'bg-[#D3A34E]' : 'bg-[#C7BCA8]/25'}`}
+                                aria-hidden="true"
+                            />
+                        )}
+                    </li>
+                ))}
+            </ol>
+            <div className={`${SHELL} grid grid-cols-1 gap-5 pb-24 sm:grid-cols-2 sm:gap-6 lg:pb-32`}>
+                {POUR_CHAPTERS.map((ch) => (
+                    <article
+                        key={ch.verb}
+                        className="pour-card relative min-h-[280px] overflow-hidden rounded-[20px] sm:min-h-[340px] lg:min-h-[400px]"
+                    >
+                        <img
+                            src={ch.img}
+                            alt={ch.alt}
+                            loading="lazy"
+                            decoding="async"
+                            className="pour-photo absolute inset-0 h-full w-full object-cover"
+                        />
+                        <div className="pour-sheen" aria-hidden="true" />
+                        <div className="absolute inset-0 bg-[#2A1D15]/55" aria-hidden="true" />
+                        <div className="relative z-10 flex h-full min-h-[280px] flex-col justify-end p-6 sm:min-h-[340px] sm:p-8 lg:min-h-[400px]">
+                            <h3 className="lp-display text-4xl leading-[1.05] tracking-tight sm:text-5xl">
+                                {ch.verb}
+                            </h3>
+                            <p className="lp-lede mt-3 max-w-[32ch] text-[#EDE6D8]">
+                                {ch.copy}
+                            </p>
+                        </div>
+                    </article>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+/* ── Page ── */
+
+export default function LandingPage() {
     const { addToCart } = useCart();
     const [products, setProducts] = useState([]);
+    const [status, setStatus] = useState('loading');
+    const root = useReveal();
+    const reduce = usePrefersReducedMotion();
+    const shopCta = useMagnetic(0.18);
+    const madeCta = useMagnetic(0.18);
+
+    useGSAP(() => {
+        if (reduce || !root.current) return;
+        ScrollTrigger.create({
+            trigger: root.current,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: true,
+            onUpdate: (self) => {
+                if (!root.current) return;
+                root.current.style.setProperty('--burn', `${self.progress * root.current.offsetHeight}px`);
+            },
+        });
+    }, { dependencies: [reduce], scope: root });
 
     useEffect(() => {
         fetch(API_ENDPOINTS.PRODUCTS)
-            .then(res => res.json())
-            .then(data => {
-                // Filter only featured products
-                const featuredProducts = data.filter(p => p.featured === true);
-                setProducts(featuredProducts);
+            .then((res) => res.json())
+            .then((data) => {
+                setProducts((data || []).filter((p) => p.featured === true).slice(0, 7));
+                setStatus('ok');
             })
-            .catch(err => console.error('Error fetching products:', err));
+            .catch(() => setStatus('error'));
     }, []);
 
+    useEffect(() => {
+        const onLoad = () => ScrollTrigger.refresh();
+        window.addEventListener('load', onLoad);
+        return () => window.removeEventListener('load', onLoad);
+    }, []);
+
+    const handleAdd = useCallback((product) => addToCart(product), [addToCart]);
+
     return (
-        <div className="relative w-full font-['Inter',_sans-serif] text-[#554B47] antialiased bg-[#3B2A23]">
-            {/* Hero Section */}
-            <div className="relative h-screen w-full overflow-hidden">
-                <div className="absolute inset-x-0 top-0 h-screen w-full overflow-hidden">
-                    <LazyImage
-                        src={heroBg}
-                        alt="Luxury Candle Background"
-                        className="h-full w-full object-cover animate-fade-in"
-                    />
-                    <div className="absolute inset-0 bg-[#3B2A23]/40"></div>
-                </div>
+        <div ref={root} className="lp relative w-full antialiased">
+            <div className="lp-grain" aria-hidden="true" />
 
-                <div className="relative z-10 flex h-full flex-col">
-                    {/* Header */}
-                    <Navbar className="fixed top-0 left-0 right-0 z-50 bg-[#3B2A23]/80 backdrop-blur-md" />
-
-                    <main className="flex-grow">
-                        <section className="flex h-screen items-center justify-center px-4 sm:px-6">
-                            <div className="w-full max-w-4xl rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg p-6 sm:p-10 md:p-14 lg:p-16 text-center">
-                                <h1 className="font-['Italiana',_serif] text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-wide text-[#554B47] drop-shadow-lg">
-                                    Hand Poured, Heart Driven: The Art of Perfect Candle
-                                </h1>
-                            </div>
-                        </section>
-                    </main>
-                </div>
+            <div className="wick-rail left-3 sm:left-6" aria-hidden="true">
+                <span className="wick-burn" />
             </div>
 
-            {/* Collections Grid - Mobile Optimized */}
-            <section className="relative bg-[#3B2A23] py-12 sm:py-20 lg:py-32">
-                <div className="absolute inset-0">
-                    <LazyImage alt="Elegant lifestyle setting with candles" className="h-full w-full object-cover opacity-30" src={productPlaceholder} />
-                </div>
-                <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    {/* Welcome Message */}
-                    <div className="text-center mb-12 sm:mb-16 lg:mb-20">
-                        <p className="font-['Italiana',_serif] text-2xl sm:text-3xl lg:text-4xl text-[#EAD2C0] leading-relaxed font-bold">
-                            Welcome to Enpees Candle, where every candle tells the story of meticulous craftsmanship and quality
+            <Navbar overHero />
+
+            {/* Hero: full-bleed sculpture, type in the leftover dark */}
+            <section className="relative min-h-[100dvh] overflow-hidden bg-[#2A1D15]">
+                <img
+                    src={roseCandle}
+                    alt="Hand-sculpted rose candles from the Enpees studio"
+                    fetchPriority="high"
+                    decoding="async"
+                    className="lp-hero-photo"
+                />
+                <div className="lp-hero-scrim" aria-hidden="true" />
+
+                <div className={`${SHELL} relative z-10 flex min-h-[100dvh] items-end pb-12 pt-28 lg:items-center lg:pb-20 lg:pt-24`}>
+                    <div className="max-w-[36rem]">
+                        <p className="lp-eyebrow lp-hero-in" style={{ animationDelay: '80ms' }}>
+                            Hand-poured in Rajkot
                         </p>
-                    </div>
-                    <div className="mx-auto max-w-2xl lg:max-w-none">
-                        <div className="grid grid-cols-2 items-start gap-3 sm:gap-6 lg:gap-8 lg:grid-cols-2">
-                            <div className="space-y-3 sm:space-y-6 lg:space-y-8">
-                                <div className="group relative aspect-square sm:aspect-[3/4] w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
-                                    <div className="absolute inset-0 z-0">
-                                        <LazyImage className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Floral & Sweet" src={flowerCandle} />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A23]/30 to-transparent"></div>
-                                    </div>
-                                    <div className="relative z-10 flex h-full flex-col justify-end p-3 sm:p-6 lg:p-8">
-                                        <p className="font-['Italiana',_serif] text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">Floral & Sweet</p>
-                                    </div>
-                                </div>
-                                <div className="group relative aspect-square sm:aspect-[4/3] w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
-                                    <div className="absolute inset-0 z-0">
-                                        <LazyImage className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Seasonal Favorites" src={snowmanCandle} />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A23]/30 to-transparent"></div>
-                                    </div>
-                                    <div className="relative z-10 flex h-full flex-col justify-end p-3 sm:p-6 lg:p-8">
-                                        <p className="font-['Italiana',_serif] text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">Seasonal Favorites</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="space-y-3 sm:space-y-6 lg:space-y-8 lg:mt-12">
-                                <div className="group relative aspect-square sm:aspect-[4/3] w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
-                                    <div className="absolute inset-0 z-0">
-                                        <LazyImage className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Woody & Earthy" src={sandalwoodCandle} />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A23]/30 to-transparent"></div>
-                                    </div>
-                                    <div className="relative z-10 flex h-full flex-col justify-end p-3 sm:p-6 lg:p-8">
-                                        <p className="font-['Italiana',_serif] text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">Woody & Earthy</p>
-                                    </div>
-                                </div>
-                                <div className="group relative aspect-square sm:aspect-[3/4] w-full overflow-hidden rounded-lg sm:rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg">
-                                    <div className="absolute inset-0 z-0">
-                                        <LazyImage className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Gift Sets" src={teddyCandle} />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-[#3B2A23]/30 to-transparent"></div>
-                                    </div>
-                                    <div className="relative z-10 flex h-full flex-col justify-end p-3 sm:p-6 lg:p-8">
-                                        <p className="font-['Italiana',_serif] text-sm sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white">Gift Sets</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="mt-8 sm:mt-12 lg:mt-20 flex justify-center">
-                            <Link to="/shop">
-                                <Button className="h-10 sm:h-12 lg:h-14 px-6 sm:px-7 lg:px-8 text-sm sm:text-base lg:text-lg font-bold tracking-wider bg-[#D8A24A] text-[#554B47] hover:bg-[#D8A24A]/90 hover:shadow-lg hover:shadow-[#D8A24A]/30 transition-all rounded-lg sm:rounded-xl">
-                                    Explore All Collections
-                                </Button>
+                        <h1
+                            className="lp-display lp-hero-in mt-6 text-[2.75rem] font-light leading-[1.08] tracking-[-0.03em] text-[#EDE6D8] sm:text-6xl lg:text-7xl"
+                            style={{ animationDelay: '180ms' }}
+                        >
+                            <span className="block">Shaped before</span>
+                            <span className="block pb-1">
+                                it{' '}
+                                <em className="lp-wonk not-italic text-[#D3A34E]" style={{ fontStyle: 'italic' }}>
+                                    burns.
+                                </em>
+                            </span>
+                        </h1>
+                        <p
+                            className="lp-lede lp-hero-in mt-6 max-w-[32ch] text-[#C7BCA8]"
+                            style={{ animationDelay: '320ms' }}
+                        >
+                            Teddies, roses, hearts. Poured by hand in small batches in Rajkot.
+                        </p>
+                        <div
+                            className="lp-hero-in mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4"
+                            style={{ animationDelay: '440ms' }}
+                        >
+                            <Link ref={shopCta} to="/shop" className="lp-btn lp-btn-primary lp-magnetic">
+                                Shop candles
+                                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_forward</span>
+                            </Link>
+                            <Link ref={madeCta} to="#process" className="lp-btn lp-btn-ghost lp-magnetic">
+                                How it's made
                             </Link>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Best Sellers */}
-            <section className="bg-[#3B2A23] py-24 sm:py-32">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="mx-auto max-w-2xl text-center">
-                        <h2 className="font-['Italiana',_serif] text-4xl font-bold tracking-tight text-[#EAD2C0] sm:text-5xl">Our Best Sellers</h2>
-                        <p className="mt-4 text-lg leading-8 text-[#EAD2C0]/80">Discover the scents our customers love the most. Hand-poured with passion.</p>
-                    </div>
-                    <div className="mx-auto mt-12 sm:mt-16 grid max-w-2xl grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 sm:gap-y-12 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-                        {products.map((product, index) => (
-                            <article key={product._id || index} className="flex flex-col items-start justify-between">
-                                <Link to={`/product`} state={{ product }} className="relative w-full">
-                                    <LazyImage alt={product.name} className="aspect-square sm:aspect-[1/1] lg:aspect-[3/2] w-full rounded-lg sm:rounded-xl lg:rounded-2xl bg-gray-100 object-cover" src={product.image} />
-                                    <div className="absolute inset-0 rounded-lg sm:rounded-xl lg:rounded-2xl ring-1 ring-inset ring-[#EAD2C0]/10"></div>
-                                </Link>
-                                <div className="max-w-xl w-full">
-                                    <div className="mt-3 sm:mt-6 lg:mt-8 flex items-center gap-x-2 sm:gap-x-4 text-[10px] sm:text-xs">
-                                        <time className="text-[#EAD2C0]/60">Best Seller</time>
-                                    </div>
-                                    <div className="group">
-                                        <h3 className="mt-2 sm:mt-3 text-sm sm:text-lg lg:text-xl xl:text-2xl font-['Italiana',_serif] font-semibold leading-tight sm:leading-6 text-[#EAD2C0] group-hover:text-[#D8A24A] transition-colors line-clamp-2">
-                                            <Link to={`/product`} state={{ product }}>{product.name}</Link>
-                                        </h3>
-                                        <p className="mt-2 sm:mt-3 lg:mt-5 text-xs sm:text-sm leading-tight sm:leading-6 text-[#EAD2C0]/80 line-clamp-2 sm:line-clamp-3">{product.description}</p>
-                                    </div>
-                                    <Button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            addToCart(product);
-                                            toast.success(`${product.name} added!`, {
-                                                duration: 2000,
-                                                position: 'bottom-right',
-                                                style: {
-                                                    background: '#D8A24A',
-                                                    color: '#3B2A23',
-                                                    fontWeight: 'bold',
-                                                },
-                                            });
-                                        }}
-                                        className="mt-3 sm:mt-4 lg:mt-6 w-full bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold text-xs sm:text-sm h-8 sm:h-10 lg:h-11"
-                                    >
-                                        Add to Cart
-                                    </Button>
-                                </div>
-                            </article>
-                        ))}
+            {/* Shapes: accordion strips */}
+            <section className="relative bg-[#2A1D15] py-16 sm:py-24 lg:py-28">
+                <div className={SHELL}>
+                    <h2 data-reveal className="lp-display lp-h2 max-w-[18ch]">
+                        Four families. One studio.
+                    </h2>
+                    <p data-reveal style={{ '--d': '120ms' }} className="lp-lede mt-4 max-w-[42ch]">
+                        Each one is a different mood we pour by hand.
+                    </p>
+                    <div data-reveal style={{ '--d': '200ms' }} className="mt-10 lg:mt-14">
+                        <ShapeAccordion />
                     </div>
                 </div>
             </section>
 
-            {/* The Difference */}
-            <section className="relative bg-[#3B2A23] py-24 sm:py-32">
-                <div className="absolute inset-0">
-                    <img alt="Hands crafting a candle" className="h-full w-full object-cover opacity-20" src={productPlaceholder} />
+            {/* Studio: manifesto type over a wall, cinematic still below */}
+            <section id="story" className="relative scroll-mt-24 overflow-hidden bg-[#1F150E] py-24 sm:py-32 lg:py-40">
+                <img
+                    src={studioWall}
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-35"
+                />
+                <div className="absolute inset-0 bg-[#1F150E]/55" aria-hidden="true" />
+
+                <div className={`${SHELL} relative`}>
+                    <p data-reveal className="lp-display max-w-[16ch] text-5xl leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">
+                        Wax is{' '}
+                        <em className="lp-wonk pb-1 not-italic text-[#D3A34E]" style={{ fontStyle: 'italic' }}>
+                            patient.
+                        </em>
+                    </p>
+                    <p data-reveal style={{ '--d': '140ms' }} className="lp-lede mt-8 max-w-[38rem]">
+                        It holds whatever shape you give it, so we take our time. Enpees started with one pot of soy wax and a mould shaped like a teddy bear.
+                    </p>
+                    <p data-reveal style={{ '--d': '220ms' }} className="lp-lede mt-4 max-w-[38rem]">
+                        Everything since has been made the same way: small batches, hand-set shapes, scents we would want in our own rooms.
+                    </p>
+
+                    <div data-reveal style={{ '--d': '300ms' }} className="mt-14 overflow-hidden rounded-[20px] lg:mt-20">
+                        <img
+                            src={teddyCandle}
+                            alt="A sculpted teddy candle from the Enpees studio"
+                            loading="lazy"
+                            decoding="async"
+                            className="aspect-[16/7] w-full object-cover sm:aspect-[21/9]"
+                        />
+                    </div>
                 </div>
-                <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="grid grid-cols-1 gap-x-8 gap-y-16 lg:grid-cols-2">
-                        <div className="lg:pr-8 lg:pt-4">
-                            <div className="lg:max-w-lg">
-                                <h2 className="font-['Italiana',_serif] text-4xl font-bold tracking-tight text-[#EAD2C0] sm:text-5xl">The Enpees Difference</h2>
-                                <p className="mt-6 text-lg leading-8 text-[#EAD2C0]/80">We believe in quality, craftsmanship, and creating moments of tranquility. Our candles are more than just a product; they are an experience.</p>
-                                <dl className="mt-10 max-w-xl space-y-8 text-base leading-7 text-[#EAD2C0]/70 lg:max-w-none">
-                                    <div className="relative pl-9">
-                                        <dt className="inline font-semibold text-[#EAD2C0]">
-                                            <svg className="absolute left-1 top-1 h-5 w-5 text-[#D8A24A]" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd"></path></svg>
-                                            Natural Ingredients.
-                                        </dt>
-                                        <dd className="inline"> We use 100% soy wax and premium, phthalate-free fragrance oils infused with essential oils.</dd>
-                                    </div>
-                                    <div className="relative pl-9">
-                                        <dt className="inline font-semibold text-[#EAD2C0]">
-                                            <svg className="absolute left-1 top-1 h-5 w-5 text-[#D8A24A]" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd"></path></svg>
-                                            Hand-Poured with Care.
-                                        </dt>
-                                        <dd className="inline"> Each candle is meticulously hand-poured in small batches in our studio to ensure the highest quality.</dd>
-                                    </div>
-                                    <div className="relative pl-9">
-                                        <dt className="inline font-semibold text-[#EAD2C0]">
-                                            <svg className="absolute left-1 top-1 h-5 w-5 text-[#D8A24A]" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd"></path></svg>
-                                            Sustainable Practices.
-                                        </dt>
-                                        <dd className="inline"> From our recyclable packaging to our eco-friendly ingredients, we are committed to sustainability.</dd>
-                                    </div>
-                                </dl>
-                            </div>
+            </section>
+
+            {/* Bestsellers: horizontal pan on scroll */}
+            <section id="bestsellers" className="relative z-10 scroll-mt-24 bg-[#2A1D15]">
+                {status === 'loading' && (
+                    <div className={`${SHELL} py-24`}>
+                        <div className="flex gap-6 overflow-hidden">
+                            {[0, 1, 2].map((i) => (
+                                <div
+                                    key={i}
+                                    className="h-[420px] w-[78vw] shrink-0 animate-pulse rounded-[20px] bg-[#3B2A1E] sm:w-[46vw] lg:w-[30vw]"
+                                />
+                            ))}
                         </div>
-                        <div className="flex items-center justify-center">
-                            <div className="rounded-xl bg-[#FFF7ED]/70 backdrop-blur-md border border-[#FFF7ED]/20 shadow-lg p-2">
-                                <img alt="Product image" className="w-[30rem] max-w-none rounded-xl shadow-xl ring-1 ring-gray-400/10 sm:w-[32rem]" src={productPlaceholder} />
-                            </div>
+                    </div>
+                )}
+                {status === 'error' && (
+                    <div className={`${SHELL} py-24`}>
+                        <p className="lp-lede">The shelf could not load. Open the shop to browse every shape.</p>
+                        <Link to="/shop" className="lp-btn lp-btn-primary mt-8">Shop candles</Link>
+                    </div>
+                )}
+                {status === 'ok' && products.length === 0 && (
+                    <div className={`${SHELL} py-24`}>
+                        <h2 className="lp-display lp-h2">Nothing featured this week.</h2>
+                        <p className="lp-lede mt-4">The full shelf is still open.</p>
+                        <Link to="/shop" className="lp-btn lp-btn-primary mt-8">Shop candles</Link>
+                    </div>
+                )}
+                {status === 'ok' && products.length > 0 && reduce && (
+                    <div className={`${SHELL} py-24 sm:py-32`}>
+                        <h2 data-reveal className="lp-display lp-h2 max-w-[16ch]">
+                            The shapes people come back for.
+                        </h2>
+                        <p data-reveal style={{ '--d': '120ms' }} className="lp-lede mt-4 max-w-[36ch]">
+                            A handful of pieces we pour again and again.
+                        </p>
+                        <div className="mt-12">
+                            <ProductPan products={products} onAdd={handleAdd} />
                         </div>
+                    </div>
+                )}
+                {status === 'ok' && products.length > 0 && !reduce && (
+                    <ProductPan products={products} onAdd={handleAdd} />
+                )}
+            </section>
+
+            {/* Process: equal tiles, no pin, so it cannot overlay the shelf */}
+            <section id="process" className="relative z-0 scroll-mt-24 bg-[#1F150E]">
+                <div className={`${SHELL} pt-24 pb-4 sm:pt-32`}>
+                    <h2 data-reveal className="lp-display lp-h2 max-w-[16ch]">
+                        Four steps. No machinery.
+                    </h2>
+                    <p data-reveal style={{ '--d': '120ms' }} className="lp-lede mt-4 max-w-[40ch]">
+                        Every Enpees candle passes through the same four hands.
+                    </p>
+                </div>
+                <PourChapters reduce={reduce} />
+            </section>
+
+            {/* Close: broken-grid on the wood table */}
+            <section className="relative bg-[#1F150E] py-24 sm:py-32 lg:py-36">
+                <img
+                    src={woodTable}
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45"
+                />
+                <div
+                    aria-hidden="true"
+                    className="absolute inset-0"
+                    style={{
+                        background:
+                            'linear-gradient(90deg, rgba(31,21,14,0.92) 0%, rgba(31,21,14,0.72) 42%, rgba(31,21,14,0.35) 100%)',
+                    }}
+                />
+
+                <div className={`${SHELL} relative grid grid-cols-1 items-end gap-12 lg:grid-cols-12 lg:gap-8`}>
+                    <div className="lg:col-span-6 lg:pb-8">
+                        <h2 data-reveal className="lp-display text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                            Light one tonight.
+                        </h2>
+                        <p data-reveal style={{ '--d': '120ms' }} className="lp-lede mt-5 max-w-[34ch]">
+                            Fresh stock every Wednesday. We wrap whatever you pick before the weekend.
+                        </p>
+                        <div data-reveal style={{ '--d': '220ms' }} className="mt-9 flex flex-col gap-3 sm:flex-row">
+                            <Link to="/shop" className="lp-btn lp-btn-primary">Shop candles</Link>
+                            <Link to="/contact" className="lp-btn lp-btn-ghost">Custom order</Link>
+                        </div>
+                    </div>
+                    <div className="relative lg:col-span-6">
+                        <img
+                            src={lotusCandle}
+                            alt="A lotus-shaped Enpees candle"
+                            loading="lazy"
+                            decoding="async"
+                            className="relative z-10 w-full max-w-lg rounded-[20px] object-cover shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)] lg:ml-auto lg:w-[92%] lg:translate-x-8"
+                        />
                     </div>
                 </div>
             </section>
         </div>
     );
-};
-
-export default LandingPage;
+}

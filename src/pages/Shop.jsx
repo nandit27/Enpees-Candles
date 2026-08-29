@@ -1,102 +1,102 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import CatalogCard from '../components/CatalogCard';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
-import LazyImage from '../components/LazyImage';
 import { API_ENDPOINTS } from '../config/api';
 
+const SORTS = [
+    { id: 'default', label: 'Featured' },
+    { id: 'price-low', label: 'Price, low to high' },
+    { id: 'price-high', label: 'Price, high to low' },
+];
+
+const parsePrice = (value) => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') return parseInt(value.replace('₹', ''), 10) || 0;
+    return 0;
+};
+
 const Shop = () => {
-    const navigate = useNavigate();
     const { addToCart } = useCart();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // Initialize state from URL params or defaults
-    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
+    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page'), 10) || 1);
     const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'default');
     const [selectedCollection, setSelectedCollection] = useState(searchParams.get('collection') || 'All');
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [loadState, setLoadState] = useState('loading');
     const itemsPerPage = 12;
 
-    useEffect(() => {
-        // Fetch products
+    const fetchShop = () => {
+        setLoadState('loading');
         fetch(API_ENDPOINTS.PRODUCTS)
-            .then(res => res.json())
-            .then(data => setProducts(data))
-            .catch(err => console.error('Error fetching products:', err));
-        
-        // Fetch categories
+            .then((res) => res.json())
+            .then((data) => {
+                setProducts(Array.isArray(data) ? data : []);
+                setLoadState('ready');
+            })
+            .catch((err) => {
+                console.error('Error fetching products:', err);
+                setLoadState('error');
+            });
+
         fetch(API_ENDPOINTS.CATEGORIES)
-            .then(res => res.json())
-            .then(data => setCategories(data))
-            .catch(err => console.error('Error fetching categories:', err));
+            .then((res) => res.json())
+            .then((data) => setCategories(Array.isArray(data) ? data : []))
+            .catch((err) => console.error('Error fetching categories:', err));
+    };
+
+    useEffect(() => {
+        fetchShop();
     }, []);
 
     const searchQuery = searchParams.get('search') || '';
 
-    // Build collections list from fetched categories
-    const collections = useMemo(() => {
-        const allCategories = ['All', ...categories.map(cat => cat.name)];
-        return allCategories;
-    }, [categories]);
+    const collections = useMemo(() => ['All', ...categories.map((cat) => cat.name)], [categories]);
 
-    // Filter and Sort Products
     const filteredAndSortedProducts = useMemo(() => {
         let filtered = products;
 
-        // Filter by Category
         if (selectedCollection !== 'All') {
-            filtered = filtered.filter(p => p.category && p.category.toLowerCase() === selectedCollection.toLowerCase());
-        }
-
-        // Filter by Search
-        if (searchQuery) {
-            const lowerQuery = searchQuery.toLowerCase();
-            filtered = filtered.filter(p =>
-                p.name.toLowerCase().includes(lowerQuery) ||
-                p.description.toLowerCase().includes(lowerQuery)
+            filtered = filtered.filter(
+                (p) => p.category && p.category.toLowerCase() === selectedCollection.toLowerCase()
             );
         }
 
-        // Sort products
+        if (searchQuery) {
+            const lowerQuery = searchQuery.toLowerCase();
+            filtered = filtered.filter(
+                (p) =>
+                    (p.name || '').toLowerCase().includes(lowerQuery) ||
+                    (p.description || '').toLowerCase().includes(lowerQuery)
+            );
+        }
+
         if (sortBy === 'price-low') {
-            filtered = [...filtered].sort((a, b) => {
-                const priceA = typeof a.price === 'string' ? parseInt(a.price.replace('₹', '')) : a.price;
-                const priceB = typeof b.price === 'string' ? parseInt(b.price.replace('₹', '')) : b.price;
-                return priceA - priceB;
-            });
+            filtered = [...filtered].sort((a, b) => parsePrice(a.offerPrice || a.price) - parsePrice(b.offerPrice || b.price));
         } else if (sortBy === 'price-high') {
-            filtered = [...filtered].sort((a, b) => {
-                const priceA = typeof a.price === 'string' ? parseInt(a.price.replace('₹', '')) : a.price;
-                const priceB = typeof b.price === 'string' ? parseInt(b.price.replace('₹', '')) : b.price;
-                return priceB - priceA;
-            });
+            filtered = [...filtered].sort((a, b) => parsePrice(b.offerPrice || b.price) - parsePrice(a.offerPrice || a.price));
         }
 
         return filtered;
     }, [selectedCollection, sortBy, searchQuery, products]);
 
-    // Pagination calculations
-    const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
+    const totalPages = Math.max(1, Math.ceil(filteredAndSortedProducts.length / itemsPerPage));
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentProducts = filteredAndSortedProducts.slice(startIndex, endIndex);
 
-    // Update URL params when state changes
     useEffect(() => {
         const params = new URLSearchParams();
-        if (currentPage !== 1) params.set('page', currentPage);
+        if (currentPage !== 1) params.set('page', String(currentPage));
         if (sortBy !== 'default') params.set('sort', sortBy);
         if (selectedCollection !== 'All') params.set('collection', selectedCollection);
         if (searchQuery) params.set('search', searchQuery);
         setSearchParams(params, { replace: true });
-    }, [currentPage, sortBy, selectedCollection, searchQuery]);
-
-    // Handlers
-    const handleProductClick = (product) => {
-        navigate('/product', { state: { product } });
-    };
+    }, [currentPage, sortBy, selectedCollection, searchQuery, setSearchParams]);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) {
@@ -107,229 +107,207 @@ const Shop = () => {
 
     const handleCollectionChange = (collection) => {
         setSelectedCollection(collection);
-        setCurrentPage(1); // Reset to first page
+        setCurrentPage(1);
     };
 
     const handleSortChange = (sort) => {
         setSortBy(sort);
-        setCurrentPage(1); // Reset to first page
+        setCurrentPage(1);
+    };
+
+    const handleAdd = (product) => {
+        addToCart(product);
+        toast.success(`${product.name} added to cart`, {
+            duration: 2000,
+            position: 'bottom-right',
+            style: { background: '#D3A34E', color: '#2A1D15', fontWeight: '600' },
+        });
+    };
+
+    const handleResetFilters = () => {
+        setSelectedCollection('All');
+        setSortBy('default');
+        setCurrentPage(1);
     };
 
     return (
-        <div className="relative min-h-screen w-full overflow-x-hidden bg-[#3B2A23] font-['Inter',_sans-serif] text-[#554B47]">
-            {/* Background Image */}
-            <div className="absolute inset-0 z-0">
-                <img
-                    alt="A warm, atmospheric scene with a soft focus on a cozy interior."
-                    className="h-full w-full object-cover opacity-80"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDutxWS_dei-qSFNwXWoKTewxP_16V-9wfEEEJY83nVcfVFMKVhliMqIHbGbMdG3-8pFpxpNbxxb_pPMDOLA9eC7HOtrTY0N7dCGjcsculTxxNUQAfsVwM3bcFTNDXetT6Bpz79irmbRZH96WCGMt5LdKegoePs3SJojRFUSjCOEKsDgWyGZCJTUrychUS8S_ks5UB8tzcYzDh5jNHas55kC2HzRORJRKVGlWo8LiCeH_0D-f7nXpX0pTJbTDtSomfn-si24I6j0mZp"
-                />
-                <div className="absolute inset-0 bg-[#3B2A23]/50"></div>
-            </div>
+        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+            <Navbar />
 
-            <div className="relative z-10 flex h-full grow flex-col">
-                {/* Header */}
-                <Navbar />
+            <main className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
+                <header className="max-w-xl">
+                    <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl lg:text-6xl">The collection</h1>
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                        Hand-poured shapes, ready to gift. Filter by collection or price.
+                    </p>
+                </header>
 
-                {/* Main Content */}
-                <main className="flex flex-1 justify-center px-4 sm:px-10 md:px-20 lg:px-40 py-10">
-                    <div className="flex w-full max-w-7xl flex-col">
-                        <div className="flex flex-wrap justify-between gap-3 p-4">
-                            <div className="flex flex-col gap-2">
-                                <h2 className="text-white text-5xl md:text-6xl font-['Italiana',_serif] tracking-wide">Our Collection</h2>
-                                <p className="text-[#EAD2C0] text-base font-normal leading-normal max-w-md">Discover our handcrafted candles, designed to bring warmth and luxury to your space.</p>
-                            </div>
-                        </div>
-
-                        {/* Filters and Sorting */}
-                        <div className="flex flex-col gap-3 p-4">
-                            {/* Collections */}
-                            <div className="flex flex-col gap-2">
-                                <span className="text-[#EAD2C0] text-sm font-medium">Collections:</span>
-                                <div className="flex gap-2 flex-wrap">
-                                    {collections.map((collection) => (
-                                        <button
-                                            key={collection}
-                                            onClick={() => handleCollectionChange(collection)}
-                                            className={`${selectedCollection === collection
-                                                ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
-                                                : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
-                                                } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-4 text-sm font-medium leading-normal transition-colors duration-300`}
-                                        >
-                                            {collection}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Sort */}
-                            <div className="flex flex-col gap-2">
-                                <span className="text-[#EAD2C0] text-sm font-medium">Sort:</span>
-                                <div className="flex gap-2 flex-wrap">
-                                    <button
-                                        onClick={() => handleSortChange('default')}
-                                        className={`${sortBy === 'default'
-                                            ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
-                                            : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
-                                            } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-3 sm:px-4 text-xs sm:text-sm font-medium leading-normal transition-colors duration-300`}
-                                    >
-                                        Default
-                                    </button>
-                                    <button
-                                        onClick={() => handleSortChange('price-low')}
-                                        className={`${sortBy === 'price-low'
-                                            ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
-                                            : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
-                                            } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-3 sm:px-4 text-xs sm:text-sm font-medium leading-normal transition-colors duration-300`}
-                                    >
-                                        <span className="hidden sm:inline">Price: </span>Low to High
-                                    </button>
-                                    <button
-                                        onClick={() => handleSortChange('price-high')}
-                                        className={`${sortBy === 'price-high'
-                                            ? 'bg-[#D8A24A]/50 shadow-[0_0_12px_0_rgba(216,162,74,0.5)] text-[#FFF7ED]'
-                                            : 'bg-[#FFF7ED]/15 hover:bg-[#FFF7ED]/25 text-[#EAD2C0]'
-                                            } backdrop-blur-[10px] border border-white/10 flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-full px-3 sm:px-4 text-xs sm:text-sm font-medium leading-normal transition-colors duration-300`}
-                                    >
-                                        <span className="hidden sm:inline">Price: </span>High to Low
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Product Count */}
-                        <div className="px-4 py-2">
-                            <p className="text-[#EAD2C0] text-sm">
-                                Showing {startIndex + 1}-{Math.min(endIndex, filteredAndSortedProducts.length)} of {filteredAndSortedProducts.length} products
-                            </p>
-                        </div>
-
-                        {/* Product Grid - Mobile Optimized */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 p-2 sm:p-4">
-                            {currentProducts.map((product, index) => (
-                                <div
-                                    key={index}
-                                    className={`bg-[#FFF7ED]/70 backdrop-blur-md border border-white/20 shadow-[0_4px_16px_0_rgba(0,0,0,0.15)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_24px_0_rgba(0,0,0,0.2),0_0_0_1px_rgba(216,162,74,0.5)] rounded-lg sm:rounded-xl overflow-hidden flex flex-col group ${index % 4 === 1 || index % 4 === 3 ? 'lg:mt-12' : ''}`}
+                <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="min-w-0 flex-1">
+                        <div className="lp-pills" role="tablist" aria-label="Collections">
+                            {collections.map((collection) => (
+                                <button
+                                    key={collection}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={selectedCollection === collection}
+                                    data-on={selectedCollection === collection}
+                                    onClick={() => handleCollectionChange(collection)}
+                                    className="lp-pill"
                                 >
-                                    <div className="w-full aspect-square sm:aspect-[3/4] overflow-hidden cursor-pointer" onClick={() => handleProductClick(product)}>
-                                        <LazyImage
-                                            className="h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
-                                            alt={product.name}
-                                            src={product.image}
-                                        />
-                                    </div>
-                                    <div className="p-2 sm:p-3 lg:p-4 flex flex-col flex-grow">
-                                        <h3 className="text-[#554B47] text-xs sm:text-sm lg:text-base font-bold leading-tight line-clamp-2">{product.name}</h3>
-                                        <p className="text-[#554B47]/70 text-[10px] sm:text-xs font-normal leading-tight mt-0.5 sm:mt-1 line-clamp-1">{product.collection}</p>
-                                        <div className="mt-auto pt-2 sm:pt-3">
-                                            {product.offerPrice ? (
-                                                <div className="mb-2">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className="bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">-{Math.round((1 - product.offerPrice / product.price) * 100)}%</span>
-                                                        <span className="text-red-600 text-base sm:text-lg font-bold">₹{product.offerPrice}</span>
-                                                    </div>
-                                                    <p className="text-[#554B47]/60 text-xs line-through">
-                                                        M.R.P: ₹{product.price}
-                                                    </p>
-                                                </div>
-                                            ) : (
-                                                <p className="text-[#554B47] text-sm sm:text-base lg:text-lg font-semibold mb-2">
-                                                    ₹{product.price}
-                                                </p>
-                                            )}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    addToCart(product);
-                                                    toast.success(`${product.name} added!`, {
-                                                        duration: 2000,
-                                                        position: 'bottom-right',
-                                                        style: {
-                                                            background: '#D8A24A',
-                                                            color: '#3B2A23',
-                                                            fontWeight: 'bold',
-                                                        },
-                                                    });
-                                                }}
-                                                className="w-full sm:w-auto bg-[#D8A24A] text-white h-7 sm:h-9 px-2 sm:px-3 lg:px-4 rounded text-[10px] sm:text-xs lg:text-sm font-bold hover:bg-opacity-90 transition-all whitespace-nowrap"
-                                            >
-                                                <span className="hidden sm:inline">Add to Cart</span>
-                                                <span className="sm:hidden">Add</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                                    {collection}
+                                </button>
                             ))}
                         </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2" role="group" aria-label="Sort candles">
+                        {SORTS.map((sort) => (
+                            <button
+                                key={sort.id}
+                                type="button"
+                                onClick={() => handleSortChange(sort.id)}
+                                className={`whitespace-nowrap font-jost text-sm tracking-wide transition-colors ${
+                                    sortBy === sort.id
+                                        ? 'text-[#D3A34E]'
+                                        : 'text-[#C7BCA8] hover:text-[#EDE6D8]'
+                                }`}
+                                aria-pressed={sortBy === sort.id}
+                            >
+                                {sort.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div className="flex items-center justify-center p-4 mt-8 gap-2">
-                                <button
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className={`flex size-10 items-center justify-center transition-colors ${currentPage === 1
-                                        ? 'text-[#EAD2C0]/50 cursor-not-allowed'
-                                        : 'text-[#EAD2C0] hover:text-white cursor-pointer'
-                                        }`}
-                                >
-                                    <span className="material-symbols-outlined">chevron_left</span>
+                <div className="mt-6 font-jost text-sm text-[#C7BCA8]">
+                    {searchQuery ? (
+                        <p>
+                            Results for “{searchQuery}”
+                            {loadState === 'ready' ? ` · ${filteredAndSortedProducts.length} candles` : ''}
+                        </p>
+                    ) : loadState === 'ready' ? (
+                        <p>
+                            {filteredAndSortedProducts.length}{' '}
+                            {filteredAndSortedProducts.length === 1 ? 'candle' : 'candles'}
+                        </p>
+                    ) : (
+                        <p className="sr-only">Loading candles</p>
+                    )}
+                </div>
+
+                {loadState === 'loading' && (
+                    <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4 xl:grid-cols-5">
+                        {Array.from({ length: 10 }).map((_, index) => (
+                            <div key={index} className="flex flex-col">
+                                <div className="aspect-[4/5] animate-pulse rounded-[20px] bg-[#3B2A1E]" />
+                                <div className="mt-4 h-4 w-3/4 animate-pulse rounded bg-[#3B2A1E]" />
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {loadState === 'error' && (
+                    <div className="mt-16 max-w-md">
+                        <h2 className="lp-display text-3xl leading-[1.1]">Could not load the shop</h2>
+                        <p className="lp-lede mt-3 text-[#C7BCA8]">Check your connection, then try again.</p>
+                        <button type="button" onClick={fetchShop} className="lp-btn lp-btn-primary mt-6">
+                            Try again
+                        </button>
+                    </div>
+                )}
+
+                {loadState === 'ready' && currentProducts.length === 0 && (
+                    <div className="mt-16 max-w-md">
+                        <h2 className="lp-display text-3xl leading-[1.1]">
+                            {products.length === 0 ? 'The shop is being restocked' : 'Nothing in this view'}
+                        </h2>
+                        <p className="lp-lede mt-3 text-[#C7BCA8]">
+                            {products.length === 0
+                                ? 'New pours land here first. Come back shortly.'
+                                : 'Clear the filters to see the full collection.'}
+                        </p>
+                        {products.length > 0 && (
+                            <div className="mt-6 flex flex-wrap gap-3">
+                                <button type="button" onClick={handleResetFilters} className="lp-btn lp-btn-primary">
+                                    Show all
                                 </button>
-
-                                {[...Array(totalPages)].map((_, index) => {
-                                    const pageNum = index + 1;
-                                    // Show first page, last page, current page, and pages around current
-                                    if (
-                                        pageNum === 1 ||
-                                        pageNum === totalPages ||
-                                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                                    ) {
-                                        return (
-                                            <button
-                                                key={pageNum}
-                                                onClick={() => handlePageChange(pageNum)}
-                                                className={`text-sm leading-normal flex size-10 items-center justify-center rounded-full transition-colors ${currentPage === pageNum
-                                                    ? 'font-bold text-[#FFF7ED] bg-[#D8A24A]/80'
-                                                    : 'font-normal text-[#EAD2C0] hover:text-white hover:bg-white/10'
-                                                    }`}
-                                            >
-                                                {pageNum}
-                                            </button>
-                                        );
-                                    } else if (
-                                        pageNum === currentPage - 2 ||
-                                        pageNum === currentPage + 2
-                                    ) {
-                                        return (
-                                            <span
-                                                key={pageNum}
-                                                className="text-sm font-normal leading-normal flex size-10 items-center justify-center text-[#EAD2C0] rounded-full"
-                                            >
-                                                ...
-                                            </span>
-                                        );
-                                    }
-                                    return null;
-                                })}
-
-                                <button
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className={`flex size-10 items-center justify-center transition-colors ${currentPage === totalPages
-                                        ? 'text-[#EAD2C0]/50 cursor-not-allowed'
-                                        : 'text-[#EAD2C0] hover:text-white cursor-pointer'
-                                        }`}
-                                >
-                                    <span className="material-symbols-outlined">chevron_right</span>
-                                </button>
+                                {searchQuery && (
+                                    <Link to="/shop" className="lp-btn lp-btn-ghost">
+                                        Clear search
+                                    </Link>
+                                )}
                             </div>
                         )}
                     </div>
-                </main>
+                )}
 
+                {loadState === 'ready' && currentProducts.length > 0 && (
+                    <div className="mt-8 grid grid-cols-2 items-stretch gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4 xl:grid-cols-5">
+                        {currentProducts.map((product) => (
+                            <CatalogCard key={product._id || product.name} product={product} onAdd={handleAdd} />
+                        ))}
+                    </div>
+                )}
 
-            </div>
+                {loadState === 'ready' && totalPages > 1 && currentProducts.length > 0 && (
+                    <nav className="mt-12 flex items-center justify-center gap-1" aria-label="Shop pages">
+                        <button
+                            type="button"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            aria-label="Previous page"
+                            className={`flex size-10 items-center justify-center rounded-full transition-colors ${
+                                currentPage === 1 ? 'text-[#C7BCA8]/40' : 'text-[#C7BCA8] hover:text-[#EDE6D8]'
+                            }`}
+                        >
+                            <span className="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+                        </button>
+                        {Array.from({ length: totalPages }).map((_, index) => {
+                            const pageNum = index + 1;
+                            if (
+                                pageNum === 1 ||
+                                pageNum === totalPages ||
+                                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                            ) {
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        type="button"
+                                        onClick={() => handlePageChange(pageNum)}
+                                        aria-current={currentPage === pageNum ? 'page' : undefined}
+                                        className={`flex size-10 items-center justify-center rounded-full font-jost text-sm transition-colors ${
+                                            currentPage === pageNum
+                                                ? 'bg-[#D3A34E] text-[#2A1D15]'
+                                                : 'text-[#C7BCA8] hover:text-[#EDE6D8]'
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                );
+                            }
+                            if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                                return (
+                                    <span key={pageNum} className="flex size-10 items-center justify-center text-[#C7BCA8]">
+                                        ...
+                                    </span>
+                                );
+                            }
+                            return null;
+                        })}
+                        <button
+                            type="button"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            aria-label="Next page"
+                            className={`flex size-10 items-center justify-center rounded-full transition-colors ${
+                                currentPage === totalPages ? 'text-[#C7BCA8]/40' : 'text-[#C7BCA8] hover:text-[#EDE6D8]'
+                            }`}
+                        >
+                            <span className="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                        </button>
+                    </nav>
+                )}
+            </main>
         </div>
     );
 };

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Button } from '../components/ui/button';
 import Navbar from '../components/Navbar';
 
 const OrderConfirmation = () => {
@@ -8,38 +7,35 @@ const OrderConfirmation = () => {
     const order = location.state?.order;
 
     return (
-        <div className="min-h-screen bg-[#3B2A23] font-['Inter',_sans-serif] text-[#FFF7ED]">
+        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
             <Navbar />
-            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] text-center px-4 py-8">
-                <div className="bg-[#FFF7ED]/10 p-8 rounded-2xl backdrop-blur-sm border border-[#FFF7ED]/20 max-w-md w-full">
-                    <span className="material-symbols-outlined text-6xl text-[#D8A24A] mb-4">check_circle</span>
-                    <h1 className="text-3xl font-bold mb-2 font-['Italiana',_serif]">Order Confirmed!</h1>
-                    <p className="text-[#EAD2C0] mb-6">Thank you for your purchase. Your order has been received and is being processed.</p>
-                    
-                    {order && order.orderId && (
-                        <div className="my-6 p-4 bg-[#D8A24A]/10 border border-[#D8A24A]/30 rounded-lg">
-                            <p className="text-sm text-[#EAD2C0] mb-2">Your Order ID:</p>
-                            <p className="text-2xl font-bold text-[#D8A24A] font-mono tracking-wider">{order.orderId}</p>
-                            <p className="text-xs text-[#EAD2C0] mt-2">Save this ID to track your order</p>
+            <main className="mx-auto w-full max-w-[1400px] px-5 py-16 sm:px-10 lg:px-16">
+                <div className="max-w-lg">
+                    <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Order confirmed</h1>
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                        Thank you. The studio has the order and will start the pour.
+                    </p>
+
+                    {order?.orderId && (
+                        <div className="mt-8 rounded-[20px] bg-[#3B2A1E] p-6">
+                            <p className="font-jost text-sm text-[#C7BCA8]">Order ID</p>
+                            <p className="mt-2 font-jost text-2xl tabular-nums tracking-wide text-[#D3A34E]">
+                                {order.orderId}
+                            </p>
+                            <p className="mt-2 font-jost text-sm text-[#C7BCA8]">Save this ID to track the parcel.</p>
                         </div>
                     )}
-                    
-                    <p className="text-sm text-[#EAD2C0] mb-8">You will receive a confirmation email shortly with your order details and tracking information.</p>
-                    
-                    <div className="space-y-3">
-                        <Link to="/track-order" className="block">
-                            <Button className="w-full bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90 font-bold">
-                                Track Your Order
-                            </Button>
+
+                    <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                        <Link to="/track-order" className="lp-btn lp-btn-primary">
+                            Track order
                         </Link>
-                        <Link to="/" className="block">
-                            <Button variant="outline" className="w-full border-[#EAD2C0] text-[#EAD2C0] hover:bg-[#FFF7ED]/10">
-                                Continue Shopping
-                            </Button>
+                        <Link to="/shop" className="lp-btn lp-btn-ghost">
+                            Shop candles
                         </Link>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 };

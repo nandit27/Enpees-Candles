@@ -1,42 +1,18 @@
 import React from 'react';
 
-const OrderTimeline = ({ order }) => {
-    const steps = [
-        {
-            key: 'placed',
-            label: 'Order Pending',
-            icon: 'shopping_bag',
-            description: 'Your order has been received'
-        },
-        {
-            key: 'confirmed',
-            label: 'Order Confirmed',
-            icon: 'verified',
-            description: 'Order confirmed and being prepared'
-        },
-        {
-            key: 'shipped',
-            label: 'Shipped',
-            icon: 'local_shipping',
-            description: 'Order is on the way'
-        },
-        {
-            key: 'delivered',
-            label: 'Delivered',
-            icon: 'check_circle',
-            description: 'Order has been delivered'
-        }
-    ];
+const STEPS = [
+    { key: 'placed', label: 'Received', icon: 'shopping_bag', description: 'We have the order' },
+    { key: 'confirmed', label: 'Confirmed', icon: 'verified', description: 'The studio is pouring it' },
+    { key: 'shipped', label: 'Shipped', icon: 'local_shipping', description: 'On the way to you' },
+    { key: 'delivered', label: 'Delivered', icon: 'check_circle', description: 'Left at your door' },
+];
 
+const OrderTimeline = ({ order }) => {
     const isCancelled = order.status === 'CANCELLED';
-    
+
     const getStepStatus = (stepKey) => {
-        if (isCancelled && stepKey !== 'placed') {
-            return 'cancelled';
-        }
-        if (order.timeline && order.timeline[stepKey]?.completed) {
-            return 'completed';
-        }
+        if (isCancelled && stepKey !== 'placed') return 'cancelled';
+        if (order.timeline && order.timeline[stepKey]?.completed) return 'completed';
         return 'pending';
     };
 
@@ -48,113 +24,84 @@ const OrderTimeline = ({ order }) => {
             month: 'short',
             year: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     };
 
     return (
-        <div className="w-full max-w-2xl mx-auto">
+        <div className="w-full">
             {isCancelled && (
-                <div className="mb-6 bg-red-500/20 border border-red-400 rounded-lg p-4">
-                    <div className="flex items-center gap-3">
-                        <span className="material-symbols-outlined text-red-400 text-3xl">cancel</span>
-                        <div>
-                            <h3 className="text-red-300 font-bold text-lg">Order Cancelled</h3>
-                            {order.cancellationReason && (
-                                <p className="text-red-200 text-sm mt-1">Reason: {order.cancellationReason}</p>
-                            )}
-                            {order.timeline?.cancelled?.timestamp && (
-                                <p className="text-red-300 text-xs mt-1">
-                                    {formatDate(order.timeline.cancelled.timestamp)}
-                                </p>
-                            )}
-                        </div>
-                    </div>
+                <div className="mb-6 rounded-[12px] bg-[#2A1D15]/60 p-4">
+                    <p className="font-jost text-sm font-semibold text-[#EDE6D8]">Order cancelled</p>
+                    {order.cancellationReason && (
+                        <p className="mt-1 font-jost text-sm text-[#C7BCA8]">{order.cancellationReason}</p>
+                    )}
+                    {order.timeline?.cancelled?.timestamp && (
+                        <p className="mt-1 font-jost text-xs text-[#C7BCA8]">
+                            {formatDate(order.timeline.cancelled.timestamp)}
+                        </p>
+                    )}
                 </div>
             )}
 
-            <div className="relative">
-                {steps.map((step, index) => {
+            <ol className="relative">
+                {STEPS.map((step, index) => {
                     const status = getStepStatus(step.key);
                     const isCompleted = status === 'completed';
                     const isCancelledStep = status === 'cancelled';
                     const timestamp = order.timeline?.[step.key]?.timestamp;
 
                     return (
-                        <div key={step.key} className="relative flex gap-6 pb-8 last:pb-0">
-                            {/* Vertical Line */}
-                            {index < steps.length - 1 && (
-                                <div className={`absolute left-[22px] top-[44px] w-0.5 h-[calc(100%-44px)] ${
-                                    isCancelledStep ? 'bg-red-400/50' : 
-                                    isCompleted ? 'bg-[#D8A24A]' : 'bg-[#EAD2C0]/30'
-                                }`} />
+                        <li key={step.key} className="relative flex gap-4 pb-8 last:pb-0">
+                            {index < STEPS.length - 1 && (
+                                <span
+                                    className={`absolute left-[17px] top-[38px] h-[calc(100%-38px)] w-px ${
+                                        isCompleted ? 'bg-[#D3A34E]' : 'bg-[#C7BCA8]/25'
+                                    }`}
+                                    aria-hidden="true"
+                                />
                             )}
-
-                            {/* Icon Circle */}
-                            <div className={`relative z-10 flex items-center justify-center w-11 h-11 rounded-full border-2 flex-shrink-0 ${
-                                isCancelledStep 
-                                    ? 'bg-red-500/20 border-red-400' 
-                                    : isCompleted 
-                                        ? 'bg-[#D8A24A] border-[#D8A24A]' 
-                                        : 'bg-[#FFF7ED]/10 border-[#EAD2C0]/40'
-                            }`}>
-                                <span className={`material-symbols-outlined ${
-                                    isCancelledStep ? 'text-red-400' : 
-                                    isCompleted ? 'text-white' : 'text-[#EAD2C0]/60'
-                                }`} style={{ fontSize: '24px' }}>
-                                    {isCancelledStep ? 'cancel' : step.icon}
+                            <div
+                                className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                                    isCancelledStep
+                                        ? 'border border-[#C7BCA8]/40 bg-transparent'
+                                        : isCompleted
+                                          ? 'bg-[#D3A34E] text-[#2A1D15]'
+                                          : 'border border-[#C7BCA8]/35 bg-transparent text-[#C7BCA8]/50'
+                                }`}
+                            >
+                                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                                    {isCancelledStep ? 'close' : step.icon}
                                 </span>
                             </div>
-
-                            {/* Content */}
-                            <div className="flex-1 pt-1">
-                                <div className="flex items-start justify-between">
+                            <div className="min-w-0 flex-1 pt-0.5">
+                                <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                                     <div>
-                                        <h3 className={`font-bold text-base ${
-                                            isCancelledStep ? 'text-[#EAD2C0]/50' :
-                                            isCompleted ? 'text-[#FFF7ED]' : 'text-[#EAD2C0]/60'
-                                        }`}>
+                                        <p
+                                            className={`font-jost text-sm ${
+                                                isCompleted ? 'text-[#EDE6D8]' : 'text-[#C7BCA8]/60'
+                                            }`}
+                                        >
                                             {step.label}
-                                        </h3>
-                                        <p className={`text-sm mt-1 ${
-                                            isCancelledStep ? 'text-[#EAD2C0]/40' :
-                                            isCompleted ? 'text-[#EAD2C0]' : 'text-[#EAD2C0]/50'
-                                        }`}>
-                                            {step.description}
                                         </p>
+                                        <p className="mt-1 font-jost text-sm text-[#C7BCA8]">{step.description}</p>
                                         {step.key === 'shipped' && order.trackingId && (
-                                            <div className="mt-2 space-y-1">
-                                                <p className="text-sm text-[#FFF7ED]">
-                                                    <strong>Tracking ID:</strong> {order.trackingId}
-                                                </p>
-                                                {order.trackingLink && (
-                                                    <a 
-                                                        href={order.trackingLink} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
-                                                        className="text-sm text-[#D8A24A] hover:text-[#D8A24A]/80 hover:underline flex items-center gap-1"
-                                                    >
-                                                        Track Shipment
-                                                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>open_in_new</span>
-                                                    </a>
-                                                )}
-                                            </div>
+                                            <p className="mt-2 break-all font-jost text-xs text-[#C7BCA8]">
+                                                Tracking {order.trackingId}
+                                            </p>
                                         )}
                                     </div>
                                     {timestamp && (
-                                        <span className={`text-xs whitespace-nowrap ${
-                                            isCancelledStep ? 'text-[#EAD2C0]/40' :
-                                            isCompleted ? 'text-[#EAD2C0]' : 'text-[#EAD2C0]/50'
-                                        }`}>
+                                        <p className="shrink-0 font-jost text-xs text-[#C7BCA8] sm:pt-1">
                                             {formatDate(timestamp)}
-                                        </span>
+                                        </p>
                                     )}
                                 </div>
                             </div>
-                        </div>
+                        </li>
                     );
                 })}
-            </div>
+            </ol>
         </div>
     );
 };
