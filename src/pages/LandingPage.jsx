@@ -7,12 +7,11 @@ import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import { API_ENDPOINTS } from '../config/api';
 
+import CandleScrollHero from '../components/CandleScrollHero';
 import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
 import snowmanCandle from '../assets/Snowman_Candle ___199.webp';
 import teddyCandle from '../assets/Teddy_Heart_Candle__60.webp';
-import roseCandle from '../assets/Big_rose_candle_99.webp';
 import chaiCandle from '../assets/Tea_biscuit_candle_99.webp';
-import vanillaCandle from '../assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp';
 import bouquetCandle from '../assets/Luxury_Mini_Bouquet_Candle__150 .webp';
 import lotusCandle from '../assets/Lotus_Candle __99.webp';
 import studioWall from '../assets/textures/studio-wall.jpg';
@@ -94,29 +93,6 @@ function useReveal() {
         return () => io.disconnect();
     }, []);
     return root;
-}
-
-function useMagnetic(strength = 0.22) {
-    const ref = useRef(null);
-    useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        const onMove = (e) => {
-            const r = el.getBoundingClientRect();
-            const x = e.clientX - (r.left + r.width / 2);
-            const y = e.clientY - (r.top + r.height / 2);
-            el.style.transform = `translate3d(${(x * strength).toFixed(1)}px, ${(y * strength).toFixed(1)}px, 0)`;
-        };
-        const onLeave = () => { el.style.transform = 'translate3d(0,0,0)'; };
-        el.addEventListener('mousemove', onMove);
-        el.addEventListener('mouseleave', onLeave);
-        return () => {
-            el.removeEventListener('mousemove', onMove);
-            el.removeEventListener('mouseleave', onLeave);
-        };
-    }, [strength]);
-    return ref;
 }
 
 /* ── Shape accordion ── */
@@ -366,8 +342,6 @@ export default function LandingPage() {
     const [status, setStatus] = useState('loading');
     const root = useReveal();
     const reduce = usePrefersReducedMotion();
-    const shopCta = useMagnetic(0.18);
-    const madeCta = useMagnetic(0.18);
 
     useGSAP(() => {
         if (reduce || !root.current) return;
@@ -411,55 +385,7 @@ export default function LandingPage() {
 
             <Navbar overHero />
 
-            {/* Hero: full-bleed sculpture, type in the leftover dark */}
-            <section className="relative min-h-[100dvh] overflow-hidden bg-[#2A1D15]">
-                <img
-                    src={roseCandle}
-                    alt="Hand-sculpted rose candles from the Enpees studio"
-                    fetchPriority="high"
-                    decoding="async"
-                    className="lp-hero-photo"
-                />
-                <div className="lp-hero-scrim" aria-hidden="true" />
-
-                <div className={`${SHELL} relative z-10 flex min-h-[100dvh] items-end pb-12 pt-28 lg:items-center lg:pb-20 lg:pt-24`}>
-                    <div className="max-w-[36rem]">
-                        <p className="lp-eyebrow lp-hero-in" style={{ animationDelay: '80ms' }}>
-                            Hand-poured in Rajkot
-                        </p>
-                        <h1
-                            className="lp-display lp-hero-in mt-6 text-[2.75rem] font-light leading-[1.08] tracking-[-0.03em] text-[#EDE6D8] sm:text-6xl lg:text-7xl"
-                            style={{ animationDelay: '180ms' }}
-                        >
-                            <span className="block">Shaped before</span>
-                            <span className="block pb-1">
-                                it{' '}
-                                <em className="lp-wonk not-italic text-[#D3A34E]" style={{ fontStyle: 'italic' }}>
-                                    burns.
-                                </em>
-                            </span>
-                        </h1>
-                        <p
-                            className="lp-lede lp-hero-in mt-6 max-w-[32ch] text-[#C7BCA8]"
-                            style={{ animationDelay: '320ms' }}
-                        >
-                            Teddies, roses, hearts. Poured by hand in small batches in Rajkot.
-                        </p>
-                        <div
-                            className="lp-hero-in mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4"
-                            style={{ animationDelay: '440ms' }}
-                        >
-                            <Link ref={shopCta} to="/shop" className="lp-btn lp-btn-primary lp-magnetic">
-                                Shop candles
-                                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_forward</span>
-                            </Link>
-                            <Link ref={madeCta} to="#process" className="lp-btn lp-btn-ghost lp-magnetic">
-                                How it's made
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <CandleScrollHero />
 
             {/* Shapes: accordion strips */}
             <section className="relative bg-[#2A1D15] py-16 sm:py-24 lg:py-28">
