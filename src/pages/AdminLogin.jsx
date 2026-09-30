@@ -77,14 +77,14 @@ const AdminLogin = () => {
         <div className="min-h-screen bg-[#3B2A23] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             {/* Background decoration */}
             <div className="absolute inset-0 z-0 opacity-20">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#D8A24A]/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#FAF6EF]/20 to-transparent"></div>
             </div>
 
             <div className="relative z-10 max-w-md w-full space-y-8 bg-[#FFF7ED]/10 backdrop-blur-xl p-8 rounded-2xl border border-[#FFF7ED]/20 shadow-2xl">
                 {/* Logo and Title */}
                 <div className="text-center">
                     <div className="flex justify-center mb-4">
-                        <div className="w-20 h-20 bg-[#D8A24A] rounded-full flex items-center justify-center">
+                        <div className="w-20 h-20 bg-[#FAF6EF] rounded-full flex items-center justify-center">
                             <span className="material-symbols-outlined text-[#3B2A23] text-4xl">admin_panel_settings</span>
                         </div>
                     </div>
@@ -111,7 +111,7 @@ const AdminLogin = () => {
                                 required
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-2 focus:ring-[#D8A24A] focus:border-[#D8A24A] transition-all"
+                                className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-2 focus:ring-[#FAF6EF] focus:border-[#FAF6EF] transition-all"
                                 placeholder="admin@example.com"
                             />
                         </div>
@@ -127,7 +127,7 @@ const AdminLogin = () => {
                                 required
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-2 focus:ring-[#D8A24A] focus:border-[#D8A24A] transition-all"
+                                className="appearance-none rounded-lg relative block w-full px-4 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-2 focus:ring-[#FAF6EF] focus:border-[#FAF6EF] transition-all"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -137,7 +137,7 @@ const AdminLogin = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-[#3B2A23] bg-[#D8A24A] hover:bg-[#D8A24A]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D8A24A] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-[#3B2A23] bg-[#FAF6EF] hover:bg-[#FAF6EF]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FAF6EF] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
                             {loading ? (
                                 <span className="flex items-center gap-2">
@@ -158,7 +158,7 @@ const AdminLogin = () => {
                 <div className="text-center">
                     <Link 
                         to="/" 
-                        className="text-sm text-[#EAD2C0] hover:text-[#D8A24A] transition-colors flex items-center justify-center gap-2"
+                        className="text-sm text-[#EAD2C0] hover:text-[#FAF6EF] transition-colors flex items-center justify-center gap-2"
                     >
                         <span className="material-symbols-outlined text-sm">arrow_back</span>
                         Back to Home
@@ -166,9 +166,9 @@ const AdminLogin = () => {
                 </div>
 
                 {/* Security Notice */}
-                <div className="mt-6 p-4 rounded-lg bg-[#D8A24A]/10 border border-[#D8A24A]/30">
+                <div className="mt-6 p-4 rounded-lg bg-[#FAF6EF]/10 border border-[#FAF6EF]/30">
                     <div className="flex items-start gap-3">
-                        <span className="material-symbols-outlined text-[#D8A24A] text-sm">shield</span>
+                        <span className="material-symbols-outlined text-[#FAF6EF] text-sm">shield</span>
                         <p className="text-xs text-[#EAD2C0]">
                             This is a secure admin area. Only authorized personnel with admin credentials can access this portal.
                         </p>

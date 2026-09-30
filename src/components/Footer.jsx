@@ -23,7 +23,7 @@ const COLUMNS = [
     {
         title: 'Studio',
         links: [
-            { to: '/contact', label: 'About Enpees' },
+            { to: '/contact', label: 'About Fleroma' },
             { to: '/contact', label: 'The process' },
             { to: '/contact', label: 'Wholesale' },
             { to: '/contact', label: 'Custom orders' },
@@ -63,7 +63,7 @@ export default function Footer() {
     };
 
     return (
-        <footer className="relative overflow-hidden bg-[#0D0B0A]">
+        <footer className="relative overflow-hidden bg-[#FAF6EF]">
             {/* Top hairline */}
             <div className="lp-hairline" aria-hidden="true" />
 
@@ -74,7 +74,7 @@ export default function Footer() {
                         <p className="lp-eyebrow text-[10px]">A letter, occasionally</p>
                         <h2 className="lp-display mt-5 text-4xl leading-[1.05] tracking-[-0.02em] sm:text-5xl lg:text-[3.6rem]">
                             Small batches, the studio's<br />
-                            <span className="lp-wonk italic text-[#D3A34E]">fragrant diary.</span>
+                            <span className="lp-wonk italic text-[#4A2A1A]">fragrant diary.</span>
                         </h2>
                         <p className="lp-lede mt-6 max-w-[36rem] !text-[15px]">
                             One short note a month: new shapes, what we are pouring, the
@@ -87,7 +87,7 @@ export default function Footer() {
                             onSubmit={handleSubscribe}
                             className={`lp-input-glow flex items-center gap-2 rounded-full p-2 ${focused ? 'is-focused' : ''}`}
                         >
-                            <span className="material-symbols-outlined ml-3 text-[20px] text-[#C7BCA8]/60" aria-hidden="true">mail</span>
+                            <span className="material-symbols-outlined ml-3 text-[20px] text-[#4A2A1A]/50" aria-hidden="true">mail</span>
                             <input
                                 type="email"
                                 value={email}
@@ -98,12 +98,12 @@ export default function Footer() {
                                 required
                                 disabled={subscribed}
                                 aria-label="Email address"
-                                className="flex-1 bg-transparent px-2 py-2 font-jost text-[15px] text-[#EDE6D8] placeholder-[#C7BCA8]/40 outline-none"
+                                className="flex-1 bg-transparent px-2 py-2 font-jost text-[15px] text-[#4A2A1A] placeholder-[#4A2A1A]/40 outline-none"
                             />
                             <button
                                 type="submit"
                                 disabled={subscribed}
-                                className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#D3A34E] px-5 py-3 font-jost text-[11px] uppercase tracking-[0.18em] text-[#2A1D15] transition-all hover:bg-[#E4B84A] hover:shadow-[0_10px_30px_-10px_rgba(211,163,78,0.55)] active:translate-y-[1px] disabled:opacity-60"
+                                className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#4A2A1A] px-5 py-3 font-jost text-[11px] uppercase tracking-[0.18em] text-[#FAF6EF] transition-all hover:bg-[#3A2013] hover:shadow-[0_10px_30px_-10px_rgba(74,42,26,0.5)] active:translate-y-[1px] disabled:opacity-60"
                             >
                                 {subscribed ? (
                                     <>
@@ -118,7 +118,7 @@ export default function Footer() {
                                 )}
                             </button>
                         </form>
-                        <p className="mt-4 font-jost text-[11px] uppercase tracking-[0.2em] text-[#C7BCA8]/45">
+                        <p className="mt-4 font-jost text-[11px] uppercase tracking-[0.2em] text-[#4A2A1A]/50">
                             One email a month. Unsubscribe in a click.
                         </p>
                     </div>
@@ -131,10 +131,10 @@ export default function Footer() {
                     {/* Brand block */}
                     <div className="lg:col-span-4">
                         <div className="flex items-center gap-3">
-                            <BrandMark className="h-9 w-9 text-[#D3A34E]" />
+                            <BrandMark className="h-9 w-9 text-[#4A2A1A]" />
                             <span className="leading-none">
-                                <span className="lp-display block text-lg tracking-wide text-[#EDE6D8] sm:text-xl">Enpees</span>
-                                <span className="font-jost text-[9px] uppercase tracking-[0.3em] text-[#C7BCA8]/70">Hand-poured candles</span>
+                                <span className="lp-display block text-lg tracking-wide sm:text-xl">Fleroma</span>
+                                <span className="font-jost text-[9px] uppercase tracking-[0.3em] text-[#4A2A1A]/60">Hand-poured candles</span>
                             </span>
                         </div>
                         <p className="lp-lede mt-6 max-w-[26rem] !text-[14px]">
@@ -151,9 +151,9 @@ export default function Footer() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label={s.label}
-                                    className="group flex items-center gap-2 rounded-full border border-[#D3A34E]/25 px-4 py-2 font-jost text-[11px] uppercase tracking-[0.18em] text-[#C7BCA8] transition-all hover:border-[#D3A34E]/60 hover:text-[#EDE6D8]"
+                                    className="group flex items-center gap-2 rounded-full border border-[#4A2A1A]/25 px-4 py-2 font-jost text-[11px] uppercase tracking-[0.18em] text-[#4A2A1A]/70 transition-all hover:border-[#4A2A1A]/60 hover:text-[#4A2A1A]"
                                 >
-                                    <span className="material-symbols-outlined text-[16px] text-[#D3A34E] transition-transform group-hover:-translate-y-0.5" aria-hidden="true">{s.icon}</span>
+                                    <span className="material-symbols-outlined text-[16px] text-[#4A2A1A] transition-transform group-hover:-translate-y-0.5" aria-hidden="true">{s.icon}</span>
                                     {s.label}
                                 </a>
                             ))}
@@ -166,7 +166,7 @@ export default function Footer() {
                     {/* Link columns */}
                     {COLUMNS.map((col) => (
                         <div key={col.title} className="lg:col-span-2">
-                            <h4 className="font-jost text-[10px] uppercase tracking-[0.26em] text-[#D3A34E]">
+                            <h4 className="font-jost text-[10px] uppercase tracking-[0.26em] text-[#4A2A1A]">
                                 {col.title}
                             </h4>
                             <ul className="mt-5 space-y-3">
@@ -186,17 +186,17 @@ export default function Footer() {
 
                     {/* Address column */}
                     <div className="lg:col-span-1">
-                        <h4 className="font-jost text-[10px] uppercase tracking-[0.26em] text-[#D3A34E]">
+                        <h4 className="font-jost text-[10px] uppercase tracking-[0.26em] text-[#4A2A1A]">
                             Visit
                         </h4>
-                        <address className="mt-5 not-italic font-jost text-[14px] leading-[1.7] text-[#C7BCA8]/65">
+                        <address className="mt-5 not-italic font-jost text-[14px] leading-[1.7] text-[#4A2A1A]/65">
                             Office 412, Aqua Corel<br />
                             Kataria Chokdi, Rajkot<br />
                             360 005, India
                         </address>
                         <a
                             href="tel:+919173958589"
-                            className="lp-foot-link mt-4 inline-block font-jost text-[14px] text-[#C7BCA8]/65"
+                            className="lp-foot-link mt-4 inline-block font-jost text-[14px] text-[#4A2A1A]/65"
                         >
                             +91 91739 58589
                         </a>
@@ -207,19 +207,19 @@ export default function Footer() {
                 <div className="lp-hairline" aria-hidden="true" />
 
                 <div className="flex flex-col items-start gap-6 py-8 sm:flex-row sm:items-center sm:justify-between sm:py-10">
-                    <p className="font-jost text-[12px] text-[#C7BCA8]/45">
+                    <p className="font-jost text-[12px] text-[#4A2A1A]/50">
                         &copy; {new Date().getFullYear()} Enpee Handcrafts. Made by hand in Rajkot.
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-jost text-[11px] uppercase tracking-[0.2em] text-[#C7BCA8]/45">
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-jost text-[11px] uppercase tracking-[0.2em] text-[#4A2A1A]/50">
                         <span className="flex items-center gap-2">
-                            <span className="h-1 w-1 rounded-full bg-[#D3A34E]/70" aria-hidden="true" />
+                            <span className="h-1 w-1 rounded-full bg-[#4A2A1A]/60" aria-hidden="true" />
                             MSME Registered
                         </span>
                         <span className="font-mono text-[10px] tracking-[0.18em]">GSTIN 24ERGPB1394P1ZH</span>
-                        <a href="#" className="lp-foot-link !text-[11px] !uppercase !tracking-[0.2em]">Privacy</a>
-                        <a href="#" className="lp-foot-link !text-[11px] !uppercase !tracking-[0.2em]">Terms</a>
-                        <a href="#" className="lp-foot-link !text-[11px] !uppercase !tracking-[0.2em]">Refunds</a>
+                        <Link to="/contact" className="lp-foot-link !text-[11px] !uppercase !tracking-[0.2em]">Privacy</Link>
+                        <Link to="/contact" className="lp-foot-link !text-[11px] !uppercase !tracking-[0.2em]">Terms</Link>
+                        <Link to="/contact" className="lp-foot-link !text-[11px] !uppercase !tracking-[0.2em]">Refunds</Link>
                     </div>
                 </div>
             </div>

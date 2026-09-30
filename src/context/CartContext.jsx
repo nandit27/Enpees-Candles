@@ -14,7 +14,7 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('cartItems', JSON.stringify(cartItems));
     }, [cartItems]);
 
-    const addToCart = (product, color = 'Natural Beige', fragrance = 'Lavender') => {
+    const addToCart = (product, color = 'Natural Beige', fragrance = 'Woody Flora') => {
         setCartItems((prevItems) => {
             // Use a unique identifier combining product id, color, and fragrance
             const productId = product.id || product._id || product.name;

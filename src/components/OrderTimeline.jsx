@@ -31,13 +31,13 @@ const OrderTimeline = ({ order }) => {
     return (
         <div className="w-full">
             {isCancelled && (
-                <div className="mb-6 rounded-[12px] bg-[#2A1D15]/60 p-4">
-                    <p className="font-jost text-sm font-semibold text-[#EDE6D8]">Order cancelled</p>
+                <div className="mb-6 rounded-[12px] bg-[#EDE0C8] p-4">
+                    <p className="font-jost text-sm font-semibold text-[#4A2A1A]">Order cancelled</p>
                     {order.cancellationReason && (
-                        <p className="mt-1 font-jost text-sm text-[#C7BCA8]">{order.cancellationReason}</p>
+                        <p className="mt-1 font-jost text-sm text-[#4A2A1A]/70">{order.cancellationReason}</p>
                     )}
                     {order.timeline?.cancelled?.timestamp && (
-                        <p className="mt-1 font-jost text-xs text-[#C7BCA8]">
+                        <p className="mt-1 font-jost text-xs text-[#4A2A1A]/70">
                             {formatDate(order.timeline.cancelled.timestamp)}
                         </p>
                     )}
@@ -56,7 +56,7 @@ const OrderTimeline = ({ order }) => {
                             {index < STEPS.length - 1 && (
                                 <span
                                     className={`absolute left-[17px] top-[38px] h-[calc(100%-38px)] w-px ${
-                                        isCompleted ? 'bg-[#D3A34E]' : 'bg-[#C7BCA8]/25'
+                                        isCompleted ? 'bg-[#4A2A1A]' : 'bg-[#4A2A1A]/20'
                                     }`}
                                     aria-hidden="true"
                                 />
@@ -64,10 +64,10 @@ const OrderTimeline = ({ order }) => {
                             <div
                                 className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
                                     isCancelledStep
-                                        ? 'border border-[#C7BCA8]/40 bg-transparent'
+                                        ? 'border border-[#4A2A1A]/40 bg-transparent'
                                         : isCompleted
-                                          ? 'bg-[#D3A34E] text-[#2A1D15]'
-                                          : 'border border-[#C7BCA8]/35 bg-transparent text-[#C7BCA8]/50'
+                                          ? 'bg-[#4A2A1A] text-[#FAF6EF]'
+                                          : 'border border-[#4A2A1A]/35 bg-transparent text-[#4A2A1A]/50'
                                 }`}
                             >
                                 <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
@@ -79,20 +79,20 @@ const OrderTimeline = ({ order }) => {
                                     <div>
                                         <p
                                             className={`font-jost text-sm ${
-                                                isCompleted ? 'text-[#EDE6D8]' : 'text-[#C7BCA8]/60'
+                                                isCompleted ? 'text-[#4A2A1A]' : 'text-[#4A2A1A]/60'
                                             }`}
                                         >
                                             {step.label}
                                         </p>
-                                        <p className="mt-1 font-jost text-sm text-[#C7BCA8]">{step.description}</p>
+                                        <p className="mt-1 font-jost text-sm text-[#4A2A1A]/70">{step.description}</p>
                                         {step.key === 'shipped' && order.trackingId && (
-                                            <p className="mt-2 break-all font-jost text-xs text-[#C7BCA8]">
+                                            <p className="mt-2 break-all font-jost text-xs text-[#4A2A1A]/70">
                                                 Tracking {order.trackingId}
                                             </p>
                                         )}
                                     </div>
                                     {timestamp && (
-                                        <p className="shrink-0 font-jost text-xs text-[#C7BCA8] sm:pt-1">
+                                        <p className="shrink-0 font-jost text-xs text-[#4A2A1A]/70 sm:pt-1">
                                             {formatDate(timestamp)}
                                         </p>
                                     )}

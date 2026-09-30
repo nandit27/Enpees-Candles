@@ -78,7 +78,9 @@ const productSchema = new mongoose.Schema({
         }
     },
     colors: [{
-        type: String
+        // Mixed on purpose: legacy docs store plain strings ("Ivory White"),
+        // new docs store { name, hex }. Both shapes are normalised in code.
+        type: mongoose.Schema.Types.Mixed
     }],
     fragrances: [{
         type: String

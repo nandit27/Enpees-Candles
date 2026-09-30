@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -7,7 +7,7 @@ import { applyCoupon, calculateTotals } from '../lib/checkoutHelpers';
 import { API_ENDPOINTS } from '../config/api';
 
 const availableColors = ['Natural Beige', 'Ivory White', 'Soft Pink', 'Charcoal Grey', 'Others'];
-const availableFragrances = ['Woody Flora', 'Peach Miami', 'Jasmine', 'Mogra', 'Berry Blast', 'Kesar Chandan', 'British Rose', 'Vanilla', 'English Lavender'];
+const FALLBACK_FRAGRANCES = ['Woody Flora', 'Peach Miami', 'Jasmine', 'Mogra', 'Berry Blast', 'Kesar Chandan', 'British Rose', 'Vanilla', 'English Lavender'];
 
 const Checkout = () => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, updateColorFragrance, removeFromCart } = useCart();
@@ -32,6 +32,19 @@ const Checkout = () => {
     const [showTermsModal, setShowTermsModal] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('online'); // 'online' or 'cod'
     const [courierCompany, setCourierCompany] = useState('');
+    const [availableFragrances, setAvailableFragrances] = useState(FALLBACK_FRAGRANCES);
+
+    useEffect(() => {
+        fetch(API_ENDPOINTS.FRAGRANCES)
+            .then((res) => res.json())
+            .then((data) => {
+                const names = (Array.isArray(data) ? data : []).map((f) =>
+                    typeof f === 'string' ? f : f?.name
+                ).filter(Boolean);
+                if (names.length > 0) setAvailableFragrances(names);
+            })
+            .catch((err) => console.error('Error fetching fragrances:', err));
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -157,11 +170,11 @@ const Checkout = () => {
 
     if (cartItems.length === 0) {
         return (
-            <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+            <div className="lp relative min-h-[100dvh] w-full bg-[#FAF6EF] text-[#4A2A1A]">
                 <Navbar />
-                <main className="mx-auto w-full max-w-[1400px] px-5 py-20 sm:px-10 lg:px-16">
+                <main id="main-content" className="mx-auto w-full max-w-[1400px] px-5 py-20 sm:px-10 lg:px-16">
                     <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Your bag is empty</h1>
-                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#4A2A1A]/70">
                         Add a candle from the shop, then come back to check out.
                     </p>
                     <Link to="/shop" className="lp-btn lp-btn-primary mt-8">
@@ -173,12 +186,12 @@ const Checkout = () => {
     }
 
     return (
-        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+        <div className="lp relative min-h-[100dvh] w-full bg-[#FAF6EF] text-[#4A2A1A]">
             <Navbar />
             <div className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
                     <header className="max-w-xl">
                         <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Checkout</h1>
-                        <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                        <p className="lp-lede mt-4 max-w-[65ch] text-[#4A2A1A]/70">
                             Confirm the bag, then tell us where to send it.
                         </p>
                     </header>
@@ -186,13 +199,13 @@ const Checkout = () => {
                     <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-2">
                         {/* Checkout Form */}
                         <div className="order-2 lg:order-1">
-                            <div className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8">
+                            <div className="rounded-[20px] bg-[#EDE0C8] p-5 sm:p-8">
                                 <h2 className="lp-display text-2xl leading-[1.1] sm:text-3xl">
                                     Shipping
                                 </h2>
                             <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
                                     <div>
-                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Full Name *</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">Full Name *</label>
                                         <input
                                             type="text"
                                             name="name"
@@ -200,13 +213,13 @@ const Checkout = () => {
                                             value={formData.name}
                                             onChange={handleChange}
                                             placeholder="Enter your full name"
-                                            className={`lp-field ${errors.name ? '!border-[#E8B4B4]' : ''}`}
+                                            className={`lp-field ${errors.name ? '!border-red-700' : ''}`}
                                         />
-                                        {errors.name && <p className="text-xs text-[#E8B4B4] mt-1">{errors.name}</p>}
+                                        {errors.name && <p className="text-xs text-red-700 mt-1">{errors.name}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Mobile Number *</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">Mobile Number *</label>
                                         <input
                                             type="tel"
                                             name="mobile"
@@ -214,26 +227,26 @@ const Checkout = () => {
                                             value={formData.mobile}
                                             onChange={handleChange}
                                             placeholder="Enter 10-digit mobile"
-                                            className={`lp-field ${errors.mobile ? '!border-[#E8B4B4]' : ''}`}
+                                            className={`lp-field ${errors.mobile ? '!border-red-700' : ''}`}
                                         />
-                                        {errors.mobile && <p className="text-xs text-[#E8B4B4] mt-1">{errors.mobile}</p>}
+                                        {errors.mobile && <p className="text-xs text-red-700 mt-1">{errors.mobile}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Email Address (Optional)</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">Email Address (Optional)</label>
                                         <input
                                             type="email"
                                             name="email"
                                             value={formData.email}
                                             onChange={handleChange}
                                             placeholder="your.email@example.com"
-                                            className={`lp-field ${errors.email ? '!border-[#E8B4B4]' : ''}`}
+                                            className={`lp-field ${errors.email ? '!border-red-700' : ''}`}
                                         />
-                                        {errors.email && <p className="text-xs text-[#E8B4B4] mt-1">{errors.email}</p>}
+                                        {errors.email && <p className="text-xs text-red-700 mt-1">{errors.email}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Address Line 1 *</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">Address Line 1 *</label>
                                         <input
                                             type="text"
                                             name="address1"
@@ -241,30 +254,30 @@ const Checkout = () => {
                                             value={formData.address1}
                                             onChange={handleChange}
                                             placeholder="House number and street name"
-                                            className={`lp-field ${errors.address1 ? '!border-[#E8B4B4]' : ''}`}
+                                            className={`lp-field ${errors.address1 ? '!border-red-700' : ''}`}
                                         />
-                                        {errors.address1 && <p className="text-xs text-[#E8B4B4] mt-1">{errors.address1}</p>}
+                                        {errors.address1 && <p className="text-xs text-red-700 mt-1">{errors.address1}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Address Line 2 (optional)</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">Address Line 2 (optional)</label>
                                         <input type="text" name="address2" value={formData.address2} onChange={handleChange} className="lp-field" />
                                     </div>
 
                                     <div>
-                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Landmark (optional)</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">Landmark (optional)</label>
                                         <input type="text" name="landmark" value={formData.landmark} onChange={handleChange} className="lp-field" />
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <div className="sm:col-span-1">
-                                            <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">City *</label>
-                                            <input type="text" name="city" value={formData.city} onChange={handleChange} className={`lp-field ${errors.city ? '!border-[#E8B4B4]' : ''}`} />
-                                            {errors.city && <p className="mt-1 font-jost text-xs text-[#E8B4B4]">{errors.city}</p>}
+                                            <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">City *</label>
+                                            <input type="text" name="city" value={formData.city} onChange={handleChange} className={`lp-field ${errors.city ? '!border-red-700' : ''}`} />
+                                            {errors.city && <p className="mt-1 font-jost text-xs text-red-700">{errors.city}</p>}
                                         </div>
                                         <div className="sm:col-span-1">
-                                            <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">State *</label>
-                                            <select name="state" value={formData.state} onChange={handleChange} className={`lp-field ${errors.state ? '!border-[#E8B4B4]' : ''}`}>
+                                            <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">State *</label>
+                                            <select name="state" value={formData.state} onChange={handleChange} className={`lp-field ${errors.state ? '!border-red-700' : ''}`}>
                                                 <option value="">Select state</option>
                                                 <option>Andhra Pradesh</option>
                                                 <option>Arunachal Pradesh</option>
@@ -303,20 +316,20 @@ const Checkout = () => {
                                                 <option>Lakshadweep</option>
                                                 <option>Puducherry</option>
                                             </select>
-                                            {errors.state && <p className="text-xs text-[#E8B4B4] mt-1">{errors.state}</p>}
+                                            {errors.state && <p className="text-xs text-red-700 mt-1">{errors.state}</p>}
                                         </div>
                                         <div className="sm:col-span-1">
-                                            <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Pincode *</label>
-                                            <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} className={`lp-field ${errors.pincode ? '!border-[#E8B4B4]' : ''}`} />
-                                            {errors.pincode && <p className="mt-1 font-jost text-xs text-[#E8B4B4]">{errors.pincode}</p>}
+                                            <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">Pincode *</label>
+                                            <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} className={`lp-field ${errors.pincode ? '!border-red-700' : ''}`} />
+                                            {errors.pincode && <p className="mt-1 font-jost text-xs text-red-700">{errors.pincode}</p>}
                                         </div>
                                     </div>
 
                                     {/* Payment Method Selection */}
-                                    <div className="p-4 rounded-xl bg-[#3B2A23]/50 border border-[#FFF7ED]/10">
-                                        <label className="block text-sm font-semibold mb-3 text-[#EAD2C0]">Payment Method *</label>
+                                    <div className="p-4 rounded-xl bg-[#EDE0C8] border border-[#4A2A1A]/10">
+                                        <label className="block text-sm font-semibold mb-3 text-[#4A2A1A]/70">Payment Method *</label>
                                         <div className="space-y-3">
-                                            <label className="flex items-center gap-3 p-3 rounded-lg border border-[#FFF7ED]/20 hover:border-[#D8A24A]/50 cursor-pointer transition-all">
+                                            <label className="flex items-center gap-3 p-3 rounded-lg border border-[#4A2A1A]/20 hover:border-[#4A2A1A]/50 cursor-pointer transition-all">
                                                 <input 
                                                     type="radio" 
                                                     name="paymentMethod" 
@@ -326,11 +339,11 @@ const Checkout = () => {
                                                     className="w-4 h-4"
                                                 />
                                                 <div className="flex-1">
-                                                    <p className="font-semibold text-white">Online Payment (UPI/QR)</p>
-                                                    <p className="text-xs text-[#EAD2C0]">Pay via UPI, QR code</p>
+                                                    <p className="font-semibold text-[#4A2A1A]">Online Payment (UPI/QR)</p>
+                                                    <p className="text-xs text-[#4A2A1A]/70">Pay via UPI, QR code</p>
                                                 </div>
                                             </label>
-                                            {/* <label className="flex items-center gap-3 p-3 rounded-lg border border-[#FFF7ED]/20 hover:border-[#D8A24A]/50 cursor-pointer transition-all">
+                                            {/* <label className="flex items-center gap-3 p-3 rounded-lg border border-[#4A2A1A]/20 hover:border-[#4A2A1A]/50 cursor-pointer transition-all">
                                                 <input 
                                                     type="radio" 
                                                     name="paymentMethod" 
@@ -340,8 +353,8 @@ const Checkout = () => {
                                                     className="w-4 h-4"
                                                 />
                                                 <div className="flex-1">
-                                                    <p className="font-semibold text-white">Cash on Delivery (COD)</p>
-                                                    <p className="text-xs text-[#EAD2C0]">Pay when you receive (+₹50 extra)</p>
+                                                    <p className="font-semibold text-[#4A2A1A]">Cash on Delivery (COD)</p>
+                                                    <p className="text-xs text-[#4A2A1A]/70">Pay when you receive (+₹50 extra)</p>
                                                 </div>
                                             </label> */}
                                         </div>
@@ -349,9 +362,9 @@ const Checkout = () => {
 
                                     {/* Courier Company Selection */}
                                     <div>
-                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">
+                                        <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">
                                             Courier Preference (Optional)
-                                            <span className="text-xs font-normal ml-2 text-[#EAD2C0]/70">For special courier, please specify</span>
+                                            <span className="text-xs font-normal ml-2 text-[#4A2A1A]/70">For special courier, please specify</span>
                                         </label>
                                         <input
                                             type="text"
@@ -363,7 +376,7 @@ const Checkout = () => {
                                     </div>
 
                                     {/* Terms and Conditions */}
-                                    <div className="p-4 rounded-xl bg-[#3B2A23]/50 border border-[#FFF7ED]/10">
+                                    <div className="p-4 rounded-xl bg-[#EDE0C8] border border-[#4A2A1A]/10">
                                         <div className="flex items-start gap-3">
                                             <input 
                                                 id="terms" 
@@ -372,18 +385,18 @@ const Checkout = () => {
                                                 onChange={(e) => setTermsAccepted(e.target.checked)}
                                                 className="w-4 h-4 mt-1"
                                             />
-                                            <label htmlFor="terms" className="text-sm text-[#EAD2C0] flex-1">
+                                            <label htmlFor="terms" className="text-sm text-[#4A2A1A]/70 flex-1">
                                                 I accept the{' '}
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowTermsModal(true)}
-                                                    className="text-[#D3A34E] underline hover:text-[#EDE6D8]"
+                                                    className="text-[#4A2A1A] underline hover:text-[#4A2A1A]"
                                                 >
                                                     Terms and Conditions
                                                 </button>
                                             </label>
                                         </div>
-                                        {errors.terms && <p className="text-xs text-[#E8B4B4] mt-2 ml-7">{errors.terms}</p>}
+                                        {errors.terms && <p className="text-xs text-red-700 mt-2 ml-7">{errors.terms}</p>}
                                     </div>
 
                                     <button type="submit" className="lp-btn lp-btn-primary mt-4 w-full">
@@ -395,7 +408,7 @@ const Checkout = () => {
 
                         {/* Order Summary */}
                         <div className="order-1 lg:order-2">
-                            <div className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8 lg:sticky lg:top-24">
+                            <div className="rounded-[20px] bg-[#EDE0C8] p-5 sm:p-8 lg:sticky lg:top-24">
                                 <h2 className="lp-display text-2xl leading-[1.1] sm:text-3xl">
                                     Your bag
                                 </h2>
@@ -411,7 +424,7 @@ const Checkout = () => {
                                         const itemTotal = itemPrice * item.quantity;
                                         const itemId = item.id || item._id || item.name;
                                         return (
-                                            <div key={index} className="flex flex-col gap-3 p-4 rounded-lg bg-[#3B2A23]/50 border border-[#FFF7ED]/10 hover:border-[#D8A24A]/50 transition-all">
+                                            <div key={index} className="flex flex-col gap-3 p-4 rounded-lg bg-[#EDE0C8] border border-[#4A2A1A]/10 hover:border-[#4A2A1A]/50 transition-all">
                                                 {/* Top row with image, name, and delete button */}
                                                 <div className="flex items-start gap-4">
                                                     {item.image && (
@@ -422,20 +435,20 @@ const Checkout = () => {
                                                         />
                                                     )}
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-[#FFF7ED]">{item.name}</p>
+                                        <p className="font-bold text-[#4A2A1A]">{item.name}</p>
                                         <div className="flex items-center gap-2 mt-1">
                                             {item.offerPrice ? (
                                                 <>
-                                                    <span className="text-sm font-bold text-[#D3A34E]">₹{item.offerPrice}</span>
-                                                    <span className="text-xs text-[#EAD2C0]/60 line-through">₹{regularPrice.toFixed(2)}</span>
+                                                    <span className="text-sm font-bold text-[#4A2A1A]">₹{item.offerPrice}</span>
+                                                    <span className="text-xs text-[#4A2A1A]/60 line-through">₹{regularPrice.toFixed(2)}</span>
                                                 </>
                                             ) : (
-                                                <span className="text-sm text-[#EAD2C0]">₹{itemPrice.toFixed(2)}</span>
+                                                <span className="text-sm text-[#4A2A1A]/70">₹{itemPrice.toFixed(2)}</span>
                                             )}
                                         </div>                                                        {/* Color and Fragrance Selection */}
                                                         <div className="mt-2 space-y-2">
                                                             <div className="flex items-center gap-2">
-                                                                <label className="text-xs text-[#EAD2C0] min-w-[60px]">Color:</label>
+                                                                <label className="text-xs text-[#4A2A1A]/70 min-w-[60px]">Color:</label>
                                                                 <select
                                                                     value={availableColors.includes(item.color) ? item.color : 'Others'}
                                                                     onChange={(e) => {
@@ -467,7 +480,7 @@ const Checkout = () => {
                                                             </div>
                                                             {!availableColors.includes(item.color) && (
                                                                 <div className="flex items-start gap-2">
-                                                                    <label className="text-xs text-[#EAD2C0] min-w-[60px] pt-1">Custom:</label>
+                                                                    <label className="text-xs text-[#4A2A1A]/70 min-w-[60px] pt-1">Custom:</label>
                                                                     <input
                                                                         type="text"
                                                                         value={item.color || ''}
@@ -484,23 +497,42 @@ const Checkout = () => {
                                                                 </div>
                                                             )}
                                                             <div className="flex items-center gap-2">
-                                                                <label className="text-xs text-[#EAD2C0] min-w-[60px]">Fragrance:</label>
+                                                                <label className="text-xs text-[#4A2A1A]/70 min-w-[60px]">Fragrance:</label>
                                                                 <select
-                                                                    value={item.fragrance || 'Lavender'}
+                                                                    value={availableFragrances.includes(item.fragrance) ? item.fragrance : 'Others'}
                                                                     onChange={(e) => updateColorFragrance(
                                                                         itemId,
                                                                         item.color,
                                                                         item.fragrance,
                                                                         item.color,
-                                                                        e.target.value
+                                                                        e.target.value === 'Others' ? '' : e.target.value
                                                                     )}
                                                                     className="lp-field !min-h-10 flex-1 py-2 text-sm"
                                                                 >
                                                                     {availableFragrances.map(fragrance => (
                                                                         <option key={fragrance} value={fragrance}>{fragrance}</option>
                                                                     ))}
+                                                                    <option value="Others">Custom scent</option>
                                                                 </select>
                                                             </div>
+                                                            {!availableFragrances.includes(item.fragrance) && (
+                                                                <div className="flex items-start gap-2">
+                                                                    <label className="text-xs text-[#4A2A1A]/70 min-w-[60px] pt-1">Custom:</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={item.fragrance || ''}
+                                                                        onChange={(e) => updateColorFragrance(
+                                                                            itemId,
+                                                                            item.color,
+                                                                            item.fragrance,
+                                                                            item.color,
+                                                                            e.target.value
+                                                                        )}
+                                                                        className="lp-field !min-h-10 flex-1 py-2 text-sm"
+                                                                        placeholder="Enter custom fragrance"
+                                                                    />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                     {/* Delete Button */}
@@ -511,13 +543,13 @@ const Checkout = () => {
                                                                 duration: 2000,
                                                                 position: 'bottom-right',
                                                                 style: {
-                                                                    background: '#D8A24A',
-                                                                    color: '#3B2A23',
+                                                                    background: '#4A2A1A',
+                                                                    color: '#FAF6EF',
                                                                     fontWeight: 'bold',
                                                                 },
                                                             });
                                                         }}
-                                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#C7BCA8] hover:text-[#EDE6D8]"
+                                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#4A2A1A]/70 hover:text-[#4A2A1A]"
                                                         aria-label="Remove item"
                                                     >
                                                         <span className="material-symbols-outlined text-lg">close</span>
@@ -538,27 +570,27 @@ const Checkout = () => {
                                                                         duration: 2000,
                                                                         position: 'bottom-right',
                                                                         style: {
-                                                                            background: '#D8A24A',
-                                                                            color: '#3B2A23',
+                                                                            background: '#4A2A1A',
+                                                                            color: '#FAF6EF',
                                                                             fontWeight: 'bold',
                                                                         },
                                                                     });
                                                                 }
                                                             }}
-                                                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D3A34E]/20 text-[#D3A34E] transition-transform active:scale-[0.98]"
+                                                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#4A2A1A]/20 text-[#4A2A1A] transition-transform active:scale-[0.98]"
                                                         >
                                                             <span className="material-symbols-outlined text-base">remove</span>
                                                         </button>
-                                                        <span className="text-base font-bold text-[#FFF7ED] min-w-[24px] text-center">{item.quantity}</span>
+                                                        <span className="text-base font-bold text-[#4A2A1A] min-w-[24px] text-center">{item.quantity}</span>
                                                         <button
                                                             onClick={() => updateQuantity(itemId, item.quantity + 1, item.color, item.fragrance)}
-                                                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#D3A34E]/20 text-[#D3A34E] transition-transform active:scale-[0.98]"
+                                                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#4A2A1A]/20 text-[#4A2A1A] transition-transform active:scale-[0.98]"
                                                         >
                                                             <span className="material-symbols-outlined text-base">add</span>
                                                         </button>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="font-bold text-lg text-[#D8A24A]">₹{itemTotal.toFixed(2)}</p>
+                                                        <p className="font-bold text-lg text-[#4A2A1A]">₹{itemTotal.toFixed(2)}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -569,12 +601,12 @@ const Checkout = () => {
                                 <div className="mt-4 space-y-3">
                                     <div className="flex items-center gap-3">
                                         <input id="giftwrap" type="checkbox" checked={giftWrap} onChange={(e)=>setGiftWrap(e.target.checked)} className="w-4 h-4" />
-                                        <label htmlFor="giftwrap" className="text-sm text-[#EAD2C0]">Add Gift Wrapping (₹100 extra)</label>
-                                        {giftWrap && <span className="ml-2 text-xs px-2 py-1 bg-[#D8A24A]/20 rounded text-[#D8A24A]">Gift wrap applied</span>}
+                                        <label htmlFor="giftwrap" className="text-sm text-[#4A2A1A]/70">Add Gift Wrapping (₹100 extra)</label>
+                                        {giftWrap && <span className="ml-2 text-xs px-2 py-1 bg-[#4A2A1A]/20 rounded text-[#4A2A1A]">Gift wrap applied</span>}
                                     </div>
 
                                     <div className="mt-3">
-                                        <label className="mb-2 block font-jost text-sm text-[#C7BCA8]">Coupon</label>
+                                        <label className="mb-2 block font-jost text-sm text-[#4A2A1A]/70">Coupon</label>
                                         <div className="flex flex-col gap-2 sm:flex-row">
                                             <input value={couponCode} onChange={(e)=>setCouponCode(e.target.value)} className="lp-field flex-1" aria-label="Coupon code" />
                                             <button type="button" onClick={() => {
@@ -584,7 +616,7 @@ const Checkout = () => {
                                             }} className="lp-btn lp-btn-ghost shrink-0">Apply</button>
                                         </div>
                                         {couponResult && (
-                                            <p className={`mt-2 font-jost text-sm ${couponResult.valid ? 'text-[#D3A34E]' : 'text-[#E8B4B4]'}`}>{couponResult.message}{couponResult.valid ? ` Saved ₹${couponResult.discount.toFixed(2)}` : ''}</p>
+                                            <p className={`mt-2 font-jost text-sm ${couponResult.valid ? 'text-[#4A2A1A]' : 'text-red-700'}`}>{couponResult.message}{couponResult.valid ? ` Saved ₹${couponResult.discount.toFixed(2)}` : ''}</p>
                                         )}
                                     </div>
 
@@ -595,23 +627,23 @@ const Checkout = () => {
                                         const codCharge = paymentMethod === 'cod' ? 50 : 0;
                                         const t = calculateTotals(subtotal, { giftWrap, couponDiscount, codCharge });
                                         return (
-                                            <div className="mt-4 pt-4 border-t-2 border-[#D8A24A]/30 space-y-2">
-                                                <div className="flex justify-between items-center text-[#EAD2C0]"><span>Subtotal</span><span>₹{t.subtotal.toFixed(2)}</span></div>
-                                                <div className="flex justify-between items-center text-[#EAD2C0]"><span>Shipping</span><span>₹{t.shipping.toFixed(2)}</span></div>
-                                                {/* <div className="flex justify-between items-center text-[#EAD2C0]"><span>Tax (18% GST)</span><span>₹{t.tax.toFixed(2)}</span></div> */}
-                                                {t.couponDiscount > 0 && <div className="flex justify-between items-center text-[#EAD2C0]"><span>Coupon</span><span className="text-green-300">-₹{t.couponDiscount.toFixed(2)}</span></div>}
-                                                {t.gift > 0 && <div className="flex justify-between items-center text-[#EAD2C0]"><span>Gift Wrap</span><span>₹{t.gift.toFixed(2)}</span></div>}
-                                                {t.cod > 0 && <div className="flex justify-between items-center text-[#EAD2C0]"><span>COD Charges</span><span>₹{t.cod.toFixed(2)}</span></div>}
-                                                <div className="pt-4 border-t border-[#FFF7ED]/20 flex justify-between items-center"><span className="text-2xl font-bold text-[#FFF7ED]">Total</span><span className="text-3xl font-bold text-[#D8A24A]">₹{t.total.toFixed(2)}</span></div>
+                                            <div className="mt-4 pt-4 border-t-2 border-[#4A2A1A]/30 space-y-2">
+                                                <div className="flex justify-between items-center text-[#4A2A1A]/70"><span>Subtotal</span><span>₹{t.subtotal.toFixed(2)}</span></div>
+                                                <div className="flex justify-between items-center text-[#4A2A1A]/70"><span>Shipping</span><span>₹{t.shipping.toFixed(2)}</span></div>
+                                                {/* <div className="flex justify-between items-center text-[#4A2A1A]/70"><span>Tax (18% GST)</span><span>₹{t.tax.toFixed(2)}</span></div> */}
+                                                {t.couponDiscount > 0 && <div className="flex justify-between items-center text-[#4A2A1A]/70"><span>Coupon</span><span className="text-green-700">-₹{t.couponDiscount.toFixed(2)}</span></div>}
+                                                {t.gift > 0 && <div className="flex justify-between items-center text-[#4A2A1A]/70"><span>Gift Wrap</span><span>₹{t.gift.toFixed(2)}</span></div>}
+                                                {t.cod > 0 && <div className="flex justify-between items-center text-[#4A2A1A]/70"><span>COD Charges</span><span>₹{t.cod.toFixed(2)}</span></div>}
+                                                <div className="pt-4 border-t border-[#4A2A1A]/20 flex justify-between items-center"><span className="text-2xl font-bold text-[#4A2A1A]">Total</span><span className="text-3xl font-bold text-[#4A2A1A]">₹{t.total.toFixed(2)}</span></div>
                                             </div>
                                         );
                                     })()}
                                 </div>
 
-                                <div className="mt-6 p-4 rounded-lg bg-[#D8A24A]/10 border border-[#D8A24A]/30">
+                                <div className="mt-6 p-4 rounded-lg bg-[#4A2A1A]/10 border border-[#4A2A1A]/30">
                                     <div className="flex items-start gap-3">
-                                        <span className="material-symbols-outlined text-[#D8A24A]">info</span>
-                                        <div className="text-sm text-[#EAD2C0]">
+                                        <span className="material-symbols-outlined text-[#4A2A1A]">info</span>
+                                        <div className="text-sm text-[#4A2A1A]/70">
                                             <p className="font-semibold mb-1">Secure Checkout</p>
                                             <p className="text-xs">Your payment information is encrypted and secure.</p>
                                         </div>
@@ -624,56 +656,56 @@ const Checkout = () => {
 
             {/* Terms and Conditions Modal */}
             {showTermsModal && (
-                <div className="fixed inset-0 z-[70] flex items-end justify-center p-0 sm:items-center sm:p-4 bg-[#1F150E]/90">
-                    <div className="bg-[#2A1D15] w-full max-h-[90dvh] overflow-hidden rounded-t-[20px] sm:max-w-2xl sm:rounded-[20px]">
-                        <div className="bg-[#D8A24A]/20 border-b border-[#D8A24A]/30 p-6 flex items-center justify-between">
-                            <h3 className="lp-display text-2xl leading-[1.1] text-[#EDE6D8]">Terms</h3>
+                <div className="fixed inset-0 z-[70] flex items-end justify-center p-0 sm:items-center sm:p-4 bg-[#4A2A1A]/90">
+                    <div className="bg-[#FAF6EF] w-full max-h-[90dvh] overflow-hidden rounded-t-[20px] sm:max-w-2xl sm:rounded-[20px]">
+                        <div className="bg-[#4A2A1A]/20 border-b border-[#4A2A1A]/30 p-6 flex items-center justify-between">
+                            <h3 className="lp-display text-2xl leading-[1.1] text-[#4A2A1A]">Terms</h3>
                             <button 
                                 onClick={() => setShowTermsModal(false)}
-                                className="w-10 h-10 rounded-full bg-[#FFF7ED]/10 hover:bg-[#FFF7ED]/20 flex items-center justify-center transition-all"
+                                className="w-10 h-10 rounded-full bg-[#EDE0C8]/10 hover:bg-[#EDE0C8]/20 flex items-center justify-center transition-all"
                             >
-                                <span className="material-symbols-outlined text-[#FFF7ED]">close</span>
+                                <span className="material-symbols-outlined text-[#4A2A1A]">close</span>
                             </button>
                         </div>
                         <div className="p-6 overflow-y-auto max-h-[calc(80vh-140px)]">
-                            <div className="space-y-4 text-[#EAD2C0]">
+                            <div className="space-y-4 text-[#4A2A1A]/70">
                                 <p className="text-sm leading-relaxed">
                                     Please read and accept the following terms and conditions before placing your order:
                                 </p>
                                 <div className="space-y-3">
-                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#FFF7ED]/5">
-                                        <span className="text-[#D8A24A] font-bold mt-0.5">1.</span>
+                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#EDE0C8]/5">
+                                        <span className="text-[#4A2A1A] font-bold mt-0.5">1.</span>
                                         <p className="flex-1 text-sm"><strong>No Returns:</strong> Goods once sold will not be taken back or exchanged.</p>
                                     </div>
-                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#FFF7ED]/5">
-                                        <span className="text-[#D8A24A] font-bold mt-0.5">2.</span>
+                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#EDE0C8]/5">
+                                        <span className="text-[#4A2A1A] font-bold mt-0.5">2.</span>
                                         <p className="flex-1 text-sm"><strong>Transportation Damage:</strong> We are not responsible for any damage or loss during transportation. Please inspect your order upon delivery.</p>
                                     </div>
-                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#FFF7ED]/5">
-                                        <span className="text-[#D8A24A] font-bold mt-0.5">3.</span>
+                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#EDE0C8]/5">
+                                        <span className="text-[#4A2A1A] font-bold mt-0.5">3.</span>
                                         <p className="flex-1 text-sm"><strong>Delivery Delays:</strong> We are not responsible for any delays by the courier service due to transportation issues beyond our control.</p>
                                     </div>
-                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#FFF7ED]/5">
-                                        <span className="text-[#D8A24A] font-bold mt-0.5">4.</span>
+                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#EDE0C8]/5">
+                                        <span className="text-[#4A2A1A] font-bold mt-0.5">4.</span>
                                         <p className="flex-1 text-sm"><strong>No Return Policy:</strong> All sales are final. We do not accept returns or provide refunds.</p>
                                     </div>
-                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#FFF7ED]/5">
-                                        <span className="text-[#D8A24A] font-bold mt-0.5">5.</span>
-                                        <p className="flex-1 text-sm"><strong>Order Cancellation:</strong> Once order is dispatched, it cannot be cancelled. For cancellation requests before dispatch, contact us on WhatsApp at <a href="https://wa.me/919173958589" className="text-[#D8A24A] underline hover:text-[#D8A24A]/80" target="_blank" rel="noopener noreferrer">9173958589</a>.</p>
+                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#EDE0C8]/5">
+                                        <span className="text-[#4A2A1A] font-bold mt-0.5">5.</span>
+                                        <p className="flex-1 text-sm"><strong>Order Cancellation:</strong> Once order is dispatched, it cannot be cancelled. For cancellation requests before dispatch, contact us on WhatsApp at <a href="https://wa.me/919173958589" className="text-[#4A2A1A] underline hover:text-[#4A2A1A]/80" target="_blank" rel="noopener noreferrer">9173958589</a>.</p>
                                     </div>
-                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#FFF7ED]/5">
-                                        <span className="text-[#D8A24A] font-bold mt-0.5">6.</span>
+                                    <div className="flex items-start gap-3 p-4 rounded-lg bg-[#EDE0C8]/5">
+                                        <span className="text-[#4A2A1A] font-bold mt-0.5">6.</span>
                                         <p className="flex-1 text-sm"><strong>Custom Packaging:</strong> For specific requirements in packaging, extra charges will apply and will be communicated to you before processing.</p>
                                     </div>
                                 </div>
-                                <div className="mt-6 p-4 rounded-lg bg-[#D8A24A]/10 border border-[#D8A24A]/30">
-                                    <p className="text-xs text-[#EAD2C0]">
+                                <div className="mt-6 p-4 rounded-lg bg-[#4A2A1A]/10 border border-[#4A2A1A]/30">
+                                    <p className="text-xs text-[#4A2A1A]/70">
                                         By accepting these terms, you acknowledge that you have read, understood, and agree to be bound by these conditions.
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div className="border-t border-[#D3A34E]/20 p-4 sm:p-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        <div className="border-t border-[#4A2A1A]/20 p-4 sm:p-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                             <button
                                 type="button"
                                 onClick={() => setShowTermsModal(false)}

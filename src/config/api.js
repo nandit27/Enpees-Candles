@@ -19,6 +19,10 @@ export const API_ENDPOINTS = {
     // Categories
     CATEGORIES: `${API_BASE_URL}/categories`,
     CATEGORY_BY_ID: (id) => `${API_BASE_URL}/categories/${id}`,
+
+    // Fragrances (global list + per-product overrides)
+    FRAGRANCES: `${API_BASE_URL}/fragrances`,
+    FRAGRANCE_BY_ID: (id) => `${API_BASE_URL}/fragrances/${id}`,
     
     // Orders
     ORDERS: `${API_BASE_URL}/orders`,

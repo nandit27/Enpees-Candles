@@ -9,6 +9,11 @@ const NAV_LINKS = [
     { to: '/track-order', label: 'Track Order' },
 ];
 
+const WHATSAPP_NUMBER = '919173958589';
+const WHATSAPP_CATALOG_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    'Hello Fleroma Candles! Please share your product catalog.'
+)}`;
+
 // Brand mark: a lit wick. Same idea as the page's wick rail.
 function FlameMark({ className = '' }) {
     return (
@@ -96,16 +101,16 @@ const Navbar = ({ overHero = false, className = '' }) => {
                 className="overflow-hidden transition-all duration-500 ease-out"
                 style={{ maxHeight: notice ? 40 : 0, opacity: notice ? 1 : 0 }}
             >
-                <div className="flex items-center justify-center gap-3 bg-[#4A3527] px-4 py-2.5 text-center">
-                    <p className="lp-eyebrow !text-[#EDE6D8] text-[10px] sm:text-[11px]">
+                <div className="flex items-center justify-center gap-3 bg-[#4A2A1A] px-4 py-2.5 text-center">
+                    <p className="lp-eyebrow !text-[#FAF6EF] text-[10px] sm:text-[11px]">
                         Free shipping over ₹999
-                        <span className="hidden sm:inline"> · Hand-poured in Rajkot</span>
+                        <span className="hidden sm:inline"> - Hand-poured in Rajkot</span>
                     </p>
                     <button
                         type="button"
                         onClick={dismissNotice}
                         aria-label="Dismiss announcement"
-                        className="text-[#C7BCA8] transition-colors hover:text-[#D3A34E]"
+                        className="text-[#FAF6EF]/70 transition-colors hover:text-[#FAF6EF]"
                     >
                         <svg viewBox="0 0 14 14" className="h-3 w-3" aria-hidden="true">
                             <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" fill="none" />
@@ -118,16 +123,16 @@ const Navbar = ({ overHero = false, className = '' }) => {
             <header
                 className={`relative border-b transition-all duration-500 ease-out ${
                     scrolled
-                        ? 'border-[#D3A34E]/15 bg-[#2A1D15]/90 backdrop-blur-xl'
+                        ? 'border-[#4A2A1A]/15 bg-[#FAF6EF]/90 backdrop-blur-xl'
                         : 'border-transparent bg-transparent'
                 }`}
             >
                 <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-5 py-4 sm:px-8 lg:px-12">
                     <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-85">
-                        <FlameMark className="h-7 w-7 text-[#D3A34E]" />
+                        <FlameMark className="h-7 w-7 text-[#4A2A1A]" />
                         <span className="leading-none">
-                            <span className="lp-display block text-lg tracking-wide sm:text-xl">Enpees</span>
-                            <span className="lp-eyebrow block text-[8px] !tracking-[0.34em] text-[#C7BCA8]/70">Candles</span>
+                            <span className="lp-display block text-lg tracking-wide sm:text-xl">Fleroma</span>
+                            <span className="lp-eyebrow block text-[8px] !tracking-[0.34em] text-[#4A2A1A]/60">Candles</span>
                         </span>
                     </Link>
 
@@ -138,7 +143,7 @@ const Navbar = ({ overHero = false, className = '' }) => {
                                 to={to}
                                 aria-current={pathname === to ? 'page' : undefined}
                                 className={`lp-underline font-jost text-[13px] font-normal tracking-[0.1em] transition-colors ${
-                                    pathname === to ? 'text-[#EDE6D8]' : 'text-[#C7BCA8] hover:text-[#EDE6D8]'
+                                    pathname === to ? 'text-[#4A2A1A]' : 'text-[#4A2A1A]/65 hover:text-[#4A2A1A]'
                                 }`}
                             >
                                 {label}
@@ -150,19 +155,19 @@ const Navbar = ({ overHero = false, className = '' }) => {
                         <button
                             onClick={() => setIsSearchOpen(true)}
                             aria-label="Search candles"
-                            className="flex h-11 w-11 items-center justify-center rounded-full text-[#C7BCA8] transition-colors hover:bg-[#EDE6D8]/10 hover:text-[#EDE6D8]"
+                            className="flex h-11 w-11 items-center justify-center rounded-full text-[#4A2A1A]/70 transition-colors hover:bg-[#4A2A1A]/5 hover:text-[#4A2A1A]"
                         >
                             <span className="material-symbols-outlined text-[20px]">search</span>
                         </button>
                         <Link
                             to="/checkout"
                             aria-label={`Cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}`}
-                            className="relative flex h-11 w-11 items-center justify-center rounded-full text-[#C7BCA8] transition-colors hover:bg-[#EDE6D8]/10 hover:text-[#EDE6D8]"
+                            className="relative flex h-11 w-11 items-center justify-center rounded-full text-[#4A2A1A]/70 transition-colors hover:bg-[#4A2A1A]/5 hover:text-[#4A2A1A]"
                         >
                             <span className="material-symbols-outlined text-[20px]">shopping_bag</span>
                             {cartCount > 0 && (
                                 <span
-                                    className={`absolute right-1.5 top-1.5 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#D3A34E] px-1 font-jost text-[10px] font-semibold text-[#2A1D15] ${
+                                    className={`absolute right-1.5 top-1.5 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#4A2A1A] px-1 font-jost text-[10px] font-semibold text-[#FAF6EF] ${
                                         pop ? 'animate-badge-pop' : ''
                                     }`}
                                 >
@@ -170,11 +175,30 @@ const Navbar = ({ overHero = false, className = '' }) => {
                                 </span>
                             )}
                         </Link>
+                        <a
+                            href={WHATSAPP_CATALOG_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Open WhatsApp to browse the product catalog"
+                            className="ml-1 hidden h-10 items-center gap-2 rounded-full bg-[#4A2A1A] px-4 font-jost text-[12px] font-medium tracking-[0.08em] text-[#FAF6EF] transition-transform hover:-translate-y-0.5 active:scale-[0.98] sm:inline-flex"
+                        >
+                            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">chat</span>
+                            WhatsApp
+                        </a>
+                        <a
+                            href={WHATSAPP_CATALOG_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Open WhatsApp to browse the product catalog"
+                            className="flex h-11 w-11 items-center justify-center rounded-full text-[#4A2A1A]/70 transition-colors hover:bg-[#4A2A1A]/5 hover:text-[#4A2A1A] sm:hidden"
+                        >
+                            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">chat</span>
+                        </a>
                         <button
                             onClick={() => setMenuOpen(true)}
                             aria-label="Open menu"
                             aria-expanded={menuOpen}
-                            className="flex h-11 w-11 items-center justify-center rounded-full text-[#C7BCA8] transition-colors hover:bg-[#EDE6D8]/10 hover:text-[#EDE6D8] md:hidden"
+                            className="flex h-11 w-11 items-center justify-center rounded-full text-[#4A2A1A]/70 transition-colors hover:bg-[#4A2A1A]/5 hover:text-[#4A2A1A] md:hidden"
                         >
                             <span className="material-symbols-outlined text-[22px]">menu</span>
                         </button>
@@ -184,7 +208,7 @@ const Navbar = ({ overHero = false, className = '' }) => {
                 {isSearchOpen && (
                     <form
                         onSubmit={handleSearchSubmit}
-                        className="absolute inset-0 z-50 flex items-center gap-4 bg-[#2A1D15] px-5 sm:px-8 lg:px-12"
+                        className="absolute inset-0 z-50 flex items-center gap-4 bg-[#FAF6EF] px-5 sm:px-8 lg:px-12"
                     >
                         <input
                             type="text"
@@ -192,14 +216,14 @@ const Navbar = ({ overHero = false, className = '' }) => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search candles…"
                             aria-label="Search candles"
-                            className="flex-1 border-b border-[#D3A34E]/30 bg-transparent pb-1.5 font-jost text-base text-[#EDE6D8] outline-none placeholder:text-[#C7BCA8]/45 focus:border-[#D3A34E]"
+                            className="flex-1 border-b border-[#4A2A1A]/30 bg-transparent pb-1.5 font-jost text-base text-[#4A2A1A] outline-none placeholder:text-[#4A2A1A]/40 focus:border-[#4A2A1A]"
                             autoFocus
                         />
                         <button
                             type="button"
                             onClick={() => setIsSearchOpen(false)}
                             aria-label="Close search"
-                            className="text-[#C7BCA8] transition-colors hover:text-[#D3A34E]"
+                            className="text-[#4A2A1A]/70 transition-colors hover:text-[#4A2A1A]"
                         >
                             <span className="material-symbols-outlined">close</span>
                         </button>
@@ -216,20 +240,20 @@ const Navbar = ({ overHero = false, className = '' }) => {
                     tabIndex={-1}
                     aria-label="Close menu"
                     onClick={() => setMenuOpen(false)}
-                    className={`absolute inset-0 bg-[#150E09]/70 transition-opacity duration-300 ${
+                    className={`absolute inset-0 bg-[#4A2A1A]/60 transition-opacity duration-300 ${
                         menuOpen ? 'opacity-100' : 'opacity-0'
                     }`}
                 />
                 <div
-                    className="absolute inset-y-0 right-0 flex w-[82%] max-w-[340px] flex-col bg-[#2A1D15] px-7 pb-10 pt-6 shadow-2xl transition-transform duration-300 ease-out"
+                    className="absolute inset-y-0 right-0 flex w-[82%] max-w-[340px] flex-col bg-[#FAF6EF] px-7 pb-10 pt-6 shadow-2xl transition-transform duration-300 ease-out"
                     style={{ transform: menuOpen ? 'translateX(0)' : 'translateX(100%)' }}
                 >
                     <div className="mb-10 flex items-center justify-between">
-                        <FlameMark className="h-6 w-6 text-[#D3A34E]" />
+                        <FlameMark className="h-6 w-6 text-[#4A2A1A]" />
                         <button
                             onClick={() => setMenuOpen(false)}
                             aria-label="Close menu"
-                            className="flex h-11 w-11 items-center justify-center rounded-full text-[#C7BCA8] hover:text-[#EDE6D8]"
+                            className="flex h-11 w-11 items-center justify-center rounded-full text-[#4A2A1A]/70 hover:text-[#4A2A1A]"
                         >
                             <span className="material-symbols-outlined">close</span>
                         </button>
@@ -240,7 +264,7 @@ const Navbar = ({ overHero = false, className = '' }) => {
                                 key={label}
                                 to={to}
                                 onClick={() => setMenuOpen(false)}
-                                className="lp-display border-b border-[#4A3527]/60 py-4 text-2xl transition-colors hover:text-[#D3A34E]"
+                                className="lp-display border-b border-[#4A2A1A]/15 py-4 text-2xl transition-colors hover:text-[#4A2A1A]/70"
                                 style={{
                                     opacity: menuOpen ? 1 : 0,
                                     transform: menuOpen ? 'none' : 'translateX(16px)',
@@ -256,6 +280,16 @@ const Navbar = ({ overHero = false, className = '' }) => {
                     <Link to="/shop" onClick={() => setMenuOpen(false)} className="lp-btn lp-btn-primary mt-10">
                         Shop all candles
                     </Link>
+                    <a
+                        href={WHATSAPP_CATALOG_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setMenuOpen(false)}
+                        className="lp-btn lp-btn-ghost mt-3"
+                    >
+                        <span className="material-symbols-outlined text-[18px]" aria-hidden="true">chat</span>
+                        WhatsApp catalog
+                    </a>
                 </div>
             </div>
         </div>

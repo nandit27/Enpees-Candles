@@ -33,7 +33,7 @@ const emailTemplates = {
             </ul>
             
             <p style="color: #554B47;">We'll send you an email once your order is confirmed by our team.</p>
-            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
+            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Fleroma Candles Team</strong></p>
         </div>
     `,
     
@@ -50,7 +50,7 @@ const emailTemplates = {
             
             <p style="color: #554B47;">You'll receive another email with tracking details once your order is shipped.</p>
             
-            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
+            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Fleroma Candles Team</strong></p>
         </div>
     `,
     
@@ -69,7 +69,7 @@ const emailTemplates = {
             <p style="color: #554B47;">Your order should arrive within 5-7 business days.</p>
             <p style="color: #554B47;">If you have any questions, feel free to contact us.</p>
             
-            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
+            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Fleroma Candles Team</strong></p>
         </div>
     `,
     
@@ -88,7 +88,7 @@ const emailTemplates = {
             <p style="color: #554B47;">If you have any questions or concerns, please don't hesitate to contact us.</p>
             <p style="color: #554B47;">We hope to serve you again in the future!</p>
             
-            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
+            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Fleroma Candles Team</strong></p>
         </div>
     `,
     
@@ -104,9 +104,9 @@ const emailTemplates = {
             </div>
             
             <p style="color: #554B47;">We hope you love your candles! If you have any questions or feedback, please let us know.</p>
-            <p style="color: #554B47;">Thank you for choosing Enpees Candles!</p>
+            <p style="color: #554B47;">Thank you for choosing Fleroma Candles!</p>
             
-            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
+            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Fleroma Candles Team</strong></p>
         </div>
     `,
 
@@ -151,7 +151,7 @@ const emailTemplates = {
             
             <p style="color: #554B47;">If you have any questions or concerns, please don't hesitate to contact us.</p>
             
-            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
+            <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Fleroma Candles Team</strong></p>
         </div>
     `
 };
@@ -160,7 +160,7 @@ const emailTemplates = {
 const sendEmail = async (to, subject, html) => {
     try {
         const mailOptions = {
-            from: `"Enpees Candles" <${process.env.EMAIL_USER || 'your-email@gmail.com'}>`,
+            from: `"Fleroma Candles" <${process.env.EMAIL_USER || 'your-email@gmail.com'}>`,
             to,
             subject,
             html
@@ -277,7 +277,7 @@ const mailService = {
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #EAD2C0; border-radius: 10px; background-color: #FFF7ED;">
                 <h2 style="color: #3B2A23; text-align: center;">Reply to Your Inquiry</h2>
                 <p style="color: #554B47;">Dear ${inquiryData.customerName},</p>
-                <p style="color: #554B47;">Thank you for contacting Enpees Candles. We are pleased to respond to your inquiry.</p>
+                <p style="color: #554B47;">Thank you for contacting Fleroma Candles. We are pleased to respond to your inquiry.</p>
                 
                 <div style="background-color: #FFF7ED; border-left: 4px solid #D8A24A; padding: 15px; margin: 20px 0;">
                     <h3 style="color: #3B2A23; margin: 0 0 10px 0;">Your Original Message:</h3>
@@ -290,7 +290,7 @@ const mailService = {
                 </div>
                 
                 <p style="color: #554B47;">If you have any further questions, please don't hesitate to reach out to us.</p>
-                <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Enpees Candles Team</strong></p>
+                <p style="color: #554B47; margin-top: 30px;">Best regards,<br><strong>Fleroma Candles Team</strong></p>
                 
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #EAD2C0; text-align: center;">
                     <p style="color: #554B47; font-size: 12px; margin: 0;">
@@ -302,7 +302,7 @@ const mailService = {
         
         return await sendEmail(
             recipientEmail,
-            `Re: Your Inquiry - Enpees Candles`,
+            `Re: Your Inquiry - Fleroma Candles`,
             html
         );
     }

@@ -1,7 +1,7 @@
 {
     "name": "enpees-candles-server",
     "version": "1.0.0",
-    "description": "Backend for Enpees Candles",
+    "description": "Backend for Fleroma Candles",
     "main": "server.js",
     "scripts": {
         "start": "node server.js"

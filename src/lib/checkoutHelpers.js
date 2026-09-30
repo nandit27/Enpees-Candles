@@ -53,7 +53,7 @@ export function calculateTotals(subtotal, options = {}) {
 
 // Helper to create UPI link (upi://pay?pa=...&pn=...)
 // If amount is 0 or not provided, it will just open the UPI app without pre-filled amount
-export function makeUpiLink({ pa = 'nencybhadja@oksbi', pn = 'Enpees Candles', amount = 0, tn = 'Order Payment' } = {}) {
+export function makeUpiLink({ pa = 'nencybhadja@oksbi', pn = 'Fleroma Candles', amount = 0, tn = 'Order Payment' } = {}) {
   // Basic UPI link with just merchant details (opens app without amount)
   if (!amount || amount <= 0) {
     const url = `upi://pay?pa=${encodeURIComponent(pa)}&pn=${encodeURIComponent(pn)}`;

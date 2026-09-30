@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import OrderTimeline from '../../components/OrderTimeline';
+import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../../config/api';
 
 const OrderDetails = () => {
@@ -60,16 +61,16 @@ const OrderDetails = () => {
             });
             const updatedOrder = await response.json();
             setOrder(updatedOrder);
-            alert('Order confirmed! Email sent to customer.');
+            toast.success('Order confirmed. Email sent to customer.');
         } catch (error) {
             console.error('Error confirming order:', error);
-            alert('Failed to confirm order');
+            toast.error('Failed to confirm order');
         }
     };
 
     const handleShipOrder = async () => {
         if (!trackingId.trim()) {
-            alert('Please enter a tracking ID');
+            toast.error('Please enter a tracking ID');
             return;
         }
 
@@ -88,10 +89,10 @@ const OrderDetails = () => {
             setShowTrackingModal(false);
             setTrackingId('');
             setTrackingLink('');
-            alert('Order marked as shipped! Email sent to customer.');
+            toast.success('Order marked as shipped. Email sent to customer.');
         } catch (error) {
             console.error('Error shipping order:', error);
-            alert('Failed to ship order');
+            toast.error('Failed to ship order');
         }
     };
 
@@ -109,16 +110,16 @@ const OrderDetails = () => {
             });
             const updatedOrder = await response.json();
             setOrder(updatedOrder);
-            alert('Order marked as delivered! Email sent to customer.');
+            toast.success('Order marked as delivered. Email sent to customer.');
         } catch (error) {
             console.error('Error delivering order:', error);
-            alert('Failed to mark as delivered');
+            toast.error('Failed to mark as delivered');
         }
     };
 
     const handleCancelOrder = async () => {
         if (!cancelReason.trim()) {
-            alert('Please enter a cancellation reason');
+            toast.error('Please enter a cancellation reason');
             return;
         }
 
@@ -136,21 +137,21 @@ const OrderDetails = () => {
             setOrder(updatedOrder);
             setShowCancelModal(false);
             setCancelReason('');
-            alert('Order cancelled! Email sent to customer.');
+            toast.success('Order cancelled. Email sent to customer.');
         } catch (error) {
             console.error('Error cancelling order:', error);
-            alert('Failed to cancel order');
+            toast.error('Failed to cancel order');
         }
     };
 
     const handlePartialOrder = async () => {
         if (unavailableItems.length === 0) {
-            alert('Please select at least one unavailable item');
+            toast.error('Please select at least one unavailable item');
             return;
         }
 
         if (unavailableItems.length === order.items.length) {
-            alert('Cannot process partial order. All items are unavailable. Please cancel the order instead.');
+            toast.error('Cannot process partial order. All items are unavailable. Please cancel the order instead.');
             return;
         }
 
@@ -172,10 +173,10 @@ const OrderDetails = () => {
             setOrder(updatedOrder);
             setShowPartialOrderModal(false);
             setUnavailableItems([]);
-            alert('Partial order processed! Customer has been notified about unavailable items.');
+            toast.success('Partial order processed. Customer notified about unavailable items.');
         } catch (error) {
             console.error('Error processing partial order:', error);
-            alert('Failed to process partial order');
+            toast.error('Failed to process partial order');
         }
     };
 
@@ -287,8 +288,8 @@ const OrderDetails = () => {
                                 <div className="sm:col-span-2">
                                     <p className="text-sm text-[#EAD2C0]/70">Courier Preference</p>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <span className="material-symbols-outlined text-[#D8A24A] text-xl">local_shipping</span>
-                                        <p className="font-semibold text-[#D8A24A]">{order.courierCompany}</p>
+                                        <span className="material-symbols-outlined text-[#FAF6EF] text-xl">local_shipping</span>
+                                        <p className="font-semibold text-[#FAF6EF]">{order.courierCompany}</p>
                                     </div>
                                 </div>
                             )}
@@ -340,7 +341,7 @@ const OrderDetails = () => {
                                                     </p>
                                                 </div>
                                             ) : (
-                                                <p className={`font-semibold mt-1 ${isUnavailable ? 'text-[#EAD2C0] line-through' : 'text-[#D8A24A]'}`}>
+                                                <p className={`font-semibold mt-1 ${isUnavailable ? 'text-[#EAD2C0] line-through' : 'text-[#FAF6EF]'}`}>
                                                     ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
                                                 </p>
                                             )}
@@ -390,7 +391,7 @@ const OrderDetails = () => {
                                 <img 
                                     src={order.paymentScreenshot} 
                                     alt="Payment Screenshot" 
-                                    className="w-full max-w-md rounded-lg border border-[#FFF7ED]/20 hover:border-[#D8A24A]/50 transition-all cursor-pointer"
+                                    className="w-full max-w-md rounded-lg border border-[#FFF7ED]/20 hover:border-[#FAF6EF]/50 transition-all cursor-pointer"
                                 />
                                 <p className="text-xs text-[#EAD2C0] mt-2 flex items-center gap-1">
                                     <span className="material-symbols-outlined text-sm">open_in_new</span>
@@ -429,7 +430,7 @@ const OrderDetails = () => {
                             {canDeliver && (
                                 <button
                                     onClick={handleDeliverOrder}
-                                    className="w-full py-2 sm:py-3 bg-[#D8A24A] hover:bg-[#D8A24A]/90 text-[#3B2A23] text-sm sm:text-base font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                                    className="w-full py-2 sm:py-3 bg-[#FAF6EF] hover:bg-[#FAF6EF]/90 text-[#3B2A23] text-sm sm:text-base font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
                                 >
                                     <span className="material-symbols-outlined">check_circle</span>
                                     Mark as Delivered

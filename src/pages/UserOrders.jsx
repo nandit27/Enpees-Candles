@@ -52,21 +52,21 @@ const UserOrders = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#3B2A23]">
+        <div className="min-h-screen bg-[#EDE0C8]">
             <Navbar />
             
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <h1 className="text-3xl sm:text-4xl font-bold text-[#FFF7ED] mb-8">My Orders</h1>
+                <h1 className="text-3xl sm:text-4xl font-bold text-[#4A2A1A] mb-8">My Orders</h1>
 
                 {loading ? (
-                    <div className="text-center text-[#EAD2C0] py-12">Loading your orders...</div>
+                    <div className="text-center text-[#4A2A1A]/70 py-12">Loading your orders...</div>
                 ) : orders.length === 0 ? (
                     <div className="text-center py-12">
-                        <span className="material-symbols-outlined text-[#EAD2C0] text-6xl mb-4 block">shopping_bag</span>
-                        <p className="text-[#EAD2C0] text-xl mb-4">No orders yet</p>
+                        <span className="material-symbols-outlined text-[#4A2A1A]/70 text-6xl mb-4 block">shopping_bag</span>
+                        <p className="text-[#4A2A1A]/70 text-xl mb-4">No orders yet</p>
                         <button
                             onClick={() => navigate('/shop')}
-                            className="px-6 py-3 bg-[#D8A24A] text-[#3B2A23] font-bold rounded-lg hover:brightness-110"
+                            className="px-6 py-3 bg-[#4A2A1A] text-[#FAF6EF] font-bold rounded-lg hover:brightness-110"
                         >
                             Start Shopping
                         </button>
@@ -76,35 +76,33 @@ const UserOrders = () => {
                         {orders.map((order) => (
                             <div
                                 key={order._id}
-                                className="bg-[#FFF7ED]/10 backdrop-blur-sm rounded-xl p-6 border border-[#FFF7ED]/20 cursor-pointer hover:bg-[#FFF7ED]/15 transition-colors"
+                                className="bg-[#EDE0C8]/50 backdrop-blur-sm rounded-xl p-6 border border-[#4A2A1A]/20 cursor-pointer hover:bg-[#EDE0C8] transition-colors"
                                 onClick={() => setSelectedOrder(selectedOrder?._id === order._id ? null : order)}
                             >
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-2">
-                                            <h3 className="text-lg font-bold text-[#FFF7ED]">Order #{order.orderId}</h3>
+                                            <h3 className="text-lg font-bold text-[#4A2A1A]">Order #{order.orderId}</h3>
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                order.status === 'DELIVERED' ? 'bg-green-500 text-white' :
-                                                order.status === 'SHIPPED' ? 'bg-blue-500 text-white' :
-                                                order.status === 'CONFIRMED' ? 'bg-yellow-500 text-[#3B2A23]' :
-                                                order.status === 'CANCELLED' ? 'bg-red-500 text-white' :
-                                                'bg-gray-500 text-white'
+                                                order.status === 'DELIVERED' ? 'bg-[#4A2A1A] text-[#FAF6EF]' :
+                                                order.status === 'CANCELLED' ? 'bg-[#4A2A1A]/10 text-[#4A2A1A]/70 line-through' :
+                                                'border border-[#4A2A1A]/30 text-[#4A2A1A]'
                                             }`}>
                                                 {order.status}
                                             </span>
                                         </div>
-                                        <p className="text-[#EAD2C0] text-sm">
+                                        <p className="text-[#4A2A1A]/70 text-sm">
                                             Placed on {formatDate(order.createdAt)}
                                         </p>
-                                        <p className="text-[#EAD2C0] text-sm">
+                                        <p className="text-[#4A2A1A]/70 text-sm">
                                             {order.items.length} item{order.items.length > 1 ? 's' : ''}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <div className="text-right">
-                                            <p className="text-[#FFF7ED] font-bold text-xl">₹{order.totals.total}</p>
+                                            <p className="text-[#4A2A1A] font-bold text-xl">₹{order.totals.total}</p>
                                         </div>
-                                        <span className={`material-symbols-outlined text-[#EAD2C0] transition-transform ${
+                                        <span className={`material-symbols-outlined text-[#4A2A1A]/70 transition-transform ${
                                             selectedOrder?._id === order._id ? 'rotate-180' : ''
                                         }`}>
                                             expand_more
@@ -114,15 +112,15 @@ const UserOrders = () => {
 
                                 {/* Expanded Order Details */}
                                 {selectedOrder?._id === order._id && (
-                                    <div className="mt-6 pt-6 border-t border-[#FFF7ED]/20">
+                                    <div className="mt-6 pt-6 border-t border-[#4A2A1A]/20">
                                         {/* Partial Order Warning */}
                                         {order.isPartialOrder && order.unavailableItems && order.unavailableItems.length > 0 && (
-                                            <div className="mb-6 bg-orange-500/20 border border-orange-400 rounded-lg p-4">
+                                            <div className="mb-6 bg-[#4A2A1A]/5 border border-[#4A2A1A]/25 rounded-lg p-4">
                                                 <div className="flex items-start gap-3">
-                                                    <span className="material-symbols-outlined text-orange-400 text-3xl">warning</span>
+                                                    <span className="material-symbols-outlined text-[#4A2A1A] text-3xl">warning</span>
                                                     <div>
-                                                        <h4 className="text-orange-300 font-bold text-lg">Partial Order</h4>
-                                                        <p className="text-orange-200 text-sm mt-1">
+                                                        <h4 className="text-[#4A2A1A] font-bold text-lg">Partial Order</h4>
+                                                        <p className="text-[#4A2A1A]/70 text-sm mt-1">
                                                             Some items from your order were unavailable and will not be shipped. 
                                                             Only the available items listed below will be delivered.
                                                         </p>
@@ -133,15 +131,15 @@ const UserOrders = () => {
 
                                         {/* Cancellation Info */}
                                         {order.status !== 'SHIPPED' && order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
-                                            <div className="mb-6 bg-blue-500/20 border border-blue-400 rounded-lg p-4">
+                                            <div className="mb-6 bg-[#EDE0C8] border border-[#4A2A1A]/20 rounded-lg p-4">
                                                 <div className="flex items-start gap-3">
-                                                    <span className="material-symbols-outlined text-blue-400 text-2xl">info</span>
+                                                    <span className="material-symbols-outlined text-[#4A2A1A] text-2xl">info</span>
                                                     <div>
-                                                        <h4 className="text-blue-300 font-bold">Need to Cancel?</h4>
-                                                        <p className="text-blue-200 text-sm mt-1">
-                                                            For cancelling this order, contact us on WhatsApp: <a href="https://wa.me/919173958589" className="text-blue-300 underline hover:text-blue-200" target="_blank" rel="noopener noreferrer">9173958589</a>
+                                                        <h4 className="text-[#4A2A1A] font-bold">Need to Cancel?</h4>
+                                                        <p className="text-[#4A2A1A]/70 text-sm mt-1">
+                                                            For cancelling this order, contact us on WhatsApp: <a href="https://wa.me/919173958589" className="text-[#4A2A1A] underline hover:text-[#4A2A1A]/70" target="_blank" rel="noopener noreferrer">9173958589</a>
                                                         </p>
-                                                        <p className="text-blue-200 text-xs mt-1 italic">
+                                                        <p className="text-[#4A2A1A]/70 text-xs mt-1 italic">
                                                             Note: Once order is dispatched, it cannot be cancelled.
                                                         </p>
                                                     </div>
@@ -152,7 +150,7 @@ const UserOrders = () => {
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                             {/* Order Items */}
                                             <div>
-                                                <h4 className="text-[#FFF7ED] font-bold mb-4">Order Items</h4>
+                                                <h4 className="text-[#4A2A1A] font-bold mb-4">Order Items</h4>
                                                 <div className="space-y-3">
                                                     {order.items.map((item, index) => {
                                                         const isUnavailable = order.unavailableItems?.includes(item._id);
@@ -162,7 +160,7 @@ const UserOrders = () => {
                                                                 className={`flex gap-3 p-3 rounded-lg ${
                                                                     isUnavailable 
                                                                         ? 'bg-red-500/10 border border-red-500/30 opacity-60' 
-                                                                        : 'bg-[#FFF7ED]/5'
+                                                                        : 'bg-[#EDE0C8]/5'
                                                                 }`}
                                                             >
                                                                 {item.image && (
@@ -174,19 +172,19 @@ const UserOrders = () => {
                                                                 )}
                                                                 <div className="flex-1">
                                                                     <div className="flex items-start justify-between">
-                                                                        <p className="text-[#FFF7ED] font-semibold text-sm">{item.name}</p>
+                                                                        <p className="text-[#4A2A1A] font-semibold text-sm">{item.name}</p>
                                                                         {isUnavailable && (
-                                                                            <span className="text-xs bg-red-500 text-white px-2 py-1 rounded">Not Available</span>
+                                                                            <span className="text-xs bg-red-700 text-[#FAF6EF] px-2 py-1 rounded">Not Available</span>
                                                                         )}
                                                                     </div>
-                                                                    <p className="text-[#EAD2C0] text-xs">Qty: {item.quantity}</p>
-                                                                    {item.color && <p className="text-[#EAD2C0] text-xs">Color: {item.color}</p>}
-                                                                    {item.fragrance && <p className="text-[#EAD2C0] text-xs">Fragrance: {item.fragrance}</p>}
+                                                                    <p className="text-[#4A2A1A]/70 text-xs">Qty: {item.quantity}</p>
+                                                                    {item.color && <p className="text-[#4A2A1A]/70 text-xs">Color: {item.color}</p>}
+                                                                    {item.fragrance && <p className="text-[#4A2A1A]/70 text-xs">Fragrance: {item.fragrance}</p>}
                                                                     {item.offerPrice && (
-                                                                        <p className="text-xs text-[#EAD2C0]/60 line-through">M.R.P: ₹{item.price}</p>
+                                                                        <p className="text-xs text-[#4A2A1A]/60 line-through">M.R.P: ₹{item.price}</p>
                                                                     )}
                                                                 </div>
-                                                                <div className={`font-bold text-sm ${isUnavailable ? 'text-[#EAD2C0] line-through' : item.offerPrice ? 'text-red-400' : 'text-[#FFF7ED]'}`}>
+                                                                <div className={`font-bold text-sm ${isUnavailable ? 'text-[#4A2A1A]/70 line-through' : item.offerPrice ? 'text-red-700' : 'text-[#4A2A1A]'}`}>
                                                                     ₹{(item.offerPrice || item.price) * item.quantity}
                                                                 </div>
                                                             </div>
@@ -196,9 +194,9 @@ const UserOrders = () => {
 
                                                 {/* Shipping Address */}
                                                 <div className="mt-6">
-                                                    <h4 className="text-[#FFF7ED] font-bold mb-3">Shipping Address</h4>
-                                                    <div className="bg-[#FFF7ED]/5 p-4 rounded-lg text-[#EAD2C0] text-sm">
-                                                        <p className="font-semibold text-[#FFF7ED]">{order.customer.name}</p>
+                                                    <h4 className="text-[#4A2A1A] font-bold mb-3">Shipping Address</h4>
+                                                    <div className="bg-[#EDE0C8]/60 p-4 rounded-lg text-[#4A2A1A]/70 text-sm">
+                                                        <p className="font-semibold text-[#4A2A1A]">{order.customer.name}</p>
                                                         <p>{order.customer.address1}</p>
                                                         {order.customer.address2 && <p>{order.customer.address2}</p>}
                                                         {order.customer.landmark && <p>Landmark: {order.customer.landmark}</p>}
@@ -211,7 +209,7 @@ const UserOrders = () => {
 
                                             {/* Timeline */}
                                             <div>
-                                                <h4 className="text-[#FFF7ED] font-bold mb-4">Order Status</h4>
+                                                <h4 className="text-[#4A2A1A] font-bold mb-4">Order Status</h4>
                                                 <OrderTimeline order={order} />
                                             </div>
                                         </div>

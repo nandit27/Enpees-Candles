@@ -120,7 +120,7 @@ const Shop = () => {
         toast.success(`${product.name} added to cart`, {
             duration: 2000,
             position: 'bottom-right',
-            style: { background: '#D3A34E', color: '#2A1D15', fontWeight: '600' },
+            style: { background: '#4A2A1A', color: '#FAF6EF', fontWeight: '600' },
         });
     };
 
@@ -131,13 +131,13 @@ const Shop = () => {
     };
 
     return (
-        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+        <div className="lp relative min-h-[100dvh] w-full bg-[#FAF6EF] text-[#4A2A1A]">
             <Navbar />
 
-            <main className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
+            <main id="main-content" className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
                 <header className="max-w-xl">
                     <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl lg:text-6xl">The collection</h1>
-                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#4A2A1A]/70">
                         Hand-poured shapes, ready to gift. Filter by collection or price.
                     </p>
                 </header>
@@ -168,8 +168,8 @@ const Shop = () => {
                                 onClick={() => handleSortChange(sort.id)}
                                 className={`whitespace-nowrap font-jost text-sm tracking-wide transition-colors ${
                                     sortBy === sort.id
-                                        ? 'text-[#D3A34E]'
-                                        : 'text-[#C7BCA8] hover:text-[#EDE6D8]'
+                                        ? 'text-[#4A2A1A]'
+                                        : 'text-[#4A2A1A]/70 hover:text-[#4A2A1A]'
                                 }`}
                                 aria-pressed={sortBy === sort.id}
                             >
@@ -179,7 +179,7 @@ const Shop = () => {
                     </div>
                 </div>
 
-                <div className="mt-6 font-jost text-sm text-[#C7BCA8]">
+                <div className="mt-6 font-jost text-sm text-[#4A2A1A]/70">
                     {searchQuery ? (
                         <p>
                             Results for “{searchQuery}”
@@ -199,8 +199,8 @@ const Shop = () => {
                     <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4 xl:grid-cols-5">
                         {Array.from({ length: 10 }).map((_, index) => (
                             <div key={index} className="flex flex-col">
-                                <div className="aspect-[4/5] animate-pulse rounded-[20px] bg-[#3B2A1E]" />
-                                <div className="mt-4 h-4 w-3/4 animate-pulse rounded bg-[#3B2A1E]" />
+                                <div className="aspect-[4/5] animate-pulse rounded-[20px] bg-[#EDE0C8]" />
+                                <div className="mt-4 h-4 w-3/4 animate-pulse rounded bg-[#EDE0C8]" />
                             </div>
                         ))}
                     </div>
@@ -209,7 +209,7 @@ const Shop = () => {
                 {loadState === 'error' && (
                     <div className="mt-16 max-w-md">
                         <h2 className="lp-display text-3xl leading-[1.1]">Could not load the shop</h2>
-                        <p className="lp-lede mt-3 text-[#C7BCA8]">Check your connection, then try again.</p>
+                        <p className="lp-lede mt-3 text-[#4A2A1A]/70">Check your connection, then try again.</p>
                         <button type="button" onClick={fetchShop} className="lp-btn lp-btn-primary mt-6">
                             Try again
                         </button>
@@ -221,7 +221,7 @@ const Shop = () => {
                         <h2 className="lp-display text-3xl leading-[1.1]">
                             {products.length === 0 ? 'The shop is being restocked' : 'Nothing in this view'}
                         </h2>
-                        <p className="lp-lede mt-3 text-[#C7BCA8]">
+                        <p className="lp-lede mt-3 text-[#4A2A1A]/70">
                             {products.length === 0
                                 ? 'New pours land here first. Come back shortly.'
                                 : 'Clear the filters to see the full collection.'}
@@ -257,7 +257,7 @@ const Shop = () => {
                             disabled={currentPage === 1}
                             aria-label="Previous page"
                             className={`flex size-10 items-center justify-center rounded-full transition-colors ${
-                                currentPage === 1 ? 'text-[#C7BCA8]/40' : 'text-[#C7BCA8] hover:text-[#EDE6D8]'
+                                currentPage === 1 ? 'text-[#4A2A1A]/40' : 'text-[#4A2A1A]/70 hover:text-[#4A2A1A]'
                             }`}
                         >
                             <span className="material-symbols-outlined" aria-hidden="true">chevron_left</span>
@@ -277,8 +277,8 @@ const Shop = () => {
                                         aria-current={currentPage === pageNum ? 'page' : undefined}
                                         className={`flex size-10 items-center justify-center rounded-full font-jost text-sm transition-colors ${
                                             currentPage === pageNum
-                                                ? 'bg-[#D3A34E] text-[#2A1D15]'
-                                                : 'text-[#C7BCA8] hover:text-[#EDE6D8]'
+                                                ? 'bg-[#4A2A1A] text-[#FAF6EF]'
+                                                : 'text-[#4A2A1A]/70 hover:text-[#4A2A1A]'
                                         }`}
                                     >
                                         {pageNum}
@@ -287,7 +287,7 @@ const Shop = () => {
                             }
                             if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
                                 return (
-                                    <span key={pageNum} className="flex size-10 items-center justify-center text-[#C7BCA8]">
+                                    <span key={pageNum} className="flex size-10 items-center justify-center text-[#4A2A1A]/70">
                                         ...
                                     </span>
                                 );
@@ -300,7 +300,7 @@ const Shop = () => {
                             disabled={currentPage === totalPages}
                             aria-label="Next page"
                             className={`flex size-10 items-center justify-center rounded-full transition-colors ${
-                                currentPage === totalPages ? 'text-[#C7BCA8]/40' : 'text-[#C7BCA8] hover:text-[#EDE6D8]'
+                                currentPage === totalPages ? 'text-[#4A2A1A]/40' : 'text-[#4A2A1A]/70 hover:text-[#4A2A1A]'
                             }`}
                         >
                             <span className="material-symbols-outlined" aria-hidden="true">chevron_right</span>

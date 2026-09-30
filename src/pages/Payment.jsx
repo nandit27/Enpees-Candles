@@ -55,11 +55,11 @@ const Payment = () => {
 
     if (!orderData) {
         return (
-            <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+            <div className="lp relative min-h-[100dvh] w-full bg-[#FAF6EF] text-[#4A2A1A]">
                 <Navbar />
-                <main className="mx-auto w-full max-w-[1400px] px-5 py-20 sm:px-10 lg:px-16">
+                <main id="main-content" className="mx-auto w-full max-w-[1400px] px-5 py-20 sm:px-10 lg:px-16">
                     <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">No order to pay</h1>
-                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">Finish checkout first, then come back here.</p>
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#4A2A1A]/70">Finish checkout first, then come back here.</p>
                     <Link to="/shop" className="lp-btn lp-btn-primary mt-8">
                         Shop candles
                     </Link>
@@ -69,49 +69,49 @@ const Payment = () => {
     }
 
     return (
-        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+        <div className="lp relative min-h-[100dvh] w-full bg-[#FAF6EF] text-[#4A2A1A]">
             <Navbar />
-            <main className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
+            <main id="main-content" className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
                 <header className="max-w-xl">
                     <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Pay the studio</h1>
-                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#4A2A1A]/70">
                         Scan the QR or open UPI, then upload the screenshot.
                     </p>
                 </header>
 
-                <p className="mt-8 font-jost text-sm text-[#C7BCA8]">Amount</p>
-                <p className="font-jost text-3xl tabular-nums text-[#D3A34E]">₹{amount.toFixed(2)}</p>
+                <p className="mt-8 font-jost text-sm text-[#4A2A1A]/70">Amount</p>
+                <p className="font-jost text-3xl tabular-nums text-[#4A2A1A]">₹{amount.toFixed(2)}</p>
 
                 <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <div className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8">
+                    <div className="rounded-[20px] bg-[#EDE0C8] p-5 sm:p-8">
                         <h2 className="lp-display text-2xl leading-[1.1]">Scan QR</h2>
-                        <div className="mt-6 flex justify-center rounded-[12px] bg-[#EDE6D8] p-4">
-                            <img src="/IMG_9865.PNG" alt="UPI payment QR code" className="h-auto w-full max-w-[220px]" />
+                        <div className="mt-6 flex justify-center rounded-[12px] bg-[#EDE0C8] p-4">
+                            <img src="/IMG_6290.JPG" alt="UPI payment QR code" className="h-auto w-full max-w-[220px] rounded-lg" />
                         </div>
-                        <p className="mt-4 font-jost text-sm text-[#C7BCA8]">Open any UPI app and scan.</p>
+                        <p className="mt-4 font-jost text-sm text-[#4A2A1A]/70">Open any UPI app and scan.</p>
                     </div>
 
-                    <div className="rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8">
+                    <div className="rounded-[20px] bg-[#EDE0C8] p-5 sm:p-8">
                         <h2 className="lp-display text-2xl leading-[1.1]">Open UPI</h2>
-                        <p className="lp-lede mt-3 text-[#C7BCA8]">Opens Google Pay, PhonePe, Paytm, or BHIM on your phone.</p>
+                        <p className="lp-lede mt-3 text-[#4A2A1A]/70">Opens Google Pay, PhonePe, Paytm, or BHIM on your phone.</p>
                         <a href={upiLink} className="lp-btn lp-btn-primary mt-6 w-full sm:w-auto">
                             Open UPI
                         </a>
                     </div>
                 </div>
 
-                <div className="mt-6 rounded-[20px] bg-[#3B2A1E] p-5 sm:p-8">
+                <div className="mt-6 rounded-[20px] bg-[#EDE0C8] p-5 sm:p-8">
                     <h2 className="lp-display text-2xl leading-[1.1]">Upload screenshot</h2>
-                    <p className="lp-lede mt-3 max-w-[65ch] text-[#C7BCA8]">
+                    <p className="lp-lede mt-3 max-w-[65ch] text-[#4A2A1A]/70">
                         After you pay, add a photo of the successful transaction.
                     </p>
                     <label className="mt-6 block cursor-pointer">
                         <span className="sr-only">Payment screenshot</span>
-                        <div className="rounded-[12px] border border-dashed border-[#D3A34E]/40 px-4 py-8 text-center">
+                        <div className="rounded-[12px] border border-dashed border-[#4A2A1A]/40 px-4 py-8 text-center">
                             {previewUrl ? (
                                 <img src={previewUrl} alt="Selected payment screenshot" className="mx-auto max-h-48 rounded-[12px]" />
                             ) : (
-                                <p className="font-jost text-sm text-[#C7BCA8]">Tap to choose a PNG or JPG</p>
+                                <p className="font-jost text-sm text-[#4A2A1A]/70">Tap to choose a PNG or JPG</p>
                             )}
                         </div>
                         <input type="file" accept="image/*" onChange={handleFile} className="sr-only" />

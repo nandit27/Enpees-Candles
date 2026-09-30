@@ -23,6 +23,24 @@ import processGift from '../assets/textures/process-gift.jpg';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
+/* ── Warm-Ivory palette (from video frames) ─────────────────────
+   Extracted from the hero video:
+     Linen background   #F0E8D8
+     Warm cream section #EDE3CF
+     Parchment accent   #E2D5BE
+     Walnut text        #3D2B1F
+     Warm mid           #5C3E28
+     Muted gold         #9A7854
+   ─────────────────────────────────────────────────────────────── */
+
+const LP_BG       = '#F0E8D8';   // linen — lightest surface
+const LP_BG2      = '#EDE3CF';   // parchment — section alt
+const LP_BG3      = '#E2D5BE';   // warm sand — deeper alt
+const LP_TEXT     = '#3D2B1F';   // walnut dark
+const LP_TEXT_MID = '#5C3E28';   // warm mid-brown
+const LP_GOLD     = '#9A7854';   // muted caramel gold
+const LP_CARD     = '#E8DCC8';   // card surface
+
 const SHELL = 'mx-auto w-full max-w-[1400px] px-5 sm:px-10 lg:px-16';
 
 const SHAPES = [
@@ -37,7 +55,7 @@ const POUR_CHAPTERS = [
         verb: 'Melt',
         copy: 'Soy wax heated slow in small batches. No shortcuts, no rush.',
         img: processMelt,
-        alt: 'Molten soy wax in a double boiler at the Enpees studio',
+        alt: 'Molten soy wax in a double boiler at the Fleroma studio',
     },
     {
         verb: 'Shape',
@@ -134,8 +152,16 @@ function ShapeAccordion() {
                         <img src={s.img} alt={s.alt} loading="lazy" decoding="async" />
                         <span className="lp-scrim" aria-hidden="true" />
                         <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-                            <h3 className="lp-display text-2xl leading-[1.1] sm:text-3xl lg:text-4xl">{s.name}</h3>
-                            <p className={`mt-2 font-jost text-[13px] text-[#C7BCA8] transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-100 md:opacity-0'}`}>
+                            <h3
+                                className="lp-display text-2xl leading-[1.1] sm:text-3xl lg:text-4xl"
+                                style={{ color: '#F5EDE0' }}
+                            >
+                                {s.name}
+                            </h3>
+                            <p
+                                className={`mt-2 font-jost text-[13px] transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-100 md:opacity-0'}`}
+                                style={{ color: 'rgba(245,237,224,0.82)' }}
+                            >
                                 {s.note}
                             </p>
                         </div>
@@ -162,11 +188,14 @@ function ProductSlide({ product, onAdd, className = 'w-[72vw] shrink-0 sm:w-[42v
 
     return (
         <article className={`group flex flex-col ${className}`}>
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[20px] bg-[#3B2A1E]">
+            <div
+                className="relative aspect-[4/5] w-full overflow-hidden rounded-[20px]"
+                style={{ background: LP_CARD }}
+            >
                 <Link to="/product" state={{ product }} className="absolute inset-0 block">
                     <img
                         src={product.image}
-                        alt={product.name || 'Enpees candle'}
+                        alt={product.name || 'Fleroma candle'}
                         loading="lazy"
                         decoding="async"
                         className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
@@ -176,7 +205,8 @@ function ProductSlide({ product, onAdd, className = 'w-[72vw] shrink-0 sm:w-[42v
                     type="button"
                     onClick={handleAdd}
                     aria-label={added ? `${product.name} added to cart` : `Add ${product.name} to cart`}
-                    className="absolute bottom-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[#D3A34E] text-[#2A1D15] shadow-[0_10px_24px_-8px_rgba(211,163,78,0.7)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                    className="absolute bottom-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full shadow-[0_10px_24px_-8px_rgba(61,43,31,0.5)] transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                    style={{ background: LP_TEXT, color: '#F5EDE0' }}
                 >
                     <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
                         {added ? 'check' : 'add'}
@@ -184,15 +214,17 @@ function ProductSlide({ product, onAdd, className = 'w-[72vw] shrink-0 sm:w-[42v
                 </button>
             </div>
             <div className="mt-4 flex min-h-[3.25rem] items-start justify-between gap-3">
-                <h3 className="lp-display line-clamp-2 text-[1.05rem] leading-snug">
-                    <Link to="/product" state={{ product }} className="transition-colors hover:text-[#D3A34E]">
+                <h3 className="lp-display line-clamp-2 text-[1.05rem] leading-snug" style={{ color: LP_TEXT }}>
+                    <Link to="/product" state={{ product }} className="transition-colors hover:opacity-70">
                         {product.name}
                     </Link>
                 </h3>
-                <p className="shrink-0 pt-0.5 font-jost text-base tabular-nums text-[#EDE6D8]">
+                <p className="shrink-0 pt-0.5 font-jost text-base tabular-nums" style={{ color: LP_TEXT }}>
                     ₹{price}
                     {product.offerPrice && (
-                        <span className="ml-2 text-[13px] text-[#C7BCA8]/50 line-through">₹{product.price}</span>
+                        <span className="ml-2 text-[13px] line-through" style={{ color: LP_TEXT_MID, opacity: 0.55 }}>
+                            ₹{product.price}
+                        </span>
                     )}
                 </p>
             </div>
@@ -238,16 +270,19 @@ function ProductPan({ products, onAdd }) {
     }
 
     return (
-        <div ref={wrap} className="relative z-10 isolate overflow-hidden bg-[#2A1D15]">
+        <div ref={wrap} className="relative z-10 isolate overflow-hidden" style={{ background: LP_BG }}>
             <div
                 ref={track}
                 className="flex h-[100dvh] items-center gap-6 px-5 pt-28 sm:gap-8 sm:px-10 lg:gap-10 lg:px-16"
             >
                 <div className="w-[72vw] shrink-0 sm:w-[36vw] lg:w-[24vw]">
-                    <h2 className="lp-display text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                    <h2
+                        className="lp-display text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl"
+                        style={{ color: LP_TEXT }}
+                    >
                         The shapes people come back for.
                     </h2>
-                    <p className="lp-lede mt-5 max-w-[28ch]">
+                    <p className="lp-lede mt-5 max-w-[28ch]" style={{ color: LP_TEXT_MID }}>
                         A handful of pieces we pour again and again.
                     </p>
                 </div>
@@ -285,19 +320,22 @@ function PourChapters({ reduce }) {
 
     return (
         <div ref={wrap}>
-            <ol className={`${SHELL} mb-8 flex items-center gap-2 overflow-x-auto pb-2 sm:mb-10`} aria-label="How a candle is made">
+            <ol
+                className={`${SHELL} mb-8 flex items-center gap-2 overflow-x-auto pb-2 sm:mb-10`}
+                aria-label="How a candle is made"
+            >
                 {POUR_CHAPTERS.map((ch, i) => (
                     <li key={ch.verb} className="flex shrink-0 items-center gap-2">
                         <span
-                            className={`font-jost text-sm transition-colors ${
-                                i <= live ? 'text-[#D3A34E]' : 'text-[#C7BCA8]/45'
-                            }`}
+                            className="font-jost text-sm transition-colors"
+                            style={{ color: i <= live ? LP_TEXT : `${LP_TEXT}66` }}
                         >
                             {ch.verb}
                         </span>
                         {i < POUR_CHAPTERS.length - 1 && (
                             <span
-                                className={`h-px w-8 sm:w-12 ${i < live ? 'bg-[#D3A34E]' : 'bg-[#C7BCA8]/25'}`}
+                                className={`h-px w-8 sm:w-12`}
+                                style={{ background: i < live ? LP_TEXT : `${LP_TEXT}33` }}
                                 aria-hidden="true"
                             />
                         )}
@@ -318,12 +356,22 @@ function PourChapters({ reduce }) {
                             className="pour-photo absolute inset-0 h-full w-full object-cover"
                         />
                         <div className="pour-sheen" aria-hidden="true" />
-                        <div className="absolute inset-0 bg-[#2A1D15]/55" aria-hidden="true" />
+                        <div
+                            className="absolute inset-0"
+                            style={{ background: 'rgba(61,43,31,0.5)' }}
+                            aria-hidden="true"
+                        />
                         <div className="relative z-10 flex h-full min-h-[280px] flex-col justify-end p-6 sm:min-h-[340px] sm:p-8 lg:min-h-[400px]">
-                            <h3 className="lp-display text-4xl leading-[1.05] tracking-tight sm:text-5xl">
+                            <h3
+                                className="lp-display text-4xl leading-[1.05] tracking-tight sm:text-5xl"
+                                style={{ color: '#F5EDE0' }}
+                            >
                                 {ch.verb}
                             </h3>
-                            <p className="lp-lede mt-3 max-w-[32ch] text-[#EDE6D8]">
+                            <p
+                                className="lp-lede mt-3 max-w-[32ch]"
+                                style={{ color: 'rgba(245,237,224,0.85)' }}
+                            >
                                 {ch.copy}
                             </p>
                         </div>
@@ -343,19 +391,7 @@ export default function LandingPage() {
     const root = useReveal();
     const reduce = usePrefersReducedMotion();
 
-    useGSAP(() => {
-        if (reduce || !root.current) return;
-        ScrollTrigger.create({
-            trigger: root.current,
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: true,
-            onUpdate: (self) => {
-                if (!root.current) return;
-                root.current.style.setProperty('--burn', `${self.progress * root.current.offsetHeight}px`);
-            },
-        });
-    }, { dependencies: [reduce], scope: root });
+    const handleAdd = useCallback((product) => addToCart(product), [addToCart]);
 
     useEffect(() => {
         fetch(API_ENDPOINTS.PRODUCTS)
@@ -373,27 +409,28 @@ export default function LandingPage() {
         return () => window.removeEventListener('load', onLoad);
     }, []);
 
-    const handleAdd = useCallback((product) => addToCart(product), [addToCart]);
-
     return (
-        <div ref={root} className="lp relative w-full antialiased">
+        <div ref={root} id="main-content" className="lp relative w-full antialiased" style={{ background: LP_BG }}>
             <div className="lp-grain" aria-hidden="true" />
-
-            <div className="wick-rail left-3 sm:left-6" aria-hidden="true">
-                <span className="wick-burn" />
-            </div>
 
             <Navbar overHero />
 
             <CandleScrollHero />
 
-            {/* Shapes: accordion strips */}
-            <section className="relative bg-[#2A1D15] py-16 sm:py-24 lg:py-28">
+            {/* ── Shapes: accordion strips ── */}
+            <section
+                className="relative py-16 sm:py-24 lg:py-28"
+                style={{ background: LP_BG }}
+            >
                 <div className={SHELL}>
-                    <h2 data-reveal className="lp-display lp-h2 max-w-[18ch]">
+                    <h2 data-reveal className="lp-display lp-h2 max-w-[18ch]" style={{ color: LP_TEXT }}>
                         Four families. One studio.
                     </h2>
-                    <p data-reveal style={{ '--d': '120ms' }} className="lp-lede mt-4 max-w-[42ch]">
+                    <p
+                        data-reveal
+                        style={{ '--d': '120ms', color: LP_TEXT_MID }}
+                        className="lp-lede mt-4 max-w-[42ch]"
+                    >
                         Each one is a different mood we pour by hand.
                     </p>
                     <div data-reveal style={{ '--d': '200ms' }} className="mt-10 lg:mt-14">
@@ -402,34 +439,60 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Studio: manifesto type over a wall, cinematic still below */}
-            <section id="story" className="relative scroll-mt-24 overflow-hidden bg-[#1F150E] py-24 sm:py-32 lg:py-40">
+            {/* ── Studio: manifesto type ── */}
+            <section
+                id="story"
+                className="relative scroll-mt-24 overflow-hidden py-24 sm:py-32 lg:py-40"
+                style={{ background: LP_BG2 }}
+            >
                 <img
                     src={studioWall}
                     alt=""
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-35"
+                    className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                    style={{ opacity: 0.12 }}
                 />
-                <div className="absolute inset-0 bg-[#1F150E]/55" aria-hidden="true" />
+                <div
+                    className="absolute inset-0"
+                    style={{ background: `${LP_BG2}B3` }}
+                    aria-hidden="true"
+                />
 
                 <div className={`${SHELL} relative`}>
-                    <p data-reveal className="lp-display max-w-[16ch] text-5xl leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">
+                    <p
+                        data-reveal
+                        className="lp-display max-w-[16ch] text-5xl leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl"
+                        style={{ color: LP_TEXT }}
+                    >
                         Wax is{' '}
-                        <em className="lp-wonk pb-1 not-italic text-[#D3A34E]" style={{ fontStyle: 'italic' }}>
+                        <em
+                            className="lp-wonk pb-1 not-italic"
+                            style={{ fontStyle: 'italic', color: LP_GOLD }}
+                        >
                             patient.
                         </em>
                     </p>
-                    <p data-reveal style={{ '--d': '140ms' }} className="lp-lede mt-8 max-w-[38rem]">
-                        It holds whatever shape you give it, so we take our time. Enpees started with one pot of soy wax and a mould shaped like a teddy bear.
+                    <p
+                        data-reveal
+                        style={{ '--d': '140ms', color: LP_TEXT_MID }}
+                        className="lp-lede mt-8 max-w-[38rem]"
+                    >
+                        It holds whatever shape you give it, so we take our time. Fleroma started with
+                        one pot of soy wax and a mould shaped like a teddy bear.
                     </p>
-                    <p data-reveal style={{ '--d': '220ms' }} className="lp-lede mt-4 max-w-[38rem]">
-                        Everything since has been made the same way: small batches, hand-set shapes, scents we would want in our own rooms.
+                    <p
+                        data-reveal
+                        style={{ '--d': '220ms', color: LP_TEXT_MID }}
+                        className="lp-lede mt-4 max-w-[38rem]"
+                    >
+                        Everything since has been made the same way: small batches, hand-set shapes,
+                        scents we would want in our own rooms.
                     </p>
 
                     <div data-reveal style={{ '--d': '300ms' }} className="mt-14 overflow-hidden rounded-[20px] lg:mt-20">
                         <img
                             src={teddyCandle}
-                            alt="A sculpted teddy candle from the Enpees studio"
+                            alt="A sculpted teddy candle from the Fleroma studio"
                             loading="lazy"
                             decoding="async"
                             className="aspect-[16/7] w-full object-cover sm:aspect-[21/9]"
@@ -438,15 +501,20 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Bestsellers: horizontal pan on scroll */}
-            <section id="bestsellers" className="relative z-10 scroll-mt-24 bg-[#2A1D15]">
+            {/* ── Bestsellers: horizontal pan on scroll ── */}
+            <section
+                id="bestsellers"
+                className="relative z-10 scroll-mt-24"
+                style={{ background: LP_BG }}
+            >
                 {status === 'loading' && (
                     <div className={`${SHELL} py-24`}>
                         <div className="flex gap-6 overflow-hidden">
                             {[0, 1, 2].map((i) => (
                                 <div
                                     key={i}
-                                    className="h-[420px] w-[78vw] shrink-0 animate-pulse rounded-[20px] bg-[#3B2A1E] sm:w-[46vw] lg:w-[30vw]"
+                                    className="h-[420px] w-[78vw] shrink-0 animate-pulse rounded-[20px] sm:w-[46vw] lg:w-[30vw]"
+                                    style={{ background: LP_CARD }}
                                 />
                             ))}
                         </div>
@@ -454,23 +522,37 @@ export default function LandingPage() {
                 )}
                 {status === 'error' && (
                     <div className={`${SHELL} py-24`}>
-                        <p className="lp-lede">The shelf could not load. Open the shop to browse every shape.</p>
-                        <Link to="/shop" className="lp-btn lp-btn-primary mt-8">Shop candles</Link>
+                        <p className="lp-lede" style={{ color: LP_TEXT_MID }}>
+                            The shelf could not load. Open the shop to browse every shape.
+                        </p>
+                        <Link to="/shop" className="lp-btn lp-btn-primary mt-8">
+                            Shop candles
+                        </Link>
                     </div>
                 )}
                 {status === 'ok' && products.length === 0 && (
                     <div className={`${SHELL} py-24`}>
-                        <h2 className="lp-display lp-h2">Nothing featured this week.</h2>
-                        <p className="lp-lede mt-4">The full shelf is still open.</p>
-                        <Link to="/shop" className="lp-btn lp-btn-primary mt-8">Shop candles</Link>
+                        <h2 className="lp-display lp-h2" style={{ color: LP_TEXT }}>
+                            Nothing featured this week.
+                        </h2>
+                        <p className="lp-lede mt-4" style={{ color: LP_TEXT_MID }}>
+                            The full shelf is still open.
+                        </p>
+                        <Link to="/shop" className="lp-btn lp-btn-primary mt-8">
+                            Shop candles
+                        </Link>
                     </div>
                 )}
                 {status === 'ok' && products.length > 0 && reduce && (
                     <div className={`${SHELL} py-24 sm:py-32`}>
-                        <h2 data-reveal className="lp-display lp-h2 max-w-[16ch]">
+                        <h2 data-reveal className="lp-display lp-h2 max-w-[16ch]" style={{ color: LP_TEXT }}>
                             The shapes people come back for.
                         </h2>
-                        <p data-reveal style={{ '--d': '120ms' }} className="lp-lede mt-4 max-w-[36ch]">
+                        <p
+                            data-reveal
+                            style={{ '--d': '120ms', color: LP_TEXT_MID }}
+                            className="lp-lede mt-4 max-w-[36ch]"
+                        >
                             A handful of pieces we pour again and again.
                         </p>
                         <div className="mt-12">
@@ -483,56 +565,88 @@ export default function LandingPage() {
                 )}
             </section>
 
-            {/* Process: equal tiles, no pin, so it cannot overlay the shelf */}
-            <section id="process" className="relative z-0 scroll-mt-24 bg-[#1F150E]">
+            {/* ── Process: equal tiles ── */}
+            <section
+                id="process"
+                className="relative z-0 scroll-mt-24"
+                style={{ background: LP_BG }}
+            >
                 <div className={`${SHELL} pt-24 pb-4 sm:pt-32`}>
-                    <h2 data-reveal className="lp-display lp-h2 max-w-[16ch]">
+                    <h2 data-reveal className="lp-display lp-h2 max-w-[16ch]" style={{ color: LP_TEXT }}>
                         Four steps. No machinery.
                     </h2>
-                    <p data-reveal style={{ '--d': '120ms' }} className="lp-lede mt-4 max-w-[40ch]">
-                        Every Enpees candle passes through the same four hands.
+                    <p
+                        data-reveal
+                        style={{ '--d': '120ms', color: LP_TEXT_MID }}
+                        className="lp-lede mt-4 max-w-[40ch]"
+                    >
+                        Every Fleroma candle passes through the same four hands.
                     </p>
                 </div>
                 <PourChapters reduce={reduce} />
             </section>
 
-            {/* Close: broken-grid on the wood table */}
-            <section className="relative bg-[#1F150E] py-24 sm:py-32 lg:py-36">
+            {/* ── Close: CTA over wood table ── */}
+            <section className="relative py-24 sm:py-32 lg:py-36" style={{ background: LP_BG3 }}>
                 <img
                     src={woodTable}
                     alt=""
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-45"
+                    className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                    style={{ opacity: 0.18 }}
                 />
                 <div
                     aria-hidden="true"
                     className="absolute inset-0"
                     style={{
-                        background:
-                            'linear-gradient(90deg, rgba(31,21,14,0.92) 0%, rgba(31,21,14,0.72) 42%, rgba(31,21,14,0.35) 100%)',
+                        background: `linear-gradient(90deg, ${LP_BG3}F5 0%, ${LP_BG3}C8 42%, ${LP_BG3}59 100%)`,
                     }}
                 />
 
                 <div className={`${SHELL} relative grid grid-cols-1 items-end gap-12 lg:grid-cols-12 lg:gap-8`}>
                     <div className="lg:col-span-6 lg:pb-8">
-                        <h2 data-reveal className="lp-display text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                        <h2
+                            data-reveal
+                            className="lp-display text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl"
+                            style={{ color: LP_TEXT }}
+                        >
                             Light one tonight.
                         </h2>
-                        <p data-reveal style={{ '--d': '120ms' }} className="lp-lede mt-5 max-w-[34ch]">
+                        <p
+                            data-reveal
+                            style={{ '--d': '120ms', color: LP_TEXT_MID }}
+                            className="lp-lede mt-5 max-w-[34ch]"
+                        >
                             Fresh stock every Wednesday. We wrap whatever you pick before the weekend.
                         </p>
-                        <div data-reveal style={{ '--d': '220ms' }} className="mt-9 flex flex-col gap-3 sm:flex-row">
-                            <Link to="/shop" className="lp-btn lp-btn-primary">Shop candles</Link>
-                            <Link to="/contact" className="lp-btn lp-btn-ghost">Custom order</Link>
+                        <div
+                            data-reveal
+                            style={{ '--d': '220ms' }}
+                            className="mt-9 flex flex-col gap-3 sm:flex-row"
+                        >
+                            <Link
+                                to="/shop"
+                                className="lp-btn lp-btn-primary"
+                                style={{ background: LP_TEXT, color: '#F5EDE0' }}
+                            >
+                                Shop candles
+                            </Link>
+                            <Link
+                                to="/contact"
+                                className="lp-btn lp-btn-ghost"
+                                style={{ borderColor: `${LP_TEXT}66`, color: LP_TEXT }}
+                            >
+                                Custom order
+                            </Link>
                         </div>
                     </div>
                     <div className="relative lg:col-span-6">
                         <img
                             src={lotusCandle}
-                            alt="A lotus-shaped Enpees candle"
+                            alt="A lotus-shaped Fleroma candle"
                             loading="lazy"
                             decoding="async"
-                            className="relative z-10 w-full max-w-lg rounded-[20px] object-cover shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)] lg:ml-auto lg:w-[92%] lg:translate-x-8"
+                            className="relative z-10 w-full max-w-lg rounded-[20px] object-cover shadow-[0_40px_80px_-30px_rgba(61,43,31,0.35)] lg:ml-auto lg:w-[92%] lg:translate-x-8"
                         />
                     </div>
                 </div>

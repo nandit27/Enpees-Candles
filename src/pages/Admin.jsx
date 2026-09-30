@@ -2,24 +2,84 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LazyImage from '../components/LazyImage';
 import { API_ENDPOINTS } from '../config/api';
+import toast from 'react-hot-toast';
 import flowerCandle from '../assets/Flower_Glass_Jar_Candle__199.webp';
 import vanillaCandle from '../assets/Vanilla_Bliss_Glass_Jar_Candle__249.webp';
 import sandalwoodCandle from '../assets/Chai_Biscuit_Glass_Candle___90.webp';
 import oceanCandle from '../assets/Snowman_Candle ___199.webp';
 import heroBg from '../assets/hero-bg.png'; // Using as profile placeholder
 
-const Admin = () => {
-    const navigate = useNavigate();
+/* Normalise legacy string colours ("Ivory White") into { name, hex } rows
+   so the editor always works on one shape. */
+const normalizeColors = (colors) => {
+    if (!Array.isArray(colors)) return [];
+    return colors.map((c) =>
+        typeof c === 'string' ? { name: c, hex: '' } : { name: c?.name || '', hex: c?.hex || '' }
+    ).filter((c) => c.name);
+};
+
+/* Per-product wax-colour editor. Every product keeps its own list. */
+function ColorEditor({ value, onChange }) {
+    const rows = Array.isArray(value) ? value : [];
+    const setRow = (i, patch) => onChange(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+    return (
+        <div className="space-y-2">
+            <label className="text-sm text-[#EAD2C0] font-medium">Wax colours for this product</label>
+            {rows.map((row, i) => (
+                <div key={i} className="flex items-center gap-2">
+                    <input
+                        type="text"
+                        placeholder="Colour name (e.g. Sage)"
+                        value={row.name || ''}
+                        onChange={(e) => setRow(i, { name: e.target.value })}
+                        className="flex-1 p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                    />
+                    <input
+                        type="color"
+                        value={/^#[0-9a-fA-F]{6}$/.test(row.hex || '') ? row.hex : '#C9B896'}
+                        onChange={(e) => setRow(i, { hex: e.target.value })}
+                        aria-label={`Swatch for ${row.name || `colour ${i + 1}`}`}
+                        title="Pick the swatch shade"
+                        className="h-10 w-12 shrink-0 cursor-pointer rounded border border-[#FFF7ED]/20 bg-transparent p-1"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => onChange(rows.filter((_, j) => j !== i))}
+                        aria-label="Remove colour"
+                        className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                </div>
+            ))}
+            <button
+                type="button"
+                onClick={() => onChange([...rows, { name: '', hex: '#C9B896' }])}
+                className="flex items-center gap-1 text-sm font-semibold text-[#FFF7ED] hover:text-white"
+            >
+                <span className="material-symbols-outlined text-lg">add</span>
+                Add colour
+            </button>
+            <p className="text-xs text-[#EAD2C0]/60 px-1">Each product keeps its own list. Five colours here, four on another, no problem.</p>
+        </div>
+    );
+}
+
+const Admin = () => {    const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [fragrances, setFragrances] = useState([]);
     const [inquiries, setInquiries] = useState({ general: [], trade: [], bulk: [] });
-    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null, images: [] });
+    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null, images: [], fragrances: [], extraFragrances: '', colors: [], specifications: { wax: '', fragrance: '', burningTime: '' } });
     const [editingProduct, setEditingProduct] = useState(null);
     const [showAddProduct, setShowAddProduct] = useState(false);
     const [showEditProduct, setShowEditProduct] = useState(false);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
     const [newCategory, setNewCategory] = useState({ name: '', description: '' });
+    const [newFragranceName, setNewFragranceName] = useState('');
+    const [renamingFragrance, setRenamingFragrance] = useState(null);
+    const [editExtraFragrances, setEditExtraFragrances] = useState('');
     const [activeView, setActiveView] = useState('dashboard'); // 'dashboard', 'products', 'orders', 'inquiries', 'categories'
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [featuredPage, setFeaturedPage] = useState(1);
@@ -91,6 +151,14 @@ const Admin = () => {
             .then(data => setCategories(data))
             .catch(err => console.error('Error fetching categories:', err));
 
+        fetch(API_ENDPOINTS.FRAGRANCES)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
+            .then(data => setFragrances(Array.isArray(data) ? data : []))
+            .catch(err => console.error('Error fetching fragrances:', err));
+
         fetch(API_ENDPOINTS.INQUIRIES)
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -120,6 +188,9 @@ const Admin = () => {
         if (newProduct.images && newProduct.images.length > 0) {
             Array.from(newProduct.images).forEach(file => formData.append('images', file));
         }
+        formData.append('fragrances', JSON.stringify(mergeFragrances(newProduct.fragrances, newProduct.extraFragrances)));
+        formData.append('colors', JSON.stringify(cleanColors(newProduct.colors)));
+        formData.append('specifications', JSON.stringify(cleanSpecs(newProduct.specifications)));
 
         fetch(API_ENDPOINTS.PRODUCTS, {
             method: 'POST',
@@ -132,12 +203,12 @@ const Admin = () => {
             .then(data => {
                 setProducts([...products, data]);
                 setShowAddProduct(false);
-                setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null, images: [] });
-                alert('Product added successfully!');
+                setNewProduct({ name: '', description: '', price: '', offerPrice: '', stock: '', category: '', dimensions: { height: '', width: '', depth: '' }, image: null, images: [], fragrances: [], extraFragrances: '', colors: [], specifications: { wax: '', fragrance: '', burningTime: '' } });
+                toast.success('Product added');
             })
             .catch(err => {
                 console.error('Error adding product:', err);
-                alert('Failed to add product. Please try again.');
+                toast.error('Could not add product. Try again.');
             });
     };
 
@@ -161,6 +232,9 @@ const Admin = () => {
         if (editingProduct.newImages && editingProduct.newImages.length > 0) {
             Array.from(editingProduct.newImages).forEach(file => formData.append('images', file));
         }
+        formData.append('fragrances', JSON.stringify(mergeFragrances(editingProduct.fragrances, editExtraFragrances)));
+        formData.append('colors', JSON.stringify(cleanColors(editingProduct.colors)));
+        formData.append('specifications', JSON.stringify(cleanSpecs(editingProduct.specifications)));
 
         fetch(API_ENDPOINTS.PRODUCT_BY_ID(editingProduct._id), {
             method: 'PATCH',
@@ -174,11 +248,12 @@ const Admin = () => {
                 setProducts(products.map(p => p._id === data._id ? data : p));
                 setShowEditProduct(false);
                 setEditingProduct(null);
-                alert('Product updated successfully!');
+                setEditExtraFragrances('');
+                toast.success('Product updated');
             })
             .catch(err => {
                 console.error('Error updating product:', err);
-                alert('Failed to update product. Please try again.');
+                toast.error('Could not update product. Try again.');
             });
     };
 
@@ -201,11 +276,11 @@ const Admin = () => {
                 setCategories([...categories, data]);
                 setShowCategoryModal(false);
                 setNewCategory({ name: '', description: '' });
-                alert('Category added successfully!');
+                toast.success('Category added');
             })
             .catch(err => {
                 console.error('Error adding category:', err);
-                alert('Failed to add category. Please try again.');
+                toast.error('Could not add category. Try again.');
             });
     };
 
@@ -221,18 +296,117 @@ const Admin = () => {
                 .then(res => {
                     if (!res.ok) throw new Error('Failed to delete category');
                     setCategories(categories.filter(c => c._id !== id));
-                    alert('Category deleted successfully!');
+                    toast.success('Category deleted');
                 })
                 .catch(err => {
                     console.error('Error deleting category:', err);
-                    alert('Failed to delete category. Please try again.');
+                    toast.error('Could not delete category. Try again.');
                 });
         }
     };
 
+    const handleAddFragrance = (e) => {
+        e.preventDefault();
+        const name = newFragranceName.trim();
+        if (!name) return;
+        const token = localStorage.getItem('token');
+        fetch(API_ENDPOINTS.FRAGRANCES, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ name })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to add fragrance');
+                return res.json();
+            })
+            .then(data => {
+                setFragrances([...fragrances, data].sort((a, b) => a.name.localeCompare(b.name)));
+                setNewFragranceName('');
+            })
+            .catch(err => {
+                console.error('Error adding fragrance:', err);
+                toast.error('Could not add fragrance. It may already exist.');
+            });
+    };
+
+    const handleRenameFragrance = (id, name) => {
+        const trimmed = name.trim();
+        if (!trimmed) return;
+        const token = localStorage.getItem('token');
+        fetch(API_ENDPOINTS.FRAGRANCE_BY_ID(id), {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ name: trimmed })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to rename fragrance');
+                return res.json();
+            })
+            .then(data => {
+                setFragrances(fragrances.map(f => f._id === data._id ? data : f).sort((a, b) => a.name.localeCompare(b.name)));
+                setRenamingFragrance(null);
+            })
+            .catch(err => {
+                console.error('Error renaming fragrance:', err);
+                toast.error('Could not rename fragrance. It may already exist.');
+            });
+    };
+
+    const handleDeleteFragrance = (id) => {
+        if (window.confirm('Delete this fragrance? Products using it fall back to the global list.')) {
+            const token = localStorage.getItem('token');
+            fetch(API_ENDPOINTS.FRAGRANCE_BY_ID(id), {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to delete fragrance');
+                    setFragrances(fragrances.filter(f => f._id !== id));
+                })
+                .catch(err => {
+                    console.error('Error deleting fragrance:', err);
+                    toast.error('Could not delete fragrance. Try again.');
+                });
+        }
+    };
+
+    const toggleListValue = (list, value) => {
+        const current = Array.isArray(list) ? list : [];
+        return current.includes(value) ? current.filter(v => v !== value) : [...current, value];
+    };
+
+    /* Merge picked fragrances with typed extras, de-duplicated. */
+    const mergeFragrances = (picked, extras) => [
+        ...new Set([
+            ...(Array.isArray(picked) ? picked : []),
+            ...String(extras || '').split(',').map((s) => s.trim()).filter(Boolean),
+        ]),
+    ];
+
+    /* Drop unnamed colour rows before submit. */
+    const cleanColors = (rows) =>
+        (Array.isArray(rows) ? rows : [])
+            .map((r) => ({ name: String(r?.name || '').trim(), hex: String(r?.hex || '').trim() }))
+            .filter((r) => r.name);
+
+    /* Only send spec keys the admin actually filled in. */
+    const cleanSpecs = (s) => {
+        const o = {};
+        if (s?.wax?.trim()) o.wax = s.wax.trim();
+        if (s?.fragrance?.trim()) o.fragrance = s.fragrance.trim();
+        if (s?.burningTime?.trim()) o.burningTime = s.burningTime.trim();
+        return o;
+    };
+
     const handleSendReply = async () => {
         if (!replyData.message.trim()) {
-            alert('Please enter a reply message');
+            toast.error('Type a reply message first');
             return;
         }
 
@@ -254,12 +428,12 @@ const Admin = () => {
                 throw new Error('Failed to send reply');
             }
 
-            alert('Reply sent successfully!');
+            toast.success('Reply sent');
             setShowReplyModal(false);
             setReplyData({ inquiry: null, message: '' });
         } catch (error) {
             console.error('Error sending reply:', error);
-            alert('Failed to send reply. Please try again.');
+            toast.error('Could not send reply. Try again.');
         } finally {
             setSendingReply(false);
         }
@@ -274,12 +448,12 @@ const Admin = () => {
     };
 
     return (
-        <div className="bg-[#3B2A23] font-['Inter',_sans-serif] h-screen overflow-hidden text-[#FFF7ED]">
-            <div className="relative flex h-screen w-full">
+        <div className="bg-[#3B2A23] font-['Outfit',_sans-serif] h-dvh overflow-hidden text-[#FFF7ED]">
+            <div className="relative flex h-dvh w-full">
                 {/* Mobile Menu Button */}
                 <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="lg:hidden fixed top-4 left-4 z-[60] p-2 sm:p-3 bg-[#D8A24A] text-[#3B2A23] rounded-lg shadow-xl"
+                    className="lg:hidden fixed top-4 left-4 z-[60] p-2 sm:p-3 bg-[#FAF6EF] text-[#3B2A23] rounded-lg shadow-xl"
                 >
                     <span className="material-symbols-outlined text-xl sm:text-2xl">
                         {isMobileMenuOpen ? 'close' : 'menu'}
@@ -295,7 +469,7 @@ const Admin = () => {
                 )}
 
                 {/* SideNavBar */}
-                <aside className={`fixed lg:sticky top-0 left-0 h-screen w-64 flex flex-col justify-between p-4 border-r border-[#EAD2C0]/10 bg-[#3B2A23] z-50 transition-transform duration-300 overflow-y-auto ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+                <aside className={`fixed lg:sticky top-0 left-0 h-dvh w-64 flex flex-col justify-between p-4 border-r border-[#EAD2C0]/10 bg-[#3B2A23] z-50 transition-transform duration-300 overflow-y-auto ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                     <div className="flex flex-col gap-8">
                         <button onClick={() => setActiveView('dashboard')} className="flex items-center gap-3 px-3 hover:opacity-80 transition-opacity text-left">
                             <div
@@ -303,57 +477,64 @@ const Admin = () => {
                                 style={{ backgroundImage: `url(${heroBg})` }}
                             ></div>
                             <div className="flex flex-col">
-                                <h1 className="text-base font-bold leading-normal text-[#FFF7ED]">Enpees Candles</h1>
+                                <h1 className="text-base font-bold leading-normal text-[#FFF7ED]">Fleroma Candles</h1>
                                 <p className="text-sm font-normal leading-normal text-[#EAD2C0]">Owner Dashboard</p>
                             </div>
                         </button>
                         <nav className="flex flex-col gap-2">
                             <button
                                 onClick={() => { setActiveView('dashboard'); setIsMobileMenuOpen(false); }}
-                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'dashboard' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'dashboard' ? 'bg-[#FAF6EF] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-2xl">dashboard</span>
                                 <p className={`text-sm leading-normal ${activeView === 'dashboard' ? 'font-bold' : 'font-medium'}`}>Dashboard</p>
                             </button>
                             <button
                                 onClick={() => { setActiveView('products'); setIsMobileMenuOpen(false); }}
-                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'products' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'products' ? 'bg-[#FAF6EF] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-2xl">inventory_2</span>
                                 <p className={`text-sm leading-normal ${activeView === 'products' ? 'font-bold' : 'font-medium'}`}>Products</p>
                             </button>
                             <button
                                 onClick={() => { setActiveView('orders'); setIsMobileMenuOpen(false); }}
-                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'orders' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'orders' ? 'bg-[#FAF6EF] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-2xl">receipt_long</span>
                                 <p className={`text-sm leading-normal ${activeView === 'orders' ? 'font-bold' : 'font-medium'}`}>Orders</p>
                             </button>
                             <button
                                 onClick={() => { setActiveView('featured'); setIsMobileMenuOpen(false); }}
-                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'featured' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'featured' ? 'bg-[#FAF6EF] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-2xl">star</span>
                                 <p className={`text-sm leading-normal ${activeView === 'featured' ? 'font-bold' : 'font-medium'}`}>Featured</p>
                             </button>
                             <button
                                 onClick={() => { setActiveView('inquiries'); setIsMobileMenuOpen(false); }}
-                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'inquiries' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'inquiries' ? 'bg-[#FAF6EF] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-2xl">contact_mail</span>
                                 <p className={`text-sm leading-normal ${activeView === 'inquiries' ? 'font-bold' : 'font-medium'}`}>Inquiries</p>
                             </button>
                             <button
                                 onClick={() => { setActiveView('categories'); setIsMobileMenuOpen(false); }}
-                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'categories' ? 'bg-[#D8A24A] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'categories' ? 'bg-[#FAF6EF] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
                             >
                                 <span className="material-symbols-outlined text-2xl">category</span>
                                 <p className={`text-sm leading-normal ${activeView === 'categories' ? 'font-bold' : 'font-medium'}`}>Categories</p>
                             </button>
+                            <button
+                                onClick={() => { setActiveView('fragrances'); setIsMobileMenuOpen(false); }}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${activeView === 'fragrances' ? 'bg-[#FAF6EF] text-[#3B2A23]' : 'text-[#EAD2C0] hover:bg-white/10'}`}
+                            >
+                                <span className="material-symbols-outlined text-2xl">air_freshener</span>
+                                <p className={`text-sm leading-normal ${activeView === 'fragrances' ? 'font-bold' : 'font-medium'}`}>Fragrances</p>
+                            </button>
                         </nav>
                     </div>
                     <div className="space-y-3">
-                        <button onClick={() => setShowAddProduct(true)} className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#D8A24A] text-[#3B2A23] text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
+                        <button onClick={() => setShowAddProduct(true)} className="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#FAF6EF] text-[#3B2A23] text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
                             <span className="truncate">Add New Product</span>
                         </button>
                         <button onClick={handleLogout} className="flex min-w-[84px] w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-red-600 text-white text-sm font-bold leading-normal tracking-wide shadow-md hover:bg-red-700 transition-all">
@@ -364,7 +545,7 @@ const Admin = () => {
                 </aside>
 
                 {/* Main Content */}
-                <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto h-screen w-full pt-16 lg:pt-6">
+                <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto h-dvh w-full pt-16 lg:pt-6">
                     {/* Add Product Modal */}
                     {showAddProduct && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -432,6 +613,64 @@ const Admin = () => {
                                             <option key={cat._id} value={cat.name}>{cat.name}</option>
                                         ))}
                                     </select>
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-[#EAD2C0] font-medium">Fragrances for this product</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {fragrances.map(f => {
+                                                const on = (newProduct.fragrances || []).includes(f.name);
+                                                return (
+                                                    <button
+                                                        key={f._id}
+                                                        type="button"
+                                                        onClick={() => setNewProduct({ ...newProduct, fragrances: toggleListValue(newProduct.fragrances, f.name) })}
+                                                        aria-pressed={on}
+                                                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${on ? 'bg-[#FAF6EF] text-[#3B2A23]' : 'bg-[#FFF7ED]/10 text-[#EAD2C0] hover:bg-[#FFF7ED]/20'}`}
+                                                    >
+                                                        {f.name}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <p className="text-xs text-[#EAD2C0]/60 px-1">Leave empty to offer the full global list. Shoppers can also type a custom scent.</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-sm text-[#EAD2C0] font-medium">Extra fragrances (optional)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Comma separated, e.g. Oud, Sandalwood Rose"
+                                            value={newProduct.extraFragrances}
+                                            onChange={e => setNewProduct({ ...newProduct, extraFragrances: e.target.value })}
+                                            className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                        />
+                                        <p className="text-xs text-[#EAD2C0]/60 px-1">Works even if the global list is empty. Saved onto this product only.</p>
+                                    </div>
+                                    <ColorEditor
+                                        value={newProduct.colors}
+                                        onChange={(colors) => setNewProduct({ ...newProduct, colors })}
+                                    />
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-[#EAD2C0] font-medium">Specifications (optional)</label>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <input
+                                                type="text" placeholder="Wax (e.g. 100% soy wax)"
+                                                value={newProduct.specifications?.wax || ''}
+                                                onChange={e => setNewProduct({ ...newProduct, specifications: { ...newProduct.specifications, wax: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                            <input
+                                                type="text" placeholder="Base scent (e.g. Natural Fragrance)"
+                                                value={newProduct.specifications?.fragrance || ''}
+                                                onChange={e => setNewProduct({ ...newProduct, specifications: { ...newProduct.specifications, fragrance: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                            <input
+                                                type="text" placeholder="Burn time (e.g. 40 hours)"
+                                                value={newProduct.specifications?.burningTime || ''}
+                                                onChange={e => setNewProduct({ ...newProduct, specifications: { ...newProduct.specifications, burningTime: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                        </div>
+                                    </div>
                                     <input
                                         type="file" accept="image/*"
                                         onChange={e => setNewProduct({ ...newProduct, image: e.target.files[0] })}
@@ -447,7 +686,7 @@ const Admin = () => {
                                     </div>
                                     <div className="flex justify-end gap-4 mt-6">
                                         <button type="button" onClick={() => setShowAddProduct(false)} className="px-4 py-2 text-[#EAD2C0] hover:text-white">Cancel</button>
-                                        <button type="submit" className="px-4 py-2 bg-[#D8A24A] text-[#3B2A23] font-bold rounded">Add Product</button>
+                                        <button type="submit" className="px-4 py-2 bg-[#FAF6EF] text-[#3B2A23] font-bold rounded">Add Product</button>
                                     </div>
                                 </form>
                             </div>
@@ -521,6 +760,64 @@ const Admin = () => {
                                             <option key={cat._id} value={cat.name}>{cat.name}</option>
                                         ))}
                                     </select>
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-[#EAD2C0] font-medium">Fragrances for this product</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {fragrances.map(f => {
+                                                const on = (editingProduct.fragrances || []).includes(f.name);
+                                                return (
+                                                    <button
+                                                        key={f._id}
+                                                        type="button"
+                                                        onClick={() => setEditingProduct({ ...editingProduct, fragrances: toggleListValue(editingProduct.fragrances, f.name) })}
+                                                        aria-pressed={on}
+                                                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${on ? 'bg-[#FAF6EF] text-[#3B2A23]' : 'bg-[#FFF7ED]/10 text-[#EAD2C0] hover:bg-[#FFF7ED]/20'}`}
+                                                    >
+                                                        {f.name}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <p className="text-xs text-[#EAD2C0]/60 px-1">Leave empty to offer the full global list. Shoppers can also type a custom scent.</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-sm text-[#EAD2C0] font-medium">Extra fragrances (optional)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Comma separated, e.g. Oud, Sandalwood Rose"
+                                            value={editExtraFragrances}
+                                            onChange={e => setEditExtraFragrances(e.target.value)}
+                                            className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                        />
+                                        <p className="text-xs text-[#EAD2C0]/60 px-1">Works even if the global list is empty. Saved onto this product only.</p>
+                                    </div>
+                                    <ColorEditor
+                                        value={editingProduct.colors}
+                                        onChange={(colors) => setEditingProduct({ ...editingProduct, colors })}
+                                    />
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-[#EAD2C0] font-medium">Specifications (optional)</label>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <input
+                                                type="text" placeholder="Wax (e.g. 100% soy wax)"
+                                                value={editingProduct.specifications?.wax || ''}
+                                                onChange={e => setEditingProduct({ ...editingProduct, specifications: { ...editingProduct.specifications, wax: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                            <input
+                                                type="text" placeholder="Base scent (e.g. Natural Fragrance)"
+                                                value={editingProduct.specifications?.fragrance || ''}
+                                                onChange={e => setEditingProduct({ ...editingProduct, specifications: { ...editingProduct.specifications, fragrance: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                            <input
+                                                type="text" placeholder="Burn time (e.g. 40 hours)"
+                                                value={editingProduct.specifications?.burningTime || ''}
+                                                onChange={e => setEditingProduct({ ...editingProduct, specifications: { ...editingProduct.specifications, burningTime: e.target.value } })}
+                                                className="w-full p-2 rounded bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50 text-sm"
+                                            />
+                                        </div>
+                                    </div>
                                     <div>
                                         <label className="text-sm text-[#EAD2C0] mb-1 block">Change Image (optional)</label>
                                         <input
@@ -547,7 +844,7 @@ const Admin = () => {
                                     </div>
                                     <div className="flex justify-end gap-4 mt-6">
                                         <button type="button" onClick={() => { setShowEditProduct(false); setEditingProduct(null); }} className="px-4 py-2 text-[#EAD2C0] hover:text-white">Cancel</button>
-                                        <button type="submit" className="px-4 py-2 bg-[#D8A24A] text-[#3B2A23] font-bold rounded">Update Product</button>
+                                        <button type="submit" className="px-4 py-2 bg-[#FAF6EF] text-[#3B2A23] font-bold rounded">Update Product</button>
                                     </div>
                                 </form>
                             </div>
@@ -660,7 +957,7 @@ const Admin = () => {
                                     <p className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Product Management</p>
                                     <p className="text-sm sm:text-base font-normal leading-normal text-[#EAD2C0]">Manage your product inventory and listings.</p>
                                 </div>
-                                <button onClick={() => setShowAddProduct(true)} className="flex h-10 sm:h-12 cursor-pointer items-center justify-center rounded-lg px-4 sm:px-6 bg-[#D8A24A] text-[#3B2A23] text-xs sm:text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
+                                <button onClick={() => setShowAddProduct(true)} className="flex h-10 sm:h-12 cursor-pointer items-center justify-center rounded-lg px-4 sm:px-6 bg-[#FAF6EF] text-[#3B2A23] text-xs sm:text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
                                     <span className="material-symbols-outlined mr-2">add</span>
                                     Add New Product
                                 </button>
@@ -688,12 +985,25 @@ const Admin = () => {
                                                 <p className="text-xs font-normal leading-normal text-[#554B47]">Category: {product.category || 'general'}</p>
                                                 <p className="text-xs sm:text-sm font-normal leading-normal text-[#554B47]">Stock: {product.stock}</p>
                                                 <p className="text-xs sm:text-sm font-normal leading-normal text-[#554B47]">₹{product.price}</p>
+                                                <p className="text-xs font-normal leading-normal text-[#554B47]/70">
+                                                    {(product.fragrances || []).length} scents · {(product.colors || []).length} colours
+                                                </p>
                                             </div>
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setEditingProduct(product);
+                                                        setEditingProduct({
+                                                            ...product,
+                                                            fragrances: Array.isArray(product.fragrances) ? product.fragrances : [],
+                                                            colors: normalizeColors(product.colors),
+                                                            specifications: {
+                                                                wax: product.specifications?.wax || '',
+                                                                fragrance: product.specifications?.fragrance || '',
+                                                                burningTime: product.specifications?.burningTime || '',
+                                                            },
+                                                        });
+                                                        setEditExtraFragrances('');
                                                         setShowEditProduct(true);
                                                     }}
                                                     className="flex-1 py-1.5 sm:py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-600 rounded-lg text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-1"
@@ -711,11 +1021,11 @@ const Admin = () => {
                                                                 .then(res => {
                                                                     if (!res.ok) throw new Error('Failed to delete product');
                                                                     setProducts(products.filter(p => p._id !== product._id));
-                                                                    alert('Product deleted successfully!');
+                                                                    toast.success('Product deleted');
                                                                 })
                                                                 .catch(err => {
                                                                     console.error('Error deleting product:', err);
-                                                                    alert('Failed to delete product. Please try again.');
+                                                                    toast.error('Could not delete product. Try again.');
                                                                 });
                                                         }
                                                     }}
@@ -813,7 +1123,7 @@ const Admin = () => {
                             <div className="flex flex-col gap-1 sm:gap-2">
                                 <p className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Featured Products</p>
                                 <p className="text-sm sm:text-base font-normal leading-normal text-[#EAD2C0]">Select up to 6 products to display in the landing page bestsellers section</p>
-                                <p className="text-sm text-[#D8A24A] mt-2">
+                                <p className="text-sm text-[#FAF6EF] mt-2">
                                     Currently Featured: {products.filter(p => p.featured === true || p.featured === 'true').length} / 6
                                 </p>
                             </div>
@@ -832,7 +1142,7 @@ const Admin = () => {
                                                 const featuredCount = products.filter(p => p.featured === true || p.featured === 'true').length;
 
                                                 return (
-                                                    <div key={product._id} className={`bg-[#FFF7ED]/5 border ${isFeatured ? 'border-[#D8A24A] ring-2 ring-[#D8A24A]/50' : 'border-[#FFF7ED]/10'} rounded-lg p-3 transition-all hover:border-[#D8A24A]/50 flex flex-col`}>
+                                                    <div key={product._id} className={`bg-[#FFF7ED]/5 border ${isFeatured ? 'border-[#FAF6EF] ring-2 ring-[#FAF6EF]/50' : 'border-[#FFF7ED]/10'} rounded-lg p-3 transition-all hover:border-[#FAF6EF]/50 flex flex-col`}>
                                                         <div className="relative aspect-square w-full overflow-hidden rounded-lg mb-2">
                                                             <LazyImage
                                                                 src={product.image}
@@ -850,7 +1160,7 @@ const Admin = () => {
                                                                 // If product is already featured, allow unfeaturing
                                                                 // If not featured, check if we're at the limit
                                                                 if (!isFeatured && featuredCount >= 6) {
-                                                                    alert('You can only feature up to 6 products. Please unselect a featured product first.');
+                                                                    toast.error('Only 6 featured products allowed. Unselect one first.');
                                                                     return;
                                                                 }
 
@@ -869,7 +1179,7 @@ const Admin = () => {
                                                                     .catch(err => console.error('Error updating featured status:', err));
                                                             }}
                                                             className={`w-full py-1.5 rounded-lg font-bold text-xs transition-all mt-auto ${isFeatured
-                                                                ? 'bg-[#D8A24A] text-[#3B2A23] hover:bg-[#D8A24A]/90'
+                                                                ? 'bg-[#FAF6EF] text-[#3B2A23] hover:bg-[#FAF6EF]/90'
                                                                 : 'bg-[#FFF7ED]/10 text-[#FFF7ED] hover:bg-[#FFF7ED]/20'
                                                                 }`}
                                                         >
@@ -913,7 +1223,7 @@ const Admin = () => {
                                                                 key={pageNum}
                                                                 onClick={() => setFeaturedPage(pageNum)}
                                                                 className={`text-sm leading-normal flex size-10 items-center justify-center rounded-full transition-colors ${featuredPage === pageNum
-                                                                    ? 'font-bold text-[#FFF7ED] bg-[#D8A24A]/80'
+                                                                    ? 'font-bold text-[#FFF7ED] bg-[#FAF6EF]/80'
                                                                     : 'font-normal text-[#EAD2C0] hover:text-white hover:bg-white/10'
                                                                     }`}
                                                             >
@@ -955,7 +1265,7 @@ const Admin = () => {
                             {/* General Contact Inquiries */}
                             <div className="bg-[#FFF7ED]/60 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg">
                                 <h3 className="text-[#3B2A23] text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[#D8A24A]">mail</span>
+                                    <span className="material-symbols-outlined text-[#FAF6EF]">mail</span>
                                     General Contact ({inquiries.general.length})
                                 </h3>
                                 {inquiries.general.length === 0 ? (
@@ -975,7 +1285,7 @@ const Admin = () => {
                                                         setReplyData({ inquiry, message: '' });
                                                         setShowReplyModal(true);
                                                     }}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-[#D8A24A] text-[#3B2A23] rounded-lg font-semibold text-sm hover:brightness-110 transition-all"
+                                                    className="flex items-center gap-2 px-4 py-2 bg-[#FAF6EF] text-[#3B2A23] rounded-lg font-semibold text-sm hover:brightness-110 transition-all"
                                                 >
                                                     <span className="material-symbols-outlined text-base">reply</span>
                                                     Reply
@@ -989,7 +1299,7 @@ const Admin = () => {
                             {/* Trade Inquiries */}
                             <div className="bg-[#FFF7ED]/60 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg">
                                 <h3 className="text-[#3B2A23] text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[#D8A24A]">business</span>
+                                    <span className="material-symbols-outlined text-[#FAF6EF]">business</span>
                                     Trade Inquiries ({inquiries.trade.length})
                                 </h3>
                                 {inquiries.trade.length === 0 ? (
@@ -1017,7 +1327,7 @@ const Admin = () => {
                                                         setReplyData({ inquiry, message: '' });
                                                         setShowReplyModal(true);
                                                     }}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-[#D8A24A] text-[#3B2A23] rounded-lg font-semibold text-sm hover:brightness-110 transition-all mt-3"
+                                                    className="flex items-center gap-2 px-4 py-2 bg-[#FAF6EF] text-[#3B2A23] rounded-lg font-semibold text-sm hover:brightness-110 transition-all mt-3"
                                                 >
                                                     <span className="material-symbols-outlined text-base">reply</span>
                                                     Reply
@@ -1031,7 +1341,7 @@ const Admin = () => {
                             {/* Bulk Order Inquiries */}
                             <div className="bg-[#FFF7ED]/60 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg">
                                 <h3 className="text-[#3B2A23] text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[#D8A24A]">inventory</span>
+                                    <span className="material-symbols-outlined text-[#FAF6EF]">inventory</span>
                                     Bulk Orders ({inquiries.bulk.length})
                                 </h3>
                                 {inquiries.bulk.length === 0 ? (
@@ -1048,7 +1358,7 @@ const Admin = () => {
                                                     <p>Company: {inquiry.companyName}</p>
                                                     <p>Phone: {inquiry.phoneNo}</p>
                                                     <p className="col-span-2">Email: {inquiry.email}</p>
-                                                    <p className="col-span-2 font-semibold text-[#D8A24A]">
+                                                    <p className="col-span-2 font-semibold text-[#FAF6EF]">
                                                         Total Quantity: {inquiry.totalQuantity} pieces
                                                     </p>
                                                 </div>
@@ -1070,7 +1380,7 @@ const Admin = () => {
                                                         setReplyData({ inquiry, message: '' });
                                                         setShowReplyModal(true);
                                                     }}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-[#D8A24A] text-[#3B2A23] rounded-lg font-semibold text-sm hover:brightness-110 transition-all"
+                                                    className="flex items-center gap-2 px-4 py-2 bg-[#FAF6EF] text-[#3B2A23] rounded-lg font-semibold text-sm hover:brightness-110 transition-all"
                                                 >
                                                     <span className="material-symbols-outlined text-base">reply</span>
                                                     Reply
@@ -1091,7 +1401,7 @@ const Admin = () => {
                                     <p className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Category Management</p>
                                     <p className="text-sm sm:text-base font-normal leading-normal text-[#EAD2C0]">Manage product categories and collections.</p>
                                 </div>
-                                <button onClick={() => setShowCategoryModal(true)} className="flex h-10 sm:h-12 cursor-pointer items-center justify-center rounded-lg px-4 sm:px-6 bg-[#D8A24A] text-[#3B2A23] text-xs sm:text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
+                                <button onClick={() => setShowCategoryModal(true)} className="flex h-10 sm:h-12 cursor-pointer items-center justify-center rounded-lg px-4 sm:px-6 bg-[#FAF6EF] text-[#3B2A23] text-xs sm:text-sm font-bold leading-normal tracking-wide shadow-md hover:brightness-110 transition-all">
                                     <span className="material-symbols-outlined mr-2">add</span>
                                     Add New Category
                                 </button>
@@ -1115,7 +1425,7 @@ const Admin = () => {
                                             />
                                             <div className="flex justify-end gap-4 mt-6">
                                                 <button type="button" onClick={() => { setShowCategoryModal(false); setNewCategory({ name: '', description: '' }); }} className="px-4 py-2 text-[#EAD2C0] hover:text-white">Cancel</button>
-                                                <button type="submit" className="px-4 py-2 bg-[#D8A24A] text-[#3B2A23] font-bold rounded">Add Category</button>
+                                                <button type="submit" className="px-4 py-2 bg-[#FAF6EF] text-[#3B2A23] font-bold rounded">Add Category</button>
                                             </div>
                                         </form>
                                     </div>
@@ -1134,8 +1444,8 @@ const Admin = () => {
                                         <div key={category._id} className="flex flex-col gap-3 sm:gap-4 rounded-lg sm:rounded-xl p-4 sm:p-6 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
                                             <div className="flex items-start justify-between">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="bg-[#D8A24A]/20 rounded-lg p-2">
-                                                        <span className="material-symbols-outlined text-[#D8A24A] text-2xl">category</span>
+                                                    <div className="bg-[#FAF6EF]/20 rounded-lg p-2">
+                                                        <span className="material-symbols-outlined text-[#FAF6EF] text-2xl">category</span>
                                                     </div>
                                                     <div>
                                                         <p className="text-base sm:text-lg font-bold text-[#3B2A23]">{category.name}</p>
@@ -1161,6 +1471,92 @@ const Admin = () => {
                             )}
                         </div>
                     )}
+                    {/* Fragrances View */}
+                    {activeView === 'fragrances' && (
+                        <div className="flex flex-col gap-8">
+                            <div className="flex flex-col gap-1 sm:gap-2">
+                                <p className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tighter text-[#FFF7ED]">Fragrance Management</p>
+                                <p className="text-sm sm:text-base font-normal leading-normal text-[#EAD2C0]">Global scent list plus per-product picks. Shoppers can also type a custom scent.</p>
+                            </div>
+
+                            <form onSubmit={handleAddFragrance} className="flex flex-col sm:flex-row gap-3 max-w-xl">
+                                <input
+                                    type="text"
+                                    placeholder="New fragrance name (e.g. Sandalwood Rose)"
+                                    value={newFragranceName}
+                                    onChange={e => setNewFragranceName(e.target.value)}
+                                    className="flex-1 p-3 rounded-lg bg-[#FFF7ED]/10 border border-[#FFF7ED]/20 text-white placeholder-white/50"
+                                />
+                                <button type="submit" className="flex cursor-pointer items-center justify-center gap-2 rounded-lg px-6 py-3 bg-[#FAF6EF] text-[#3B2A23] text-sm font-bold shadow-md hover:brightness-110 transition-all">
+                                    <span className="material-symbols-outlined">add</span>
+                                    Add
+                                </button>
+                            </form>
+
+                            {fragrances.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-center">
+                                    <span className="material-symbols-outlined text-6xl text-[#EAD2C0] mb-4">air_freshener</span>
+                                    <p className="text-xl text-[#EAD2C0] mb-2">No fragrances yet</p>
+                                    <p className="text-sm text-[#EAD2C0]/70">Add the first scent above</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl">
+                                    {fragrances.map((fragrance) => (
+                                        <div key={fragrance._id} className="flex items-center gap-3 rounded-lg p-4 backdrop-blur-xl bg-[#FFF7ED]/60 border border-[#FFF7ED]/20">
+                                            <div className="bg-[#FAF6EF]/20 rounded-lg p-2">
+                                                <span className="material-symbols-outlined text-[#FAF6EF] text-2xl">air_freshener</span>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                {renamingFragrance?._id === fragrance._id ? (
+                                                    <form
+                                                        onSubmit={(e) => { e.preventDefault(); handleRenameFragrance(fragrance._id, renamingFragrance.name); }}
+                                                        className="flex gap-2"
+                                                    >
+                                                        <input
+                                                            type="text"
+                                                            value={renamingFragrance.name}
+                                                            onChange={e => setRenamingFragrance({ ...renamingFragrance, name: e.target.value })}
+                                                            autoFocus
+                                                            className="w-full p-1.5 rounded bg-white/70 border border-[#EAD2C0]/50 text-[#3B2A23] text-sm"
+                                                        />
+                                                        <button type="submit" aria-label="Save fragrance name" className="px-2 text-green-700 hover:text-green-800">
+                                                            <span className="material-symbols-outlined">check</span>
+                                                        </button>
+                                                        <button type="button" aria-label="Cancel rename" onClick={() => setRenamingFragrance(null)} className="px-2 text-[#554B47] hover:text-[#3B2A23]">
+                                                            <span className="material-symbols-outlined">close</span>
+                                                        </button>
+                                                    </form>
+                                                ) : (
+                                                    <p className="text-base font-bold text-[#3B2A23] truncate">{fragrance.name}</p>
+                                                )}
+                                                <p className="text-xs text-[#554B47]/70">
+                                                    {products.filter(p => (p.fragrances || []).includes(fragrance.name)).length} products
+                                                </p>
+                                            </div>
+                                            {renamingFragrance?._id !== fragrance._id && (
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        onClick={() => setRenamingFragrance({ _id: fragrance._id, name: fragrance.name })}
+                                                        aria-label={`Rename ${fragrance.name}`}
+                                                        className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-600 rounded-lg transition-colors"
+                                                    >
+                                                        <span className="material-symbols-outlined text-lg">edit</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteFragrance(fragrance._id)}
+                                                        aria-label={`Delete ${fragrance.name}`}
+                                                        className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-lg transition-colors"
+                                                    >
+                                                        <span className="material-symbols-outlined text-lg">delete</span>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </main>
             </div>
 
@@ -1170,7 +1566,7 @@ const Admin = () => {
                     <div className="bg-[#FFF7ED] rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-2xl font-bold text-[#3B2A23] flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[#D8A24A]">reply</span>
+                                <span className="material-symbols-outlined text-[#FAF6EF]">reply</span>
                                 Reply to Inquiry
                             </h3>
                             <button
@@ -1206,7 +1602,7 @@ const Admin = () => {
                                 onChange={(e) => setReplyData({ ...replyData, message: e.target.value })}
                                 placeholder="Type your reply here..."
                                 rows="8"
-                                className="w-full p-4 rounded-lg bg-white border border-[#EAD2C0]/50 text-[#3B2A23] placeholder-[#554B47]/50 focus:outline-none focus:border-[#D8A24A] focus:ring-2 focus:ring-[#D8A24A]/30 transition-all resize-y"
+                                className="w-full p-4 rounded-lg bg-white border border-[#EAD2C0]/50 text-[#3B2A23] placeholder-[#554B47]/50 focus:outline-none focus:border-[#FAF6EF] focus:ring-2 focus:ring-[#FAF6EF]/30 transition-all resize-y"
                             />
                         </div>
 
@@ -1221,7 +1617,7 @@ const Admin = () => {
                             <button
                                 onClick={handleSendReply}
                                 disabled={sendingReply || !replyData.message.trim()}
-                                className="px-6 py-3 bg-[#D8A24A] text-[#3B2A23] rounded-lg font-semibold hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="px-6 py-3 bg-[#FAF6EF] text-[#3B2A23] rounded-lg font-semibold hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 {sendingReply ? (
                                     <>

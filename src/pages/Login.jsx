@@ -71,7 +71,7 @@ const Login = () => {
                         </h2>
                         <p className="mt-2 text-center text-sm text-[#EAD2C0]">
                             Or{' '}
-                            <Link to="/signup" className="font-medium text-[#D8A24A] hover:text-[#D8A24A]/80">
+                            <Link to="/signup" className="font-medium text-[#FAF6EF] hover:text-[#FAF6EF]/80">
                                 create a new account
                             </Link>
                         </p>
@@ -90,7 +90,7 @@ const Login = () => {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#D8A24A] focus:border-[#D8A24A] focus:z-10 sm:text-sm"
+                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#FAF6EF] focus:border-[#FAF6EF] focus:z-10 sm:text-sm"
                                     placeholder="Email address"
                                 />
                             </div>
@@ -106,7 +106,7 @@ const Login = () => {
                                     required
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#D8A24A] focus:border-[#D8A24A] focus:z-10 sm:text-sm"
+                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#FAF6EF] focus:border-[#FAF6EF] focus:z-10 sm:text-sm"
                                     placeholder="Password"
                                 />
                             </div>
@@ -115,7 +115,7 @@ const Login = () => {
                         <div className="text-center">
                             <p className="text-sm text-[#EAD2C0]/80">
                                 Forgot your password?{' '}
-                                <Link to="/contact" className="font-medium text-[#D8A24A] hover:text-[#D8A24A]/80">
+                                <Link to="/contact" className="font-medium text-[#FAF6EF] hover:text-[#FAF6EF]/80">
                                     Contact us
                                 </Link>
                             </p>
@@ -125,7 +125,7 @@ const Login = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-[#3B2A23] bg-[#D8A24A] hover:bg-[#D8A24A]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D8A24A] disabled:opacity-50"
+                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-[#3B2A23] bg-[#FAF6EF] hover:bg-[#FAF6EF]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FAF6EF] disabled:opacity-50"
                             >
                                 {loading ? 'Signing in...' : 'Sign in'}
                             </button>

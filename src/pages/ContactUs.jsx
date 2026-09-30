@@ -22,14 +22,14 @@ const TABS = [
 const toastOk = {
     duration: 4000,
     position: 'top-center',
-    style: { background: '#D3A34E', color: '#2A1D15', fontWeight: '600' },
+    style: { background: '#4A2A1A', color: '#FAF6EF', fontWeight: '600' },
 };
 
 const Field = ({ label, hint, children }) => (
     <label className="flex flex-col gap-2">
-        <span className="font-jost text-sm text-[#EDE6D8]">{label}</span>
+        <span className="font-jost text-sm text-[#4A2A1A]">{label}</span>
         {children}
-        {hint ? <span className="font-jost text-xs text-[#C7BCA8]">{hint}</span> : null}
+        {hint ? <span className="font-jost text-xs text-[#4A2A1A]/70">{hint}</span> : null}
     </label>
 );
 
@@ -165,19 +165,19 @@ const ContactUs = () => {
     const totalPieces = bulkForm.items.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 0), 0);
 
     return (
-        <div className="lp relative min-h-[100dvh] w-full overflow-x-hidden bg-[#2A1D15] text-[#EDE6D8]">
+        <div className="lp relative min-h-[100dvh] w-full overflow-x-hidden bg-[#FAF6EF] text-[#4A2A1A]">
             <div className="pointer-events-none absolute inset-0">
                 <img src={studioWall} alt="" className="h-full w-full object-cover opacity-25" />
-                <div className="absolute inset-0 bg-[#2A1D15]/75" />
+                <div className="absolute inset-0 bg-[#FAF6EF]/75" />
             </div>
 
             <div className="relative z-10">
                 <Navbar />
-                <main className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
+                <main id="main-content" className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-10 sm:px-10 lg:px-16">
                     <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-16">
                         <div className="lg:col-span-7">
                             <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Write to us</h1>
-                            <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                            <p className="lp-lede mt-4 max-w-[65ch] text-[#4A2A1A]/70">
                                 Tell us what you need. We reply on WhatsApp and email.
                             </p>
 
@@ -335,11 +335,11 @@ const ContactUs = () => {
 
                                     <div className="flex flex-col gap-3">
                                         <div className="flex items-center justify-between gap-3">
-                                            <p className="font-jost text-sm text-[#EDE6D8]">Items and quantities</p>
+                                            <p className="font-jost text-sm text-[#4A2A1A]">Items and quantities</p>
                                             <button
                                                 type="button"
                                                 onClick={addBulkItem}
-                                                className="font-jost text-sm text-[#D3A34E] hover:text-[#EDE6D8]"
+                                                className="font-jost text-sm text-[#4A2A1A] hover:text-[#4A2A1A]"
                                             >
                                                 Add item
                                             </button>
@@ -347,7 +347,7 @@ const ContactUs = () => {
                                         {bulkForm.items.map((item, index) => (
                                             <div key={index} className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_7rem_auto]">
                                                 <label className="flex flex-col gap-2">
-                                                    <span className="font-jost text-sm text-[#EDE6D8]">Product</span>
+                                                    <span className="font-jost text-sm text-[#4A2A1A]">Product</span>
                                                     <select
                                                         className="lp-field"
                                                         required
@@ -363,7 +363,7 @@ const ContactUs = () => {
                                                     </select>
                                                 </label>
                                                 <label className="flex flex-col gap-2">
-                                                    <span className="font-jost text-sm text-[#EDE6D8]">Qty</span>
+                                                    <span className="font-jost text-sm text-[#4A2A1A]">Qty</span>
                                                     <input
                                                         className="lp-field"
                                                         type="number"
@@ -379,7 +379,7 @@ const ContactUs = () => {
                                                         type="button"
                                                         onClick={() => removeBulkItem(index)}
                                                         aria-label="Remove item"
-                                                        className="flex h-12 w-12 items-center justify-center rounded-[12px] text-[#C7BCA8] hover:text-[#EDE6D8]"
+                                                        className="flex h-12 w-12 items-center justify-center rounded-[12px] text-[#4A2A1A]/70 hover:text-[#4A2A1A]"
                                                     >
                                                         <span className="material-symbols-outlined" aria-hidden="true">
                                                             delete
@@ -388,11 +388,11 @@ const ContactUs = () => {
                                                 )}
                                             </div>
                                         ))}
-                                        <div className="flex items-center justify-between rounded-[12px] bg-[#3B2A1E] px-4 py-3">
-                                            <p className="font-jost text-sm text-[#C7BCA8]">Total pieces</p>
-                                            <p className="font-jost text-lg tabular-nums text-[#EDE6D8]">{totalPieces}</p>
+                                        <div className="flex items-center justify-between rounded-[12px] bg-[#EDE0C8] px-4 py-3">
+                                            <p className="font-jost text-sm text-[#4A2A1A]/70">Total pieces</p>
+                                            <p className="font-jost text-lg tabular-nums text-[#4A2A1A]">{totalPieces}</p>
                                         </div>
-                                        <p className="font-jost text-xs text-[#C7BCA8]">
+                                        <p className="font-jost text-xs text-[#4A2A1A]/70">
                                             Total must be more than 100 pieces.
                                         </p>
                                     </div>
@@ -404,39 +404,39 @@ const ContactUs = () => {
                         </div>
 
                         <aside className="lg:col-span-5">
-                            <div className="overflow-hidden rounded-[20px] bg-[#3B2A1E]">
+                            <div className="overflow-hidden rounded-[20px] bg-[#EDE0C8]">
                                 <div className="relative aspect-[4/3]">
-                                    <img src={studioWall} alt="Enpees studio wall" className="h-full w-full object-cover" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#2A1D15] to-transparent" />
+                                    <img src={studioWall} alt="Fleroma studio wall" className="h-full w-full object-cover" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#FAF6EF] to-transparent" />
                                 </div>
                                 <div className="space-y-6 p-6 sm:p-8">
                                     <div>
                                         <p className="lp-display text-2xl leading-[1.1]">{CONTACT_INFO.company}</p>
-                                        <p className="mt-2 font-jost text-sm text-[#C7BCA8]">
+                                        <p className="mt-2 font-jost text-sm text-[#4A2A1A]/70">
                                             GSTIN {CONTACT_INFO.gstin}. MSME registered.
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="font-jost text-sm text-[#C7BCA8]">Email</p>
+                                        <p className="font-jost text-sm text-[#4A2A1A]/70">Email</p>
                                         <a
                                             href={`mailto:${CONTACT_INFO.email}`}
-                                            className="mt-1 block font-jost text-[#EDE6D8] hover:text-[#D3A34E]"
+                                            className="mt-1 block font-jost text-[#4A2A1A] hover:text-[#4A2A1A]"
                                         >
                                             {CONTACT_INFO.email}
                                         </a>
                                     </div>
                                     <div>
-                                        <p className="font-jost text-sm text-[#C7BCA8]">Phone</p>
+                                        <p className="font-jost text-sm text-[#4A2A1A]/70">Phone</p>
                                         <a
                                             href="tel:+919173958589"
-                                            className="mt-1 block font-jost text-[#EDE6D8] hover:text-[#D3A34E]"
+                                            className="mt-1 block font-jost text-[#4A2A1A] hover:text-[#4A2A1A]"
                                         >
                                             {CONTACT_INFO.phone}
                                         </a>
                                     </div>
                                     <div>
-                                        <p className="font-jost text-sm text-[#C7BCA8]">Studio</p>
-                                        <p className="mt-1 max-w-[40ch] font-jost text-sm text-[#EDE6D8]">{CONTACT_INFO.address}</p>
+                                        <p className="font-jost text-sm text-[#4A2A1A]/70">Studio</p>
+                                        <p className="mt-1 max-w-[40ch] font-jost text-sm text-[#4A2A1A]">{CONTACT_INFO.address}</p>
                                     </div>
                                 </div>
                             </div>

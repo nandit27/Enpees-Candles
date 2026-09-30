@@ -84,7 +84,7 @@ const Signup = () => {
                         </h2>
                         <p className="mt-2 text-center text-sm text-[#EAD2C0]">
                             Or{' '}
-                            <Link to="/login" className="font-medium text-[#D8A24A] hover:text-[#D8A24A]/80">
+                            <Link to="/login" className="font-medium text-[#FAF6EF] hover:text-[#FAF6EF]/80">
                                 sign in to existing account
                             </Link>
                         </p>
@@ -102,7 +102,7 @@ const Signup = () => {
                                     required
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#D8A24A] focus:border-[#D8A24A] sm:text-sm"
+                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#FAF6EF] focus:border-[#FAF6EF] sm:text-sm"
                                     placeholder="Full Name"
                                 />
                             </div>
@@ -118,7 +118,7 @@ const Signup = () => {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#D8A24A] focus:border-[#D8A24A] sm:text-sm"
+                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#FAF6EF] focus:border-[#FAF6EF] sm:text-sm"
                                     placeholder="Email address"
                                 />
                             </div>
@@ -134,7 +134,7 @@ const Signup = () => {
                                     value={formData.mobile}
                                     onChange={handleChange}
                                     pattern="[0-9]{10}"
-                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#D8A24A] focus:border-[#D8A24A] sm:text-sm"
+                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#FAF6EF] focus:border-[#FAF6EF] sm:text-sm"
                                     placeholder="10-digit mobile number"
                                 />
                             </div>
@@ -149,7 +149,7 @@ const Signup = () => {
                                     required
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#D8A24A] focus:border-[#D8A24A] sm:text-sm"
+                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#FAF6EF] focus:border-[#FAF6EF] sm:text-sm"
                                     placeholder="Password (min 6 characters)"
                                 />
                             </div>
@@ -164,7 +164,7 @@ const Signup = () => {
                                     required
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#D8A24A] focus:border-[#D8A24A] sm:text-sm"
+                                    className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-[#FFF7ED]/30 bg-[#3B2A23]/80 placeholder-[#EAD2C0]/50 text-white focus:outline-none focus:ring-[#FAF6EF] focus:border-[#FAF6EF] sm:text-sm"
                                     placeholder="Confirm Password"
                                 />
                             </div>
@@ -174,7 +174,7 @@ const Signup = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-[#3B2A23] bg-[#D8A24A] hover:bg-[#D8A24A]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D8A24A] disabled:opacity-50"
+                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-[#3B2A23] bg-[#FAF6EF] hover:bg-[#FAF6EF]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FAF6EF] disabled:opacity-50"
                             >
                                 {loading ? 'Creating account...' : 'Sign up'}
                             </button>

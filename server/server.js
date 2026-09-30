@@ -24,7 +24,87 @@ const Product = require('./models/Product');
 const Order = require('./models/Order');
 const Inquiry = require('./models/Inquiry');
 const Category = require('./models/Category');
+const Fragrance = require('./models/Fragrance');
 const User = require('./models/User');
+
+// Parse a string-list field (FormData sends JSON or comma-separated strings;
+// JSON bodies send real arrays). Always returns an array of trimmed names.
+const parseNameList = (value) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+    if (typeof value === 'string') {
+        try {
+            const parsed = JSON.parse(value);
+            if (Array.isArray(parsed)) return parsed.map((v) => String(v).trim()).filter(Boolean);
+        } catch (e) { /* not JSON, fall through to comma split */ }
+        return value.split(',').map((v) => v.trim()).filter(Boolean);
+    }
+    return undefined;
+};
+
+// Parse per-product wax colours. Accepts [{ name, hex }] (what admin sends),
+// plain name strings (legacy), or "Name:#hex, Name2" text. Normalises to
+// [{ name, hex }] so every product carries its own palette.
+const parseColorList = (value) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    let items = [];
+    if (Array.isArray(value)) {
+        items = value;
+    } else if (typeof value === 'string') {
+        try {
+            const parsed = JSON.parse(value);
+            if (Array.isArray(parsed)) items = parsed;
+            else items = String(value).split(',');
+        } catch (e) {
+            items = String(value).split(',');
+        }
+    } else {
+        return undefined;
+    }
+    return items.map((item) => {
+        if (item && typeof item === 'object') {
+            const name = String(item.name || '').trim();
+            if (!name) return null;
+            return { name, hex: String(item.hex || '').trim() };
+        }
+        const text = String(item || '').trim();
+        if (!text) return null;
+        const sep = text.includes('|') ? '|' : text.includes(':') && /#[0-9a-fA-F]{3,6}\s*$/.test(text) ? ':' : null;
+        if (sep) {
+            const idx = text.lastIndexOf(sep);
+            return { name: text.slice(0, idx).trim(), hex: text.slice(idx + 1).trim() };
+        }
+        return { name: text, hex: '' };
+    }).filter(Boolean);
+};
+
+// Parse the specifications object (wax, fragrance, burningTime).
+const parseSpecifications = (value) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    try {
+        const obj = typeof value === 'string' ? JSON.parse(value) : value;
+        if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return undefined;
+        const specs = {};
+        if (obj.wax !== undefined) specs.wax = String(obj.wax);
+        if (obj.fragrance !== undefined) specs.fragrance = String(obj.fragrance);
+        if (obj.burningTime !== undefined) specs.burningTime = String(obj.burningTime);
+        return specs;
+    } catch (e) {
+        return undefined;
+    }
+};
+
+const DEFAULT_FRAGRANCES = [
+    'Woody Flora',
+    'Peach Miami',
+    'Jasmine',
+    'Mogra',
+    'Berry Blast',
+    'Kesar Chandan',
+    'British Rose',
+    'Vanilla',
+    'English Lavender',
+];
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -96,6 +176,80 @@ app.use('/api/auth', authRoutes);
 
 // Order routes
 app.use('/api', orderRoutes);
+
+// ===== FRAGRANCE ENDPOINTS =====
+
+// GET /api/fragrances - Public list, seeded with house defaults on first call
+app.get('/api/fragrances', async (req, res) => {
+    try {
+        let fragrances = await Fragrance.find().sort({ name: 1 });
+        if (fragrances.length === 0) {
+            fragrances = await Fragrance.insertMany(
+                DEFAULT_FRAGRANCES.map((name) => ({ name })),
+                { ordered: false }
+            ).catch(() => Fragrance.find().sort({ name: 1 }));
+            if (!Array.isArray(fragrances)) fragrances = await Fragrance.find().sort({ name: 1 });
+        }
+        res.json(fragrances);
+    } catch (error) {
+        console.error('Error fetching fragrances:', error);
+        res.status(500).json({ error: 'Failed to fetch fragrances' });
+    }
+});
+
+// POST /api/fragrances - Add a fragrance (admin only)
+app.post('/api/fragrances', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { name } = req.body;
+        if (!name || !String(name).trim()) {
+            return res.status(400).json({ error: 'Fragrance name is required' });
+        }
+        const fragrance = new Fragrance({ name: String(name).trim() });
+        await fragrance.save();
+        res.status(201).json(fragrance);
+    } catch (error) {
+        console.error('Error creating fragrance:', error);
+        if (error.code === 11000) {
+            return res.status(400).json({ error: 'Fragrance already exists' });
+        }
+        res.status(500).json({ error: 'Failed to create fragrance' });
+    }
+});
+
+// PATCH /api/fragrances/:id - Rename a fragrance (admin only)
+app.patch('/api/fragrances/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { name } = req.body;
+        if (!name || !String(name).trim()) {
+            return res.status(400).json({ error: 'Fragrance name is required' });
+        }
+        const fragrance = await Fragrance.findByIdAndUpdate(
+            req.params.id,
+            { name: String(name).trim() },
+            { new: true, runValidators: true }
+        );
+        if (!fragrance) return res.status(404).json({ error: 'Fragrance not found' });
+        res.json(fragrance);
+    } catch (error) {
+        console.error('Error renaming fragrance:', error);
+        if (error.code === 11000) {
+            return res.status(400).json({ error: 'Fragrance already exists' });
+        }
+        res.status(500).json({ error: 'Failed to rename fragrance' });
+    }
+});
+
+// DELETE /api/fragrances/:id - Delete a fragrance (admin only)
+app.delete('/api/fragrances/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const fragrance = await Fragrance.findByIdAndDelete(req.params.id);
+        if (!fragrance) return res.status(404).json({ error: 'Fragrance not found' });
+        res.json({ message: 'Fragrance deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting fragrance:', error);
+        res.status(500).json({ error: 'Failed to delete fragrance' });
+    }
+});
 
 // ===== CATEGORY ENDPOINTS =====
 
@@ -286,6 +440,18 @@ app.post('/api/products', upload.fields([{ name: 'image', maxCount: 1 }, { name:
             }
         }
 
+        // Customisable per-product options (fragrance + colour lists)
+        const fragrances = parseNameList(req.body.fragrances);
+        if (fragrances !== undefined) productData.fragrances = fragrances;
+        const colors = parseColorList(req.body.colors);
+        if (colors !== undefined) productData.colors = colors;
+
+        // Customisable per-product specifications (wax, base scent, burn time)
+        const specifications = parseSpecifications(req.body.specifications);
+        if (specifications !== undefined) {
+            productData.specifications = { ...productData.specifications, ...specifications };
+        }
+
         const newProduct = new Product(productData);
         await newProduct.save();
         
@@ -337,6 +503,20 @@ app.patch('/api/products/:id', upload.fields([{ name: 'image', maxCount: 1 }, { 
             } else {
                 updates.offerPrice = parseFloat(req.body.offerPrice);
             }
+        }
+
+        // Customisable per-product options (fragrance + colour lists)
+        const fragrances = parseNameList(req.body.fragrances);
+        if (fragrances !== undefined) updates.fragrances = fragrances;
+        const colors = parseColorList(req.body.colors);
+        if (colors !== undefined) updates.colors = colors;
+
+        // Customisable per-product specifications (wax, base scent, burn time)
+        const specifications = parseSpecifications(req.body.specifications);
+        if (specifications !== undefined) {
+            Object.entries(specifications).forEach(([key, val]) => {
+                updates[`specifications.${key}`] = val;
+            });
         }
 
         // If an image file was uploaded to Cloudinary, update the image URL

@@ -12,7 +12,7 @@ const WHATSAPP_NUMBER = '919173958589';
 
 const COLOR_SWATCHES = [
     { name: 'Natural Beige', hex: '#C9B896', short: 'Beige' },
-    { name: 'Ivory White', hex: '#EDE6D8', short: 'Ivory' },
+    { name: 'Ivory White', hex: '#4A2A1A', short: 'Ivory' },
     { name: 'Soft Pink', hex: '#D9A3A8', short: 'Pink' },
     { name: 'Charcoal Grey', hex: '#3D3834', short: 'Charcoal' },
 ];
@@ -29,28 +29,43 @@ const DEFAULT_FRAGRANCES = [
     'English Lavender',
 ];
 
+const colorEntry = (c) =>
+    typeof c === 'string' ? { name: c, hex: '' } : { name: c?.name || '', hex: c?.hex || '' };
+
 const colorShort = (name) => {
     if (name === 'Others') return 'Custom';
     const found = COLOR_SWATCHES.find((c) => c.name.toLowerCase() === name.toLowerCase());
     return found?.short || name;
 };
 
-const colorHex = (name) => {
+// Per-product hex wins, then the house swatch book, then a neutral fallback.
+const colorHex = (name, hexMap) => {
     if (!name) return '#C9B896';
     if (name.startsWith('#')) return name;
+    if (hexMap && hexMap[name]) return hexMap[name];
     const found = COLOR_SWATCHES.find((c) => c.name.toLowerCase() === name.toLowerCase());
     return found?.hex || '#C9B896';
 };
 
+const productHexMap = (product) => {
+    const map = {};
+    (product?.colors || []).forEach((c) => {
+        const { name, hex } = colorEntry(c);
+        if (name && hex) map[name] = hex;
+    });
+    return map;
+};
+
 const resolveColors = (product) => {
-    const fromApi = (product?.colors || []).map((c) => (typeof c === 'string' ? c : c?.name)).filter(Boolean);
+    const fromApi = (product?.colors || []).map((c) => colorEntry(c).name).filter(Boolean);
     if (fromApi.length === 0) return [...COLOR_SWATCHES.map((c) => c.name), 'Others'];
     return fromApi.includes('Others') ? fromApi : [...fromApi, 'Others'];
 };
 
-const resolveFragrances = (product) => {
+const resolveFragrances = (product, globals) => {
     const fromApi = (product?.fragrances || []).filter(Boolean);
-    return fromApi.length > 0 ? fromApi : DEFAULT_FRAGRANCES;
+    const base = fromApi.length > 0 ? fromApi : globals.length > 0 ? globals : DEFAULT_FRAGRANCES;
+    return base.includes('Others') ? base : [...base, 'Others'];
 };
 
 const ProductPage = () => {
@@ -62,6 +77,8 @@ const ProductPage = () => {
     const [selectedFragrance, setSelectedFragrance] = useState('Woody Flora');
     const [showZoomModal, setShowZoomModal] = useState(false);
     const [customColor, setCustomColor] = useState('');
+    const [customFragrance, setCustomFragrance] = useState('');
+    const [globalFragrances, setGlobalFragrances] = useState([]);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [fetching, setFetching] = useState(Boolean(initialProduct?._id));
@@ -108,7 +125,23 @@ const ProductPage = () => {
 
     const displayProduct = product;
     const availableColors = useMemo(() => resolveColors(displayProduct), [displayProduct]);
-    const availableFragrances = useMemo(() => resolveFragrances(displayProduct), [displayProduct]);
+    const hexMap = useMemo(() => productHexMap(displayProduct), [displayProduct]);
+    const availableFragrances = useMemo(
+        () => resolveFragrances(displayProduct, globalFragrances),
+        [displayProduct, globalFragrances]
+    );
+
+    useEffect(() => {
+        fetch(API_ENDPOINTS.FRAGRANCES)
+            .then((res) => res.json())
+            .then((data) => {
+                const names = (Array.isArray(data) ? data : []).map((f) =>
+                    typeof f === 'string' ? f : f?.name
+                ).filter(Boolean);
+                setGlobalFragrances(names);
+            })
+            .catch((err) => console.error('Error fetching fragrances:', err));
+    }, []);
 
     const colorKey = (displayProduct?.colors || []).join('|');
     const fragranceKey = (displayProduct?.fragrances || []).join('|');
@@ -117,6 +150,7 @@ const ProductPage = () => {
         setSelectedColor(availableColors[0] || 'Natural Beige');
         setSelectedFragrance(availableFragrances[0] || 'Woody Flora');
         setCustomColor('');
+        setCustomFragrance('');
         setQuantity(1);
         // Palette identity is colorKey / fragranceKey, not the product object.
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,18 +192,19 @@ const ProductPage = () => {
     };
 
     const colorLabel = selectedColor === 'Others' ? customColor || 'Custom' : selectedColor;
+    const fragranceLabel = selectedFragrance === 'Others' ? customFragrance.trim() || 'Custom' : selectedFragrance;
 
     const handleBulkInquiry = () => {
         if (!displayProduct) return;
         openWhatsApp(
-            `Hello Enpees Candles! I would like a bulk inquiry for:\n\nProduct: ${displayProduct.name}\nPrice: ${typeof displayProduct.price === 'string' ? displayProduct.price : `₹${displayProduct.price}`}\nSelected Color: ${colorLabel}\nSelected Fragrance: ${selectedFragrance}\nQuantity: ${quantity}+ units\n\nPlease share bulk pricing details.`
+            `Hello Fleroma Candles! I would like a bulk inquiry for:\n\nProduct: ${displayProduct.name}\nPrice: ${typeof displayProduct.price === 'string' ? displayProduct.price : `₹${displayProduct.price}`}\nSelected Color: ${colorLabel}\nSelected Fragrance: ${fragranceLabel}\nQuantity: ${quantity}+ units\n\nPlease share bulk pricing details.`
         );
     };
 
     const handleCustomizeProduct = () => {
         if (!displayProduct) return;
         openWhatsApp(
-            `Hello Enpees Candles! I would like to customize this product:\n\nProduct: ${displayProduct.name}\nPreferred Color: ${selectedColor === 'Others' ? customColor || 'Will discuss' : selectedColor}\nPreferred Fragrance: ${selectedFragrance}\n\nPlease share customization options and pricing.`
+            `Hello Fleroma Candles! I would like to customize this product:\n\nProduct: ${displayProduct.name}\nPreferred Color: ${selectedColor === 'Others' ? customColor || 'Will discuss' : selectedColor}\nPreferred Fragrance: ${selectedFragrance === 'Others' ? customFragrance.trim() || 'Will discuss' : selectedFragrance}\n\nPlease share customization options and pricing.`
         );
     };
 
@@ -179,9 +214,14 @@ const ProductPage = () => {
             toast.error('Name the custom wax colour first');
             return;
         }
+        if (selectedFragrance === 'Others' && !customFragrance.trim()) {
+            toast.error('Name the custom fragrance first');
+            return;
+        }
         const colorToUse = selectedColor === 'Others' ? customColor : selectedColor;
+        const fragranceToUse = selectedFragrance === 'Others' ? customFragrance.trim() : selectedFragrance;
         for (let i = 0; i < quantity; i += 1) {
-            addToCart(displayProduct, colorToUse, selectedFragrance);
+            addToCart(displayProduct, colorToUse, fragranceToUse);
         }
         toast.success(`Added ${quantity} ${displayProduct.name} to cart`);
     };
@@ -191,7 +231,7 @@ const ProductPage = () => {
         toast.success(`${item.name} added to cart`, {
             duration: 2000,
             position: 'bottom-right',
-            style: { background: '#D3A34E', color: '#2A1D15', fontWeight: '600' },
+            style: { background: '#4A2A1A', color: '#FAF6EF', fontWeight: '600' },
         });
     };
 
@@ -213,11 +253,11 @@ const ProductPage = () => {
 
     if (!displayProduct && !fetching) {
         return (
-            <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+            <div className="lp relative min-h-[100dvh] w-full bg-[#FAF6EF] text-[#4A2A1A]">
                 <Navbar />
-                <main className="mx-auto w-full max-w-[1400px] px-5 py-20 sm:px-10 lg:px-16">
+                <main id="main-content" className="mx-auto w-full max-w-[1400px] px-5 py-20 sm:px-10 lg:px-16">
                     <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Pick a candle first</h1>
-                    <p className="lp-lede mt-4 max-w-[65ch] text-[#C7BCA8]">
+                    <p className="lp-lede mt-4 max-w-[65ch] text-[#4A2A1A]/70">
                         Open any piece from the shop to see colours, scent, and photos.
                     </p>
                     <Link to="/shop" className="lp-btn lp-btn-primary mt-8">
@@ -229,16 +269,16 @@ const ProductPage = () => {
     }
 
     return (
-        <div className="lp relative min-h-[100dvh] w-full bg-[#2A1D15] text-[#EDE6D8]">
+        <div className="lp relative min-h-[100dvh] w-full bg-[#FAF6EF] text-[#4A2A1A]">
             <Navbar />
 
-            <main className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-8 sm:px-10 lg:px-16">
+            <main id="main-content" className="mx-auto w-full max-w-[1400px] px-5 pb-24 pt-8 sm:px-10 lg:px-16">
                 {fetching && !displayProduct ? (
                     <div className="grid gap-10 lg:grid-cols-12">
-                        <div className="aspect-[4/5] animate-pulse rounded-[20px] bg-[#3B2A1E] lg:col-span-7" />
+                        <div className="aspect-[4/5] animate-pulse rounded-[20px] bg-[#EDE0C8] lg:col-span-7" />
                         <div className="space-y-4 lg:col-span-5">
-                            <div className="h-10 w-2/3 animate-pulse rounded bg-[#3B2A1E]" />
-                            <div className="h-24 animate-pulse rounded bg-[#3B2A1E]" />
+                            <div className="h-10 w-2/3 animate-pulse rounded bg-[#EDE0C8]" />
+                            <div className="h-24 animate-pulse rounded bg-[#EDE0C8]" />
                         </div>
                     </div>
                 ) : (
@@ -263,7 +303,7 @@ const ProductPage = () => {
                                     </div>
                                 )}
                                 <div className="order-1 relative min-w-0 flex-1 lg:order-2">
-                                    <div className="relative aspect-[4/5] overflow-hidden rounded-[20px] bg-[#3B2A1E]">
+                                    <div className="relative aspect-[4/5] overflow-hidden rounded-[20px] bg-[#EDE0C8]">
                                         <button
                                             type="button"
                                             className="absolute inset-0"
@@ -282,7 +322,7 @@ const ProductPage = () => {
                                                     type="button"
                                                     onClick={() => goImage(-1)}
                                                     aria-label="Previous photo"
-                                                    className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#2A1D15]/80 text-[#EDE6D8] transition-transform hover:-translate-y-[calc(50%+2px)] active:scale-[0.98]"
+                                                    className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#4A2A1A]/80 text-[#FAF6EF] transition-transform hover:-translate-y-[calc(50%+2px)] active:scale-[0.98]"
                                                 >
                                                     <span className="material-symbols-outlined" aria-hidden="true">
                                                         chevron_left
@@ -292,7 +332,7 @@ const ProductPage = () => {
                                                     type="button"
                                                     onClick={() => goImage(1)}
                                                     aria-label="Next photo"
-                                                    className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#2A1D15]/80 text-[#EDE6D8] transition-transform hover:-translate-y-[calc(50%+2px)] active:scale-[0.98]"
+                                                    className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#4A2A1A]/80 text-[#FAF6EF] transition-transform hover:-translate-y-[calc(50%+2px)] active:scale-[0.98]"
                                                 >
                                                     <span className="material-symbols-outlined" aria-hidden="true">
                                                         chevron_right
@@ -312,11 +352,11 @@ const ProductPage = () => {
                             <div className="mt-4 flex items-baseline gap-3 font-jost">
                                 {displayProduct.offerPrice ? (
                                     <>
-                                        <span className="text-2xl tabular-nums text-[#EDE6D8]">₹{displayProduct.offerPrice}</span>
-                                        <span className="text-base text-[#C7BCA8]/50 line-through">₹{displayProduct.price}</span>
+                                        <span className="text-2xl tabular-nums text-[#4A2A1A]">₹{displayProduct.offerPrice}</span>
+                                        <span className="text-base text-[#4A2A1A]/50 line-through">₹{displayProduct.price}</span>
                                     </>
                                 ) : (
-                                    <span className="text-2xl tabular-nums text-[#EDE6D8]">
+                                    <span className="text-2xl tabular-nums text-[#4A2A1A]">
                                         {typeof displayProduct.price === 'string'
                                             ? displayProduct.price
                                             : `₹${displayProduct.price}`}
@@ -324,13 +364,13 @@ const ProductPage = () => {
                                 )}
                             </div>
                             {displayProduct.description && (
-                                <p className="lp-lede mt-5 max-w-[65ch] text-[#C7BCA8]">{displayProduct.description}</p>
+                                <p className="lp-lede mt-5 max-w-[65ch] text-[#4A2A1A]/70">{displayProduct.description}</p>
                             )}
 
                             <div className="mt-8">
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <p className="font-jost text-sm text-[#EDE6D8]">Wax colour</p>
-                                    <p className="inline-flex items-center rounded-full bg-[#D3A34E] px-3 py-1 font-jost text-sm font-semibold text-[#2A1D15]">
+                                    <p className="font-jost text-sm text-[#4A2A1A]">Wax colour</p>
+                                    <p className="inline-flex items-center rounded-full bg-[#4A2A1A] px-3 py-1 font-jost text-sm font-semibold text-[#FAF6EF]">
                                         {selectedColor === 'Others' ? customColor || 'Custom' : selectedColor}
                                     </p>
                                 </div>
@@ -357,12 +397,12 @@ const ProductPage = () => {
                                                                   background:
                                                                       'conic-gradient(#C9B896, #EDE6D8, #D9A3A8, #3D3834, #C9B896)',
                                                               }
-                                                            : { background: colorHex(color) }
+                                                            : { background: colorHex(color, hexMap) }
                                                     }
                                                 >
                                                     {on && (
                                                         <span
-                                                            className="material-symbols-outlined text-[16px] text-[#D3A34E] drop-shadow-[0_1px_2px_rgba(42,29,21,0.9)]"
+                                                            className="material-symbols-outlined text-[16px] text-[#4A2A1A] drop-shadow-[0_1px_2px_rgba(42,29,21,0.9)]"
                                                             aria-hidden="true"
                                                             style={{ fontVariationSettings: "'FILL' 1" }}
                                                         >
@@ -377,7 +417,7 @@ const ProductPage = () => {
                                 </div>
                                 {selectedColor === 'Others' && (
                                     <label className="mt-4 flex flex-col gap-2">
-                                        <span className="font-jost text-sm text-[#EDE6D8]">Custom wax colour</span>
+                                        <span className="font-jost text-sm text-[#4A2A1A]">Custom wax colour</span>
                                         <input
                                             className="lp-field"
                                             name="customColor"
@@ -385,7 +425,7 @@ const ProductPage = () => {
                                             onChange={(e) => setCustomColor(e.target.value)}
                                             aria-describedby="custom-color-hint"
                                         />
-                                        <span id="custom-color-hint" className="font-jost text-xs text-[#C7BCA8]">
+                                        <span id="custom-color-hint" className="font-jost text-xs text-[#4A2A1A]/70">
                                             Name the shade you want. We confirm it on WhatsApp.
                                         </span>
                                     </label>
@@ -394,9 +434,9 @@ const ProductPage = () => {
 
                             <div className="mt-8">
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <p className="font-jost text-sm text-[#EDE6D8]">Fragrance</p>
-                                    <p className="inline-flex items-center rounded-full bg-[#D3A34E] px-3 py-1 font-jost text-sm font-semibold text-[#2A1D15]">
-                                        {selectedFragrance}
+                                    <p className="font-jost text-sm text-[#4A2A1A]">Fragrance</p>
+                                    <p className="inline-flex items-center rounded-full bg-[#4A2A1A] px-3 py-1 font-jost text-sm font-semibold text-[#FAF6EF]">
+                                        {fragranceLabel}
                                     </p>
                                 </div>
                                 <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Fragrance">
@@ -417,30 +457,46 @@ const ProductPage = () => {
                                                         check
                                                     </span>
                                                 )}
-                                                {fragrance}
+                                                {fragrance === 'Others' ? 'Custom scent' : fragrance}
                                             </button>
                                         );
                                     })}
                                 </div>
+                                {selectedFragrance === 'Others' && (
+                                    <label className="mt-4 flex flex-col gap-2">
+                                        <span className="font-jost text-sm text-[#4A2A1A]">Custom fragrance</span>
+                                        <input
+                                            className="lp-field"
+                                            name="customFragrance"
+                                            value={customFragrance}
+                                            onChange={(e) => setCustomFragrance(e.target.value)}
+                                            placeholder="e.g. Sandalwood Rose"
+                                            aria-describedby="custom-fragrance-hint"
+                                        />
+                                        <span id="custom-fragrance-hint" className="font-jost text-xs text-[#4A2A1A]/70">
+                                            Name the scent you want. We confirm it on WhatsApp.
+                                        </span>
+                                    </label>
+                                )}
                             </div>
 
                             {hasDimensions && (
                                 <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
                                     {displayProduct.dimensions.height && (
-                                        <div className="rounded-[12px] bg-[#3B2A1E] px-3 py-4">
-                                            <p className="font-jost text-xs text-[#C7BCA8]">Height</p>
+                                        <div className="rounded-[12px] bg-[#EDE0C8] px-3 py-4">
+                                            <p className="font-jost text-xs text-[#4A2A1A]/70">Height</p>
                                             <p className="mt-1 font-jost text-lg tabular-nums">{displayProduct.dimensions.height}</p>
                                         </div>
                                     )}
                                     {displayProduct.dimensions.width && (
-                                        <div className="rounded-[12px] bg-[#3B2A1E] px-3 py-4">
-                                            <p className="font-jost text-xs text-[#C7BCA8]">Width</p>
+                                        <div className="rounded-[12px] bg-[#EDE0C8] px-3 py-4">
+                                            <p className="font-jost text-xs text-[#4A2A1A]/70">Width</p>
                                             <p className="mt-1 font-jost text-lg tabular-nums">{displayProduct.dimensions.width}</p>
                                         </div>
                                     )}
                                     {displayProduct.dimensions.depth && (
-                                        <div className="rounded-[12px] bg-[#3B2A1E] px-3 py-4">
-                                            <p className="font-jost text-xs text-[#C7BCA8]">Depth</p>
+                                        <div className="rounded-[12px] bg-[#EDE0C8] px-3 py-4">
+                                            <p className="font-jost text-xs text-[#4A2A1A]/70">Depth</p>
                                             <p className="mt-1 font-jost text-lg tabular-nums">{displayProduct.dimensions.depth}</p>
                                         </div>
                                     )}
@@ -450,25 +506,25 @@ const ProductPage = () => {
                             {specTiles.length > 0 && (
                                 <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     {specTiles.map((spec) => (
-                                        <div key={spec.label} className="rounded-[12px] bg-[#3B2A1E] px-4 py-4">
-                                            <p className="font-jost text-xs text-[#C7BCA8]">{spec.label}</p>
-                                            <p className="mt-1 font-jost text-sm text-[#EDE6D8]">{spec.value}</p>
+                                        <div key={spec.label} className="rounded-[12px] bg-[#EDE0C8] px-4 py-4">
+                                            <p className="font-jost text-xs text-[#4A2A1A]/70">{spec.label}</p>
+                                            <p className="mt-1 font-jost text-sm text-[#4A2A1A]">{spec.value}</p>
                                         </div>
                                     ))}
                                 </div>
                             )}
 
-                            <p className="mt-8 font-jost text-sm text-[#C7BCA8]">
+                            <p className="mt-8 font-jost text-sm text-[#4A2A1A]/70">
                                 Orders over 100 units get studio pricing.
                             </p>
 
                             <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-                                <div className="flex w-fit items-center rounded-full border border-[#D3A34E]/35">
+                                <div className="flex w-fit items-center rounded-full border border-[#4A2A1A]/35">
                                     <button
                                         type="button"
                                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                         aria-label="Decrease quantity"
-                                        className="flex h-12 w-12 items-center justify-center text-[#EDE6D8] transition-transform active:scale-[0.98]"
+                                        className="flex h-12 w-12 items-center justify-center text-[#4A2A1A] transition-transform active:scale-[0.98]"
                                     >
                                         <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
                                             remove
@@ -481,7 +537,7 @@ const ProductPage = () => {
                                         type="button"
                                         onClick={() => setQuantity(quantity + 1)}
                                         aria-label="Increase quantity"
-                                        className="flex h-12 w-12 items-center justify-center text-[#EDE6D8] transition-transform active:scale-[0.98]"
+                                        className="flex h-12 w-12 items-center justify-center text-[#4A2A1A] transition-transform active:scale-[0.98]"
                                     >
                                         <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
                                             add
@@ -523,7 +579,7 @@ const ProductPage = () => {
 
             {showZoomModal && (
                 <div
-                    className="fixed inset-0 z-[70] flex items-center justify-center bg-[#1F150E]/92 p-4"
+                    className="fixed inset-0 z-[70] flex items-center justify-center bg-[#4A2A1A]/92 p-4"
                     onClick={() => setShowZoomModal(false)}
                     onKeyDown={(e) => {
                         if (e.key === 'Escape') setShowZoomModal(false);
@@ -534,7 +590,7 @@ const ProductPage = () => {
                 >
                     <button
                         type="button"
-                        className="absolute right-4 top-4 flex h-12 w-12 items-center justify-center rounded-full text-[#EDE6D8] hover:text-[#D3A34E]"
+                        className="absolute right-4 top-4 flex h-12 w-12 items-center justify-center rounded-full text-[#FAF6EF] hover:text-[#FAF6EF]/80"
                         onClick={() => setShowZoomModal(false)}
                         aria-label="Close photos"
                     >
@@ -546,7 +602,7 @@ const ProductPage = () => {
                         <>
                             <button
                                 type="button"
-                                className="absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#2A1D15] text-[#EDE6D8]"
+                                className="absolute left-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#FAF6EF] text-[#4A2A1A]"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     goImage(-1);
@@ -559,7 +615,7 @@ const ProductPage = () => {
                             </button>
                             <button
                                 type="button"
-                                className="absolute right-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#2A1D15] text-[#EDE6D8]"
+                                className="absolute right-4 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#FAF6EF] text-[#4A2A1A]"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     goImage(1);
