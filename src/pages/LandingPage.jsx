@@ -16,10 +16,6 @@ import bouquetCandle from '../assets/Luxury_Mini_Bouquet_Candle__150 .webp';
 import lotusCandle from '../assets/Lotus_Candle __99.webp';
 import studioWall from '../assets/textures/studio-wall.jpg';
 import woodTable from '../assets/textures/wood-table.jpg';
-import processMelt from '../assets/textures/process-melt.jpg';
-import processShape from '../assets/textures/process-shape.jpg';
-import processCure from '../assets/textures/process-cure.jpg';
-import processGift from '../assets/textures/process-gift.jpg';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -48,33 +44,6 @@ const SHAPES = [
     { name: 'Seasonal', note: 'Limited winter pours', img: snowmanCandle, alt: 'Snowman-shaped novelty candle' },
     { name: 'Spiced', note: 'Chai, vanilla, wood', img: chaiCandle, alt: 'Chai biscuit scented candle in a glass tumbler' },
     { name: 'Sculpted', note: 'Teddies, roses, hearts', img: bouquetCandle, alt: 'Miniature bouquet candle arrangement' },
-];
-
-const POUR_CHAPTERS = [
-    {
-        verb: 'Melt',
-        copy: 'Soy wax heated slow in small batches. No shortcuts, no rush.',
-        img: processMelt,
-        alt: 'Molten soy wax in a double boiler at the Fleroma studio',
-    },
-    {
-        verb: 'Shape',
-        copy: 'Poured into hand-cut moulds. Roses, teddies, hearts, diyas.',
-        img: processShape,
-        alt: 'Molten wax poured into a silicone mould',
-    },
-    {
-        verb: 'Cure',
-        copy: 'Each candle rests 48 hours before the wick is trimmed.',
-        img: processCure,
-        alt: 'Freshly poured candles resting on a wooden curing rack',
-    },
-    {
-        verb: 'Gift',
-        copy: 'Wrapped in recyclable paper, ribbon-tied, posted from Rajkot.',
-        img: processGift,
-        alt: 'A candle wrapped in kraft paper and tied with gold ribbon',
-    },
 ];
 
 /* ── Hooks ── */
@@ -294,94 +263,6 @@ function ProductPan({ products, onAdd }) {
     );
 }
 
-function PourChapters({ reduce }) {
-    const wrap = useRef(null);
-    const [live, setLive] = useState(reduce ? POUR_CHAPTERS.length - 1 : -1);
-
-    useGSAP(() => {
-        if (!wrap.current) return;
-        const cards = gsap.utils.toArray('.pour-card', wrap.current);
-        if (reduce) {
-            cards.forEach((card) => card.setAttribute('data-live', 'true'));
-            return;
-        }
-        cards.forEach((card, i) => {
-            ScrollTrigger.create({
-                trigger: card,
-                start: 'top 78%',
-                onEnter: () => {
-                    card.setAttribute('data-live', 'true');
-                    setLive((n) => Math.max(n, i));
-                },
-                onEnterBack: () => setLive(i),
-            });
-        });
-    }, { scope: wrap, dependencies: [reduce] });
-
-    return (
-        <div ref={wrap}>
-            <ol
-                className={`${SHELL} mb-8 flex items-center gap-2 overflow-x-auto pb-2 sm:mb-10`}
-                aria-label="How a candle is made"
-            >
-                {POUR_CHAPTERS.map((ch, i) => (
-                    <li key={ch.verb} className="flex shrink-0 items-center gap-2">
-                        <span
-                            className="font-jost text-sm transition-colors"
-                            style={{ color: i <= live ? LP_TEXT : `${LP_TEXT}66` }}
-                        >
-                            {ch.verb}
-                        </span>
-                        {i < POUR_CHAPTERS.length - 1 && (
-                            <span
-                                className={`h-px w-8 sm:w-12`}
-                                style={{ background: i < live ? LP_TEXT : `${LP_TEXT}33` }}
-                                aria-hidden="true"
-                            />
-                        )}
-                    </li>
-                ))}
-            </ol>
-            <div className={`${SHELL} grid grid-cols-1 gap-5 pb-24 sm:grid-cols-2 sm:gap-6 lg:pb-32`}>
-                {POUR_CHAPTERS.map((ch) => (
-                    <article
-                        key={ch.verb}
-                        className="pour-card relative min-h-[280px] overflow-hidden rounded-[20px] sm:min-h-[340px] lg:min-h-[400px]"
-                    >
-                        <img
-                            src={ch.img}
-                            alt={ch.alt}
-                            loading="lazy"
-                            decoding="async"
-                            className="pour-photo absolute inset-0 h-full w-full object-cover"
-                        />
-                        <div className="pour-sheen" aria-hidden="true" />
-                        <div
-                            className="absolute inset-0"
-                            style={{ background: 'rgba(61,43,31,0.5)' }}
-                            aria-hidden="true"
-                        />
-                        <div className="relative z-10 flex h-full min-h-[280px] flex-col justify-end p-6 sm:min-h-[340px] sm:p-8 lg:min-h-[400px]">
-                            <h3
-                                className="lp-display text-4xl leading-[1.05] tracking-tight sm:text-5xl"
-                                style={{ color: '#F5EDE0' }}
-                            >
-                                {ch.verb}
-                            </h3>
-                            <p
-                                className="lp-lede mt-3 max-w-[32ch]"
-                                style={{ color: 'rgba(245,237,224,0.85)' }}
-                            >
-                                {ch.copy}
-                            </p>
-                        </div>
-                    </article>
-                ))}
-            </div>
-        </div>
-    );
-}
-
 /* ── Page ── */
 
 export default function LandingPage() {
@@ -565,29 +446,8 @@ export default function LandingPage() {
                 )}
             </section>
 
-            {/* ── Process: equal tiles ── */}
-            <section
-                id="process"
-                className="relative z-0 scroll-mt-24"
-                style={{ background: LP_BG }}
-            >
-                <div className={`${SHELL} pt-24 pb-4 sm:pt-32`}>
-                    <h2 data-reveal className="lp-display lp-h2 max-w-[16ch]" style={{ color: LP_TEXT }}>
-                        Four steps. No machinery.
-                    </h2>
-                    <p
-                        data-reveal
-                        style={{ '--d': '120ms', color: LP_TEXT_MID }}
-                        className="lp-lede mt-4 max-w-[40ch]"
-                    >
-                        Every Fleroma candle passes through the same four hands.
-                    </p>
-                </div>
-                <PourChapters reduce={reduce} />
-            </section>
-
             {/* ── Close: CTA over wood table ── */}
-            <section className="relative py-24 sm:py-32 lg:py-36" style={{ background: LP_BG3 }}>
+            <section className="relative overflow-x-clip py-24 sm:py-32 lg:py-36" style={{ background: LP_BG3 }}>
                 <img
                     src={woodTable}
                     alt=""
@@ -603,11 +463,11 @@ export default function LandingPage() {
                     }}
                 />
 
-                <div className={`${SHELL} relative grid grid-cols-1 items-end gap-12 lg:grid-cols-12 lg:gap-8`}>
-                    <div className="lg:col-span-6 lg:pb-8">
+                <div className={`${SHELL} relative grid min-w-0 grid-cols-1 items-end gap-12 lg:grid-cols-12 lg:gap-8`}>
+                    <div className="min-w-0 lg:col-span-6 lg:pb-8">
                         <h2
                             data-reveal
-                            className="lp-display text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl"
+                            className="lp-display min-w-0 break-words text-4xl leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl"
                             style={{ color: LP_TEXT }}
                         >
                             Light one tonight.
@@ -615,9 +475,9 @@ export default function LandingPage() {
                         <p
                             data-reveal
                             style={{ '--d': '120ms', color: LP_TEXT_MID }}
-                            className="lp-lede mt-5 max-w-[34ch]"
+                            className="lp-lede mt-5 min-w-0 max-w-[34ch] break-words"
                         >
-                            Fresh stock every Wednesday. We wrap whatever you pick before the weekend.
+                            Hand-poured in small batches. Gift-wrapped with care and shipped from Rajkot.
                         </p>
                         <div
                             data-reveal

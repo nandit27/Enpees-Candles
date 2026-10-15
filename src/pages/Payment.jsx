@@ -75,28 +75,83 @@ const Payment = () => {
                 <header className="max-w-xl">
                     <h1 className="lp-display text-4xl leading-[1.1] md:text-5xl">Pay the studio</h1>
                     <p className="lp-lede mt-4 max-w-[65ch] text-[#4A2A1A]/70">
-                        Scan the QR or open UPI, then upload the screenshot.
+                        Scan the QR or pay to our bank account, then upload the screenshot.
                     </p>
                 </header>
 
                 <p className="mt-8 font-jost text-sm text-[#4A2A1A]/70">Amount</p>
                 <p className="font-jost text-3xl tabular-nums text-[#4A2A1A]">₹{amount.toFixed(2)}</p>
 
-                <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
                     <div className="rounded-[20px] bg-[#EDE0C8] p-5 sm:p-8">
                         <h2 className="lp-display text-2xl leading-[1.1]">Scan QR</h2>
                         <div className="mt-6 flex justify-center rounded-[12px] bg-[#EDE0C8] p-4">
                             <img src="/IMG_6290.JPG" alt="UPI payment QR code" className="h-auto w-full max-w-[220px] rounded-lg" />
                         </div>
                         <p className="mt-4 font-jost text-sm text-[#4A2A1A]/70">Open any UPI app and scan.</p>
-                    </div>
-
-                    <div className="rounded-[20px] bg-[#EDE0C8] p-5 sm:p-8">
-                        <h2 className="lp-display text-2xl leading-[1.1]">Open UPI</h2>
-                        <p className="lp-lede mt-3 text-[#4A2A1A]/70">Opens Google Pay, PhonePe, Paytm, or BHIM on your phone.</p>
+                        <p className="lp-lede mt-3 text-sm text-[#4A2A1A]/70">Opens Google Pay, PhonePe, Paytm, or BHIM on your phone.</p>
                         <a href={upiLink} className="lp-btn lp-btn-primary mt-6 w-full sm:w-auto">
                             Open UPI
                         </a>
+                    </div>
+
+                    <div className="flex items-center gap-3 lg:flex-col lg:justify-center lg:gap-3" aria-hidden="true">
+                        <span className="h-px flex-1 bg-[#4A2A1A]/20 lg:h-auto lg:w-px lg:flex-1" />
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#4A2A1A]/20 bg-[#EDE0C8] font-jost text-xs font-bold tracking-widest text-[#4A2A1A]">OR</span>
+                        <span className="h-px flex-1 bg-[#4A2A1A]/20 lg:h-auto lg:w-px lg:flex-1" />
+                    </div>
+
+                    <div className="rounded-[20px] bg-[#EDE0C8] p-5 sm:p-8">
+                        <h2 className="lp-display text-2xl leading-[1.1]">Bank transfer</h2>
+                        <p className="lp-lede mt-3 text-sm text-[#4A2A1A]/70">Pay directly to our Axis Bank account.</p>
+                        <dl className="mt-6 space-y-3 rounded-[12px] border border-[#4A2A1A]/10 bg-[#FAF6EF]/60 p-4 font-jost text-sm">
+                            <div className="flex items-center justify-between gap-3">
+                                <dt className="text-[#4A2A1A]/70">Bank</dt>
+                                <dd className="font-bold text-[#4A2A1A]">AXIS BANK</dd>
+                            </div>
+                            <div className="flex items-center justify-between gap-3">
+                                <dt className="text-[#4A2A1A]/70">Account name</dt>
+                                <dd className="text-right font-bold text-[#4A2A1A]">ENPEE HANDCRAFTS</dd>
+                            </div>
+                            <div className="flex items-center justify-between gap-3">
+                                <dt className="text-[#4A2A1A]/70">A/C No.</dt>
+                                <dd className="flex items-center gap-2 font-bold tabular-nums text-[#4A2A1A]">
+                                    925020054226094
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            navigator.clipboard?.writeText('925020054226094');
+                                            toast.success('Account number copied');
+                                        }}
+                                        className="rounded-full border border-[#4A2A1A]/20 px-2 py-1 text-xs font-normal hover:bg-[#4A2A1A]/10"
+                                        aria-label="Copy account number"
+                                    >
+                                        Copy
+                                    </button>
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between gap-3">
+                                <dt className="text-[#4A2A1A]/70">IFSC</dt>
+                                <dd className="flex items-center gap-2 font-bold tabular-nums text-[#4A2A1A]">
+                                    UTIB0004861
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            navigator.clipboard?.writeText('UTIB0004861');
+                                            toast.success('IFSC copied');
+                                        }}
+                                        className="rounded-full border border-[#4A2A1A]/20 px-2 py-1 text-xs font-normal hover:bg-[#4A2A1A]/10"
+                                        aria-label="Copy IFSC"
+                                    >
+                                        Copy
+                                    </button>
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between gap-3">
+                                <dt className="text-[#4A2A1A]/70">Account type</dt>
+                                <dd className="font-bold text-[#4A2A1A]">CURRENT ACCOUNT</dd>
+                            </div>
+                        </dl>
                     </div>
                 </div>
 

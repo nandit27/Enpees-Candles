@@ -424,9 +424,9 @@ const Checkout = () => {
                                         const itemTotal = itemPrice * item.quantity;
                                         const itemId = item.id || item._id || item.name;
                                         return (
-                                            <div key={index} className="flex flex-col gap-3 p-4 rounded-lg bg-[#EDE0C8] border border-[#4A2A1A]/10 hover:border-[#4A2A1A]/50 transition-all">
+                                            <div key={index} className="flex flex-col gap-3 p-4 rounded-lg bg-[#EDE0C8] border border-[#4A2A1A]/10 hover:border-[#4A2A1A]/50 transition-all min-w-0 overflow-x-hidden">
                                                 {/* Top row with image, name, and delete button */}
-                                                <div className="flex items-start gap-4">
+                                                <div className="flex items-start gap-3 min-w-0">
                                                     {item.image && (
                                                         <img
                                                             src={item.image}
@@ -435,7 +435,7 @@ const Checkout = () => {
                                                         />
                                                     )}
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-[#4A2A1A]">{item.name}</p>
+                                        <p className="font-bold text-[#4A2A1A] break-words">{item.name}</p>
                                         <div className="flex items-center gap-2 mt-1">
                                             {item.offerPrice ? (
                                                 <>
@@ -445,10 +445,31 @@ const Checkout = () => {
                                             ) : (
                                                 <span className="text-sm text-[#4A2A1A]/70">₹{itemPrice.toFixed(2)}</span>
                                             )}
-                                        </div>                                                        {/* Color and Fragrance Selection */}
-                                                        <div className="mt-2 space-y-2">
-                                                            <div className="flex items-center gap-2">
-                                                                <label className="text-xs text-[#4A2A1A]/70 min-w-[60px]">Color:</label>
+                                        </div>                                                    </div>
+                                                    {/* Delete Button */}
+                                                    <button
+                                                        onClick={() => {
+                                                            removeFromCart(itemId, item.color, item.fragrance);
+                                                            toast.success('Item removed from cart', {
+                                                                duration: 2000,
+                                                                position: 'bottom-right',
+                                                                style: {
+                                                                    background: '#4A2A1A',
+                                                                    color: '#FAF6EF',
+                                                                    fontWeight: 'bold',
+                                                                },
+                                                            });
+                                                        }}
+                                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#4A2A1A]/70 hover:text-[#4A2A1A]"
+                                                        aria-label="Remove item"
+                                                    >
+                                                        <span className="material-symbols-outlined text-lg">close</span>
+                                                    </button>
+                                                </div>
+                                                        {/* Color and Fragrance Selection — full width below, stacks on mobile */}
+                                                        <div className="mt-1 space-y-2 min-w-0">
+                                                            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 min-w-0">
+                                                                <label className="text-xs text-[#4A2A1A]/70 shrink-0 sm:min-w-[70px]">Color:</label>
                                                                 <select
                                                                     value={availableColors.includes(item.color) ? item.color : 'Others'}
                                                                     onChange={(e) => {
@@ -471,7 +492,7 @@ const Checkout = () => {
                                                                             );
                                                                         }
                                                                     }}
-                                                                    className="lp-field !min-h-10 flex-1 py-2 text-sm"
+                                                                    className="lp-field !min-h-10 w-full min-w-0 py-2 text-sm"
                                                                 >
                                                                     {availableColors.map(color => (
                                                                         <option key={color} value={color}>{color}</option>
@@ -479,8 +500,8 @@ const Checkout = () => {
                                                                 </select>
                                                             </div>
                                                             {!availableColors.includes(item.color) && (
-                                                                <div className="flex items-start gap-2">
-                                                                    <label className="text-xs text-[#4A2A1A]/70 min-w-[60px] pt-1">Custom:</label>
+                                                                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 min-w-0">
+                                                                    <label className="text-xs text-[#4A2A1A]/70 shrink-0 sm:min-w-[70px] sm:pt-1">Custom:</label>
                                                                     <input
                                                                         type="text"
                                                                         value={item.color || ''}
@@ -491,13 +512,13 @@ const Checkout = () => {
                                                                             e.target.value,
                                                                             item.fragrance
                                                                         )}
-                                                                        className="lp-field !min-h-10 flex-1 py-2 text-sm"
+                                                                        className="lp-field !min-h-10 w-full min-w-0 py-2 text-sm"
                                                                         placeholder="Enter custom color"
                                                                     />
                                                                 </div>
                                                             )}
-                                                            <div className="flex items-center gap-2">
-                                                                <label className="text-xs text-[#4A2A1A]/70 min-w-[60px]">Fragrance:</label>
+                                                            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 min-w-0">
+                                                                <label className="text-xs text-[#4A2A1A]/70 shrink-0 sm:min-w-[70px]">Fragrance:</label>
                                                                 <select
                                                                     value={availableFragrances.includes(item.fragrance) ? item.fragrance : 'Others'}
                                                                     onChange={(e) => updateColorFragrance(
@@ -507,7 +528,7 @@ const Checkout = () => {
                                                                         item.color,
                                                                         e.target.value === 'Others' ? '' : e.target.value
                                                                     )}
-                                                                    className="lp-field !min-h-10 flex-1 py-2 text-sm"
+                                                                    className="lp-field !min-h-10 w-full min-w-0 py-2 text-sm"
                                                                 >
                                                                     {availableFragrances.map(fragrance => (
                                                                         <option key={fragrance} value={fragrance}>{fragrance}</option>
@@ -516,8 +537,8 @@ const Checkout = () => {
                                                                 </select>
                                                             </div>
                                                             {!availableFragrances.includes(item.fragrance) && (
-                                                                <div className="flex items-start gap-2">
-                                                                    <label className="text-xs text-[#4A2A1A]/70 min-w-[60px] pt-1">Custom:</label>
+                                                                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 min-w-0">
+                                                                    <label className="text-xs text-[#4A2A1A]/70 shrink-0 sm:min-w-[70px] sm:pt-1">Custom:</label>
                                                                     <input
                                                                         type="text"
                                                                         value={item.fragrance || ''}
@@ -528,33 +549,12 @@ const Checkout = () => {
                                                                             item.color,
                                                                             e.target.value
                                                                         )}
-                                                                        className="lp-field !min-h-10 flex-1 py-2 text-sm"
+                                                                        className="lp-field !min-h-10 w-full min-w-0 py-2 text-sm"
                                                                         placeholder="Enter custom fragrance"
                                                                     />
                                                                 </div>
                                                             )}
                                                         </div>
-                                                    </div>
-                                                    {/* Delete Button */}
-                                                    <button
-                                                        onClick={() => {
-                                                            removeFromCart(itemId, item.color, item.fragrance);
-                                                            toast.success('Item removed from cart', {
-                                                                duration: 2000,
-                                                                position: 'bottom-right',
-                                                                style: {
-                                                                    background: '#4A2A1A',
-                                                                    color: '#FAF6EF',
-                                                                    fontWeight: 'bold',
-                                                                },
-                                                            });
-                                                        }}
-                                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#4A2A1A]/70 hover:text-[#4A2A1A]"
-                                                        aria-label="Remove item"
-                                                    >
-                                                        <span className="material-symbols-outlined text-lg">close</span>
-                                                    </button>
-                                                </div>
 
                                                 {/* Bottom row with quantity controls and total */}
                                                 <div className="flex items-center justify-between">
