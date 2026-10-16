@@ -43,7 +43,7 @@ const COLUMNS = [
 ];
 
 const SOCIALS = [
-    { href: 'https://www.instagram.com/enpees.candles', label: 'Instagram', icon: 'photo_camera' },
+    { href: 'https://www.instagram.com/fleromacandles', label: 'Instagram', icon: 'photo_camera' },
     { href: 'https://wa.me/919173958589', label: 'WhatsApp', icon: 'chat' },
     { href: 'mailto:enpeecandles@gmail.com', label: 'Email', icon: 'mail' },
 ];
