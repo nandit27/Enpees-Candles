@@ -86,7 +86,7 @@ const Payment = () => {
                     <div className="rounded-[20px] bg-[#EDE0C8] p-5 sm:p-8">
                         <h2 className="lp-display text-2xl leading-[1.1]">Scan QR</h2>
                         <div className="mt-6 flex justify-center rounded-[12px] bg-[#EDE0C8] p-4">
-                            <img src="/IMG_6290.JPG" alt="UPI payment QR code" className="h-auto w-full max-w-[220px] rounded-lg" />
+                            <img src="/image.png" alt="PhonePe UPI payment QR code - ENPEE HANDCRAFTS" className="h-auto w-full max-w-[220px] rounded-lg" />
                         </div>
                         <p className="mt-4 font-jost text-sm text-[#4A2A1A]/70">Open any UPI app and scan.</p>
                         <p className="lp-lede mt-3 text-sm text-[#4A2A1A]/70">Opens Google Pay, PhonePe, Paytm, or BHIM on your phone.</p>
