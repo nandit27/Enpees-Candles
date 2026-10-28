@@ -120,6 +120,8 @@ const allowedOrigins = [
     'https://enpees-candles-cxjs.vercel.app',
     'https://www.enpeescandles.com',
     'https://enpeescandles.com',
+    'https://www.fleromacandles.com',
+    'https://fleromacandles.com',
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
