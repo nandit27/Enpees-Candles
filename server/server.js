@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const mongoose = require('mongoose');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const connectDB = require('./config/db');
@@ -404,6 +405,25 @@ app.get('/api/products', async (req, res) => {
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).json({ error: 'Failed to fetch products' });
+    }
+});
+
+// GET /api/products/:id
+app.get('/api/products/:id', async (req, res) => {
+    try {
+        if (!mongoose.isValidObjectId(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid product ID' });
+        }
+
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        res.json(product);
+    } catch (error) {
+        console.error('Error fetching product:', error);
+        res.status(500).json({ error: 'Failed to fetch product' });
     }
 });
 
